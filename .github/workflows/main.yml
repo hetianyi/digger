@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: 
+      - master
+
+jobs:
+  build-core-and-ui:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-18.04
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # 检出代码
+    - uses: actions/checkout@v2
+
+    # 构建core
+    - name: Build Core
+      run: sh build-core.sh
+      
+    # 构建ui
+    - name: Build UI
+      run: sh build-ui.sh
+
+    # 构建镜像
+    - name: Build and Push Docker Image
+      env:
+        DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+        DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      run: |
+        docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
+        sudo docker build -t hehety/digger:latest .
+        sudo docker push hehety/digger:latest

@@ -1,0 +1,89 @@
+version: '3.5'
+services:
+  digger-postgres:
+    image: postgres:9.6
+    hostname: digger-postgres
+    command: --timezone=PRC
+    networks:
+      - digger
+    ports:
+      - 15432:5432
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d:ro
+      - postgres:/var/lib/postgresql/data
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+    environment:
+      - TZ=Asia/Shanghai
+      - POSTGRES_USER=digger
+      - POSTGRES_PASSWORD=123456
+      - POSTGRES_DB=digger
+      - PGDATA=/var/lib/postgresql/data
+
+  digger-redis:
+    image: redis:5.0.9
+    hostname: digger-redis
+    command: redis-server --bind 0.0.0.0 --protected-mode no --appendonly yes --requirepass 123456
+    networks:
+      - digger
+    ports:
+      - 16379:6379
+    volumes:
+      - redis:/data
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+    environment:
+      - TZ=Asia/Shanghai
+
+  digger-manager:
+    image: hehety/digger:latest
+    hostname: digger-manager
+    command: digger manager
+    networks:
+      - digger
+    ports:
+      - 80:9012
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+    environment:
+      - TZ=Asia/Shanghai
+      - DIGGER_DATABASE=postgres://digger:123456@digger-postgres:5432/digger?sslmode=disable
+      - DIGGER_REDIS=123456@digger-redis:6379#0
+      - DIGGER_UI_DIR=/var/www/html
+      - DIGGER_LOG_LEVEL=info
+
+  digger-worker1:
+    image: hehety/digger:latest
+    hostname: digger-worker1
+    command: digger worker
+    networks:
+      - digger
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+    environment:
+      - TZ=Asia/Shanghai
+      - DIGGER_ID=1
+      - DIGGER_MANAGER=http://digger-manager:9012
+
+
+volumes:
+  postgres:
+  redis:
+
+networks:
+  digger:
+    driver: overlay
+    attachable: true
+

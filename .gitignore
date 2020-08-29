@@ -1,0 +1,5 @@
+.idea
+ui/node_modules
+ui/.idea
+core/bin
+core/.idea
