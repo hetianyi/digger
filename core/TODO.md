@@ -52,6 +52,7 @@
 - [x] 压缩导出文件
 - [ ] 用户管理
 - [ ] 日志乱码
+- [ ] 无法完成任务：task already shutdown   无法完成任务：task not exists
 
 
 
