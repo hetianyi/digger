@@ -6,6 +6,7 @@
 package restapi
 
 import (
+	"digger/common"
 	"digger/models"
 	"digger/services/service"
 	"github.com/gin-gonic/gin"
@@ -24,6 +25,9 @@ func GetConfigs(c *gin.Context) {
 	}
 	if configs["admin_password"] == "" {
 		configs["admin_password"] = DefaultUser.Password
+	}
+	if configs["secret"] == "" {
+		configs["secret"] = common.DefaultSecret
 	}
 	c.JSON(http.StatusOK, Success(configs))
 }

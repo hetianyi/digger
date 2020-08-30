@@ -25,6 +25,17 @@
         </Row>
       </FormItem>
 
+      <FormItem label="加密密钥">
+        <Row>
+          <Col span="18">
+            <Input type="text" v-model="configs.secret" placeholder=""></Input>
+          </Col>
+          <Col span="4" offset="1">
+            <Button type="primary" @click="saveConfig('secret', configs.secret)">保存</Button>
+          </Col>
+        </Row>
+      </FormItem>
+
       <FormItem label="通知邮箱">
         <Row>
           <Col span="18">
@@ -66,6 +77,7 @@
         configs: {
           admin_user: '',
           admin_password: '',
+          secret: '',
           email_config: "",
           dingtalk: "",
         },

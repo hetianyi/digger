@@ -8,6 +8,7 @@ package middlewares
 import (
 	"digger/common"
 	"digger/models"
+	"digger/services/service"
 	"errors"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
@@ -50,8 +51,12 @@ func AuthorizationMiddleware() gin.HandlerFunc {
 }
 
 func SecretFunc() jwt.Keyfunc {
+	configs, _ := service.ConfigService().ListConfigs()
+	if configs["secret"] == "" {
+		configs["secret"] = common.DefaultSecret
+	}
 	return func(token *jwt.Token) (interface{}, error) {
-		return []byte(common.DefaultSecret), nil
+		return []byte(configs["secret"]), nil
 	}
 }
 

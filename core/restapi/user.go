@@ -6,6 +6,7 @@
 package restapi
 
 import (
+	"digger/common"
 	context "digger/middlewares"
 	"digger/models"
 	"digger/services/service"
@@ -27,7 +28,6 @@ func Login(c *gin.Context) {
 		return
 	}
 
-
 	configs, err := service.ConfigService().ListConfigs()
 	if err != nil {
 		c.JSON(http.StatusOK, ErrorMsg(err.Error()))
@@ -39,9 +39,12 @@ func Login(c *gin.Context) {
 	if configs["admin_password"] == "" {
 		configs["admin_password"] = DefaultUser.Password
 	}
+	if configs["secret"] == "" {
+		configs["secret"] = common.DefaultSecret
+	}
 
 	u := &models.User{
-		Id: DefaultUser.Id,
+		Id:       DefaultUser.Id,
 		Username: configs["admin_user"],
 		Password: configs["admin_password"],
 	}
@@ -54,7 +57,7 @@ func Login(c *gin.Context) {
 	}
 
 	// 获取token
-	tokenStr, err := utils.MakeToken(u)
+	tokenStr, err := utils.MakeToken(u, configs["secret"])
 	if err != nil {
 		c.JSON(http.StatusOK, ErrorMsg("not authorized"))
 		return

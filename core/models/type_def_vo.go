@@ -7,6 +7,7 @@ package models
 
 import (
 	"digger/common"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/hetianyi/gox/convert"
 	"github.com/robertkrimen/otto"
 	"io"
@@ -211,4 +212,10 @@ type DynamicQueryVO struct {
 	Tag      string `json:"tag"`
 	Username string `json:"username"`
 	Key      string `json:"key"`
+}
+
+type MyCustomClaims struct {
+	Id       int    `json:"id"`
+	Username string `json:"username"`
+	jwt.StandardClaims
 }
