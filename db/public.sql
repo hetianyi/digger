@@ -12,7 +12,7 @@
  Target Server Version : 90618
  File Encoding         : 65001
 
- Date: 29/08/2020 12:20:16
+ Date: 30/08/2020 16:52:45
 */
 
 
@@ -110,7 +110,7 @@ CACHE 1;
 DROP TABLE IF EXISTS "public"."t_config";
 CREATE TABLE "public"."t_config" (
   "key" varchar(20) COLLATE "pg_catalog"."default" NOT NULL,
-  "value" json
+  "value" varchar(500) COLLATE "pg_catalog"."default"
 )
 ;
 COMMENT ON COLUMN "public"."t_config"."key" IS 'config_key';
@@ -330,14 +330,14 @@ COMMENT ON TABLE "public"."t_user" IS '用户表';
 -- ----------------------------
 -- Alter sequences owned by
 -- ----------------------------
-SELECT setval('"public"."seq_config_snapshot"', 35, true);
-SELECT setval('"public"."seq_field"', 383, true);
-SELECT setval('"public"."seq_plugin"', 43, true);
-SELECT setval('"public"."seq_project"', 12, true);
-SELECT setval('"public"."seq_result"', 1408, true);
-SELECT setval('"public"."seq_schedule_queue"', 36511629, true);
-SELECT setval('"public"."seq_stage"', 158, true);
-SELECT setval('"public"."seq_task"', 35, true);
+SELECT setval('"public"."seq_config_snapshot"', 1, true);
+SELECT setval('"public"."seq_field"', 1, true);
+SELECT setval('"public"."seq_plugin"', 1, true);
+SELECT setval('"public"."seq_project"', 1, true);
+SELECT setval('"public"."seq_result"', 1, true);
+SELECT setval('"public"."seq_schedule_queue"', 1, true);
+SELECT setval('"public"."seq_stage"', 1, true);
+SELECT setval('"public"."seq_task"', 1, true);
 
 -- ----------------------------
 -- Primary Key structure for table t_config
