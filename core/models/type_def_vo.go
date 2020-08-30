@@ -25,7 +25,6 @@ type BootstrapConfig struct {
 	RedisString string
 	Labels      map[string]string
 	UIDir       string
-	AccessUrl   string
 }
 
 type RedisConfig struct {

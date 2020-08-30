@@ -23,5 +23,4 @@ var (
 	labels      string
 	uiDir       string
 	redisConn   string
-	accessUrl   string
 )

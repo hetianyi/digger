@@ -95,12 +95,6 @@ func Parse(arguments []string) {
 					Usage:       "ui dir",
 					Destination: &uiDir,
 				},
-				cli.StringFlag{
-					Name:        "access-url",
-					Value:       "127.0.0.1:9012",
-					Usage:       "public access url",
-					Destination: &accessUrl,
-				},
 			},
 		},
 		{
@@ -239,9 +233,6 @@ Options:
 	utils.ExchangeEnvValue("DIGGER_UI_DIR", func(envValue string) {
 		uiDir = envValue
 	})
-	utils.ExchangeEnvValue("DIGGER_ACCESS_URL", func(envValue string) {
-		accessUrl = envValue
-	})
 	utils.ExchangeEnvValue("DIGGER_ID", func(envValue string) {
 		id, err := convert.StrToInt(envValue)
 		if err != nil {
@@ -267,7 +258,6 @@ Options:
 			InstanceId:  instanceId,
 			Labels:      utils.ParseLabels(labels),
 			UIDir:       uiDir,
-			AccessUrl:   accessUrl,
 		})
 	} else if bootMode == common.ROLE_WORKER {
 		agents.Start(models.BootstrapConfig{

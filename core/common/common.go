@@ -45,6 +45,5 @@ const (
 )
 
 var (
-	LogDir    = ""
-	AccessUrl = ""
+	LogDir = ""
 )

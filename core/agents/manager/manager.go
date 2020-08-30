@@ -36,8 +36,6 @@ func StartAgentManager(_config *models.BootstrapConfig) {
 
 	config = _config
 
-	common.AccessUrl = config.AccessUrl
-
 	if !file.Exists(common.REPO_DIR) {
 		if err := file.CreateDirs(common.REPO_DIR); err != nil {
 			logger.Fatal(err)
