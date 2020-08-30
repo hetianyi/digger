@@ -20,10 +20,12 @@ export const getUserInfo = (token) => {
 }
 
 export const logout = (token) => {
-  return axios.request({
+  /*return axios.request({
     url: 'logout',
     method: 'post'
-  })
+  })*/
+  window.localStorage.removeItem('token')
+  location.reload()
 }
 
 export const getUnreadCount = () => {

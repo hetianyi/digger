@@ -3,6 +3,28 @@
 
     <Form :model="configs" label-position="left" :label-width="150" style="width: 500px;">
 
+      <FormItem label="管理员用户名">
+        <Row>
+          <Col span="18">
+            <Input type="text" v-model="configs.admin_user" placeholder=""></Input>
+          </Col>
+          <Col span="4" offset="1">
+            <Button type="primary" @click="saveConfig('admin_user', configs.admin_user)">保存</Button>
+          </Col>
+        </Row>
+      </FormItem>
+
+      <FormItem label="管理员登录密码">
+        <Row>
+          <Col span="18">
+            <Input type="text" v-model="configs.admin_password" placeholder=""></Input>
+          </Col>
+          <Col span="4" offset="1">
+            <Button type="primary" @click="saveConfig('admin_password', configs.admin_password)">保存</Button>
+          </Col>
+        </Row>
+      </FormItem>
+
       <FormItem label="通知邮箱">
         <Row>
           <Col span="18">
@@ -42,6 +64,8 @@
       return {
         loading: false,
         configs: {
+          admin_user: '',
+          admin_password: '',
           email_config: "",
           dingtalk: "",
         },

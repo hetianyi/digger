@@ -14,12 +14,18 @@ import (
 
 // 获取配置
 func GetConfigs(c *gin.Context) {
-	congis, err := service.ConfigService().ListConfigs()
+	configs, err := service.ConfigService().ListConfigs()
 	if err != nil {
 		c.JSON(http.StatusOK, ErrorMsg(err.Error()))
 		return
 	}
-	c.JSON(http.StatusOK, Success(congis))
+	if configs["admin_user"] == "" {
+		configs["admin_user"] = DefaultUser.Username
+	}
+	if configs["admin_password"] == "" {
+		configs["admin_password"] = DefaultUser.Password
+	}
+	c.JSON(http.StatusOK, Success(configs))
 }
 
 // 获取配置

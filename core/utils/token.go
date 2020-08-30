@@ -13,10 +13,22 @@ import (
 )
 
 func MakeToken(user *models.User) (tokenStr string, err error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"id":       user.Id,
-		"username": user.Username,
-		"nbf":      time.Now().Unix(),
-	})
+	type MyCustomClaims struct {
+		Id int `json:"id"`
+		Username string `json:"username"`
+		jwt.StandardClaims
+	}
+
+	// Create the Claims
+	claims := MyCustomClaims{
+		user.Id,
+		user.Username,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(time.Hour*12).Unix(),
+			Issuer:    user.Username,
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(common.DefaultSecret))
 }

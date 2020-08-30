@@ -9,6 +9,7 @@ import {
   restoreTrash,
   getUnreadCount
 } from '@/api/user'
+import _this from '../../main'
 import { setToken, getToken } from '@/libs/util'
 
 export default {
@@ -81,6 +82,10 @@ export default {
           username,
           password
         }).then(res => {
+          if (!res.data || res.data.code != 0) {
+            _this.$Message.error('登录失败：' + res.data.msg)
+            return
+          }
           console.log(res.data.data)
           const data = res.data
           commit('setToken', data.data)

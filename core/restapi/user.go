@@ -7,6 +7,8 @@ package restapi
 
 import (
 	context "digger/middlewares"
+	"digger/models"
+	"digger/services/service"
 	"digger/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -25,17 +27,34 @@ func Login(c *gin.Context) {
 		return
 	}
 
+
+	configs, err := service.ConfigService().ListConfigs()
+	if err != nil {
+		c.JSON(http.StatusOK, ErrorMsg(err.Error()))
+		return
+	}
+	if configs["admin_user"] == "" {
+		configs["admin_user"] = DefaultUser.Username
+	}
+	if configs["admin_password"] == "" {
+		configs["admin_password"] = DefaultUser.Password
+	}
+
+	u := &models.User{
+		Id: DefaultUser.Id,
+		Username: configs["admin_user"],
+		Password: configs["admin_password"],
+	}
+
 	// 校验密码
 	//encPassword := utils.EncryptPassword(reqData.Password)
-	if DefaultUser.Username != reqData.Username || DefaultUser.Password != reqData.Password {
+	if u.Username != reqData.Username || u.Password != reqData.Password {
 		c.JSON(http.StatusOK, ErrorMsg("not authorized"))
 		return
 	}
 
-	user := DefaultUser
-
 	// 获取token
-	tokenStr, err := utils.MakeToken(user)
+	tokenStr, err := utils.MakeToken(u)
 	if err != nil {
 		c.JSON(http.StatusOK, ErrorMsg("not authorized"))
 		return
