@@ -21,7 +21,7 @@ type InMemLogWriter struct {
 func (w *InMemLogWriter) Write(p []byte) (n int, err error) {
 	w.data.Write(p)
 	w.data.WriteString("\n")
-	fmt.Println(string(p))
+	// fmt.Println(string(p))
 	return len(p), nil
 }
 
@@ -69,7 +69,7 @@ func processQueue(queue *models.Queue) (*models.QueueProcessResult, error) {
 			Logs:      log.Get(),
 			NewQueues: nil,
 			Results:   nil,
-			Error:     err.Error(),
+			Error:     log.Get(),
 		}, err
 	}
 	return &models.QueueProcessResult{

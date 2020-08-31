@@ -114,7 +114,7 @@ func handleQueue(data string) {
 			QueueId:   work.Queue.Id,
 			Expire:    work.Queue.Expire,
 			RequestId: work.RequestId,
-			Error:     "<span style=\"color:#F38F8F\">Err: " + err.Error() + "</span>\n",
+			Error:     result.Error,
 			NewQueues: nil,
 			Results:   nil,
 		}
@@ -130,7 +130,7 @@ func handleQueue(data string) {
 			QueueId:   work.Queue.Id,
 			Expire:    work.Queue.Expire,
 			RequestId: work.RequestId,
-			Error:     "no result",
+			Error:     "<span style=\"color:#F38F8F\">no result</span>",
 			NewQueues: nil,
 			Results:   nil,
 		}

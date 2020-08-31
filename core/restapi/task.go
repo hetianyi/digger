@@ -21,6 +21,7 @@ import (
 	"github.com/hpcloud/tail"
 	"github.com/sirupsen/logrus"
 	"net/http"
+	"net/url"
 	"os"
 	"time"
 )
@@ -292,7 +293,8 @@ func TaskLogs(c *gin.Context) {
 		if line == nil {
 			continue
 		}
-		if err := conn.WriteMessage(1, []byte(utils.EncodeBase64(line.Text))); err != nil {
+		//decodeurl := url.QueryEscape(line.Text)
+		if err := conn.WriteMessage(1, []byte(utils.EncodeBase64(url.QueryEscape(line.Text)))); err != nil {
 			conn.Close()
 			break
 		}

@@ -264,16 +264,33 @@ func checkStatusFinishStatus(taskId int) {
 	if taskFinishTimer[taskId] != nil {
 		return
 	}
+	checkExist := func(t *timer.Timer) bool {
+		if taskFinishTimer[taskId] == nil {
+			t.Destroy()
+			return false
+		}
+		return true
+	}
 	taskFinishTimer[taskId] = timer.Start(0, time.Second*10, 0, func(t *timer.Timer) {
 		logger.Debug("检查任务是否完成")
 		f, err := service.TaskService().CheckTaskFinish(taskId)
 		if err != nil {
-			logger.Error(err)
+			if !checkExist(t) {
+				logger.Info("任务已完成：", taskId)
+				Stop(taskId)
+			} else {
+				logger.Error(err)
+			}
 			return
 		}
 		if f {
 			if err = service.TaskService().FinishTask(taskId); err != nil {
-				logger.Error("无法完成任务：", err)
+				if !checkExist(t) {
+					logger.Info("任务已完成：", taskId)
+					Stop(taskId)
+				} else {
+					logger.Error("无法完成任务：", err)
+				}
 				return
 			}
 			Stop(taskId)

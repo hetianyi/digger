@@ -34,13 +34,13 @@
 
         let pro = window.location.protocol
 
-        let _ws = new WebSocket(
-          (pro.startsWith('https:') ? 'wss://' : 'ws://')
-          + window.location.host + '/api/tasks/'+ this.taskId +'/logs/ws');
-
         // let _ws = new WebSocket(
         //   (pro.startsWith('https:') ? 'wss://' : 'ws://')
-        //   + 'localhost:9012/api/tasks/'+ this.taskId +'/logs/ws');
+        //   + window.location.host + '/api/tasks/'+ this.taskId +'/logs/ws');
+
+        let _ws = new WebSocket(
+          (pro.startsWith('https:') ? 'wss://' : 'ws://')
+          + 'localhost:9012/api/tasks/'+ this.taskId +'/logs/ws');
 
         _ws.onopen = function(evt) {
           that.logs.push('开始监听日志')
@@ -51,9 +51,9 @@
           console.log('日志监听断开')
         }
         _ws.onmessage = function(evt) {
-          console.log(decodeURIComponent(window.atob(evt.data)))
-          console.log(decodeURIComponent(decodeURIComponent(window.atob(evt.data))))
-          that.logs.push(decodeURIComponent(window.atob(evt.data)))
+          // console.log(decodeURIComponent(window.atob(evt.data)))
+          // console.log(decodeURIComponent(decodeURIComponent(window.atob(evt.data))))
+          that.logs.push(decodeURIComponent(window.atob(evt.data).replace(/\+/g, " ")))
           setTimeout(function () {
             let div = document.getElementById('__scroll_container')
             div.parentElement.scrollTop = div.parentElement.scrollHeight
