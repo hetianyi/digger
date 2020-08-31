@@ -251,11 +251,6 @@
       <div class="form-container sign-in-container">
         <form action="#" type="button">
           <h1>登录</h1>
-          <div class="social-container">
-            <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
-            <a href="#" class="social"><i class="fab fa-google-plus-g"></i></a>
-            <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
-          </div>
           <input type="text" v-model="username" placeholder="用户名">
           <input type="password" v-model="password" placeholder="密码">
           <p style="width: 100%; font-size: 12px; color: #c3c3c3; margin: 5px 0">默认用户名密码：admin/admin</p>
