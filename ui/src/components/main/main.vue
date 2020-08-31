@@ -15,6 +15,7 @@
           <user :message-unread-count="unreadCount" :user-avatar="userAvatar"/>
           <language v-if="$config.useI18n" @on-lang-change="setLocal" style="margin-right: 10px;" :lang="local"/>
           <fullscreen v-model="isFullscreen" style="margin-right: 10px;"/>
+          <group style="margin-right: 10px;"/>
         </header-bar>
       </Header>
       <Content class="main-content-con">
@@ -47,6 +48,7 @@ import TagsNav from './components/tags-nav'
 import User from './components/user'
 import ABackTop from './components/a-back-top'
 import Fullscreen from './components/fullscreen'
+import Group from './components/group'
 import Language from './components/language'
 import ErrorStore from './components/error-store'
 import { mapMutations, mapActions, mapGetters } from 'vuex'
@@ -63,6 +65,7 @@ export default {
     Language,
     TagsNav,
     Fullscreen,
+    Group,
     ErrorStore,
     User,
     ABackTop

@@ -2,7 +2,20 @@
   <div class="user-avatar-dropdown">
     <Dropdown @on-click="handleClick">
       <Badge :dot="!!messageUnreadCount">
-        <Avatar icon="md-contact"/>
+        <!--<Avatar icon="md-contact"/>-->
+        <img :src="require('@/assets/images/logo-mini.png')"
+             style="width: 32px; height: 32px;display: inline-block;
+    text-align: center;
+    color: #fff;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+    vertical-align: middle;
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    border-radius: 16px;"
+        >
       </Badge>
       <Icon :size="18" type="md-arrow-dropdown"></Icon>
       <DropdownMenu slot="list">

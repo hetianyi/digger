@@ -146,6 +146,15 @@ export default [
   },
   {
     path: '',
+    name: 'issues',
+    meta: {
+      icon: 'md-megaphone',
+      title: '反馈',
+      href: 'https://github.com/hetianyi/digger/issues/new',
+    },
+  },
+  {
+    path: '',
     name: 'about',
     meta: {
       icon: 'ios-information-circle',
