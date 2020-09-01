@@ -7,6 +7,7 @@ package service
 
 import (
 	"digger/models"
+	"digger/utils"
 	"errors"
 	"fmt"
 	"github.com/hetianyi/gox/logger"
@@ -283,7 +284,7 @@ func toDB(project *models.Project) error {
 func fromDB(project *models.Project) error {
 	s := make(map[string]string)
 	h := make(map[string]string)
-	n := make(map[string]string)
+	var n []string
 	err := json.UnmarshalFromString(project.SettingsDB, &s)
 	if err != nil {
 		return err
@@ -301,6 +302,14 @@ func fromDB(project *models.Project) error {
 		return err
 	}
 	project.NodeAffinity = n
+	var kvs []models.KV
+	for _, s := range n {
+		kv := utils.ParseNodeAffinity(s)
+		if kv != nil {
+			kvs = append(kvs, *kv)
+		}
+	}
+	project.NodeAffinityParsed = kvs
 	return nil
 }
 

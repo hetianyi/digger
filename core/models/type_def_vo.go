@@ -218,3 +218,8 @@ type MyCustomClaims struct {
 	Username string `json:"username"`
 	jwt.StandardClaims
 }
+
+type KV struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}

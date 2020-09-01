@@ -222,9 +222,7 @@ func GetProject(c *gin.Context) {
 		}
 	}
 	if project.NodeAffinity == nil || len(project.NodeAffinity) == 0 {
-		project.NodeAffinity = map[string]string{
-			"": "",
-		}
+		project.NodeAffinity = []string{""}
 	}
 	if project.Stages == nil || len(project.Stages) == 0 {
 		project.Stages = []models.Stage{

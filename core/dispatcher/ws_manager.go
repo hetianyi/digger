@@ -245,7 +245,7 @@ func RegisterWsConnection(conn *websocket.Conn, remoteHost string) error {
 }
 
 // 随机选择一个worker节点
-func selectClient(labels map[string]string) *WsClient {
+func selectClient(labels []models.KV) *WsClient {
 	wsManageLock.Lock()
 	defer wsManageLock.Unlock()
 
@@ -255,8 +255,8 @@ func selectClient(labels map[string]string) *WsClient {
 			continue
 		}
 		allMatch := true
-		for m, n := range labels {
-			if c.Labels[m] != n {
+		for _, kv := range labels {
+			if c.Labels[kv.Key] != kv.Value {
 				allMatch = false
 				break
 			}

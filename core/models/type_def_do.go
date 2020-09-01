@@ -15,24 +15,25 @@ import (
 
 // 项目
 type Project struct {
-	Id             int               `json:"id" yaml:"-" gorm:"column:id;primary_key"`
-	Name           string            `json:"name" yaml:"-" gorm:"column:name"`
-	DisplayName    string            `json:"display_name" yaml:"-" gorm:"column:display_name"`
-	Remark         string            `json:"remark" yaml:"-" gorm:"column:remark"`
-	Tags           string            `json:"tags" yaml:"-" gorm:"column:tags"`
-	StartUrl       string            `json:"start_url" yaml:"start_url" gorm:"column:start_url"`
-	StartStage     string            `json:"start_stage" yaml:"start_stage" gorm:"column:start_stage"`
-	Cron           string            `json:"cron" yaml:"-" gorm:"column:cron"`
-	EnableCron     bool              `json:"enable_cron" yaml:"-" gorm:"column:enable_cron"`
-	CreateTime     time.Time         `json:"create_time" yaml:"-" gorm:"column:create_time"`
-	UpdateTime     time.Time         `json:"update_time" yaml:"-" gorm:"column:update_time"`
-	Stages         []Stage           `json:"stages" yaml:"stages" gorm:"-"`
-	Headers        map[string]string `json:"headers" yaml:"headers" gorm:"-"`
-	HeadersDB      string            `json:"-" yaml:"-" gorm:"column:headers"`
-	Settings       map[string]string `json:"settings" yaml:"settings" gorm:"-"`
-	SettingsDB     string            `json:"-" yaml:"-" gorm:"column:settings"`
-	NodeAffinity   map[string]string `json:"node_affinity" yaml:"node_affinity" gorm:"-"`
-	NodeAffinityDB string            `json:"-" yaml:"-" gorm:"column:node_affinity"`
+	Id                 int               `json:"id" yaml:"-" gorm:"column:id;primary_key"`
+	Name               string            `json:"name" yaml:"-" gorm:"column:name"`
+	DisplayName        string            `json:"display_name" yaml:"-" gorm:"column:display_name"`
+	Remark             string            `json:"remark" yaml:"-" gorm:"column:remark"`
+	Tags               string            `json:"tags" yaml:"-" gorm:"column:tags"`
+	StartUrl           string            `json:"start_url" yaml:"start_url" gorm:"column:start_url"`
+	StartStage         string            `json:"start_stage" yaml:"start_stage" gorm:"column:start_stage"`
+	Cron               string            `json:"cron" yaml:"-" gorm:"column:cron"`
+	EnableCron         bool              `json:"enable_cron" yaml:"-" gorm:"column:enable_cron"`
+	CreateTime         time.Time         `json:"create_time" yaml:"-" gorm:"column:create_time"`
+	UpdateTime         time.Time         `json:"update_time" yaml:"-" gorm:"column:update_time"`
+	Stages             []Stage           `json:"stages" yaml:"stages" gorm:"-"`
+	Headers            map[string]string `json:"headers" yaml:"headers" gorm:"-"`
+	HeadersDB          string            `json:"-" yaml:"-" gorm:"column:headers"`
+	Settings           map[string]string `json:"settings" yaml:"settings" gorm:"-"`
+	SettingsDB         string            `json:"-" yaml:"-" gorm:"column:settings"`
+	NodeAffinity       []string          `json:"node_affinity" yaml:"node_affinity" gorm:"-"`
+	NodeAffinityParsed []KV              `json:"node_affinity_parsed" yaml:"-" gorm:"-"`
+	NodeAffinityDB     string            `json:"-" yaml:"-" gorm:"column:node_affinity"`
 	// web接口附加额外信息
 	Extras map[string]interface{} `json:"extras" yaml:"-" gorm:"-"`
 }

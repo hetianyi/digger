@@ -33,9 +33,9 @@
 - [x] 并发控制
 - [x] 处理中的queue状态中断处理
 - [x] 删除前置判断
-- [ ] docker集成
+- [x] docker集成
 - [x] 配置travisCI
-- [ ] 任务完成清理缓存
+- [x] 任务完成清理缓存
 - [ ] stage增加remark
 - [x] field html类型
 - [x] worker精简，去掉redis和postgres
@@ -51,9 +51,9 @@
 - [ ] postgres压力太大，想办法降低
 - [x] 压缩导出文件
 - [ ] 用户管理
-- [ ] 日志乱码
-- [ ] node_affinity改为list类型
-- [ ] 无法完成任务：task already shutdown   无法完成任务：task not exists
+- [x] 日志乱码
+- [x] node_affinity改为list类型
+- [x] 无法完成任务：task already shutdown   无法完成任务：task not exists
 
 
 

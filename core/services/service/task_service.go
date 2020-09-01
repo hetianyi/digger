@@ -162,7 +162,10 @@ func (taskServiceImp) LoadConfigSnapshot(snapshotId int) (*models.Project, error
 		p.Headers = make(map[string]string)
 	}
 	if p.NodeAffinity == nil {
-		p.NodeAffinity = make(map[string]string)
+		p.NodeAffinity = []string{}
+	}
+	if p.NodeAffinityParsed == nil {
+		p.NodeAffinityParsed = []models.KV{}
 	}
 	return p, err
 }

@@ -128,3 +128,13 @@ func ExchangeEnvValue(key string, then func(envValue string)) {
 func GetEnv(key string) string {
 	return os.Getenv(key)
 }
+
+func ParseNodeAffinity(label string) *models.KV {
+	_regex := regexp.MustCompile("([^=]+)=(.+)")
+	if !_regex.MatchString(label) {
+		return nil
+	}
+	name := _regex.ReplaceAllString(label, "$1")
+	value := _regex.ReplaceAllString(label, "$2")
+	return &models.KV{name, value}
+}

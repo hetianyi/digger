@@ -106,7 +106,7 @@ func DispatchTask(task *models.Task) {
 		}
 
 		// 执行任务必须有worker
-		client := selectClient(project.NodeAffinity)
+		client := selectClient(project.NodeAffinityParsed)
 		if client == nil {
 			logger.Debug("没有worker，无法调度任务")
 			return false
@@ -180,12 +180,14 @@ func DispatchTask(task *models.Task) {
 
 func notify(taskId int, doWork func() bool) {
 	for {
-		if notifiers[taskId] == nil {
+		blockQueue := notifiers[taskId]
+		lock := taskWorkLock[taskId]
+		if blockQueue == nil || lock == nil {
 			break
 		}
-		taskWorkLock[taskId].Lock()
-		_, s := notifiers[taskId].Fetch()
-		taskWorkLock[taskId].Unlock()
+		lock.Lock()
+		_, s := blockQueue.Fetch()
+		lock.Unlock()
 		if s {
 			logger.Debug("notify推送")
 			gox.Try(func() {
