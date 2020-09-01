@@ -34,13 +34,13 @@
 
         let pro = window.location.protocol
 
-        // let _ws = new WebSocket(
-        //   (pro.startsWith('https:') ? 'wss://' : 'ws://')
-        //   + window.location.host + '/api/tasks/'+ this.taskId +'/logs/ws');
-
         let _ws = new WebSocket(
           (pro.startsWith('https:') ? 'wss://' : 'ws://')
-          + 'localhost:9012/api/tasks/'+ this.taskId +'/logs/ws');
+          + window.location.host + '/api/tasks/'+ this.taskId +'/logs/ws');
+
+        // let _ws = new WebSocket(
+        //   (pro.startsWith('https:') ? 'wss://' : 'ws://')
+        //   + 'localhost:9012/api/tasks/'+ this.taskId +'/logs/ws');
 
         _ws.onopen = function(evt) {
           that.logs.push('开始监听日志')
