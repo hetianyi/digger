@@ -12,7 +12,7 @@
  Target Server Version : 90618
  File Encoding         : 65001
 
- Date: 30/08/2020 16:52:45
+ Date: 02/09/2020 23:35:40
 */
 
 
@@ -87,6 +87,17 @@ CACHE 1;
 -- ----------------------------
 DROP SEQUENCE IF EXISTS "public"."seq_stage";
 CREATE SEQUENCE "public"."seq_stage" 
+INCREMENT 1
+MINVALUE  1
+MAXVALUE 9223372036854775807
+START 1
+CACHE 1;
+
+-- ----------------------------
+-- Sequence structure for seq_statistic
+-- ----------------------------
+DROP SEQUENCE IF EXISTS "public"."seq_statistic";
+CREATE SEQUENCE "public"."seq_statistic" 
 INCREMENT 1
 MINVALUE  1
 MAXVALUE 9223372036854775807
@@ -278,6 +289,20 @@ COMMENT ON COLUMN "public"."t_stage"."is_unique" IS '该阶段的链接是否全
 COMMENT ON TABLE "public"."t_stage" IS '阶段表';
 
 -- ----------------------------
+-- Table structure for t_statistic
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."t_statistic";
+CREATE TABLE "public"."t_statistic" (
+  "id" int4 NOT NULL DEFAULT nextval('seq_statistic'::regclass),
+  "data" json,
+  "create_time" timestamp(6) NOT NULL DEFAULT now()
+)
+;
+COMMENT ON COLUMN "public"."t_statistic"."data" IS '数据';
+COMMENT ON COLUMN "public"."t_statistic"."create_time" IS '创建时间';
+COMMENT ON TABLE "public"."t_statistic" IS '统计表';
+
+-- ----------------------------
 -- Table structure for t_task
 -- ----------------------------
 DROP TABLE IF EXISTS "public"."t_task";
@@ -338,6 +363,7 @@ SELECT setval('"public"."seq_result"', 1, true);
 SELECT setval('"public"."seq_schedule_queue"', 1, true);
 SELECT setval('"public"."seq_stage"', 1, true);
 SELECT setval('"public"."seq_task"', 1, true);
+SELECT setval('"public"."seq_statistic"', 1, true);
 
 -- ----------------------------
 -- Primary Key structure for table t_config
@@ -407,6 +433,13 @@ CREATE UNIQUE INDEX "Index_name" ON "public"."t_stage" USING btree (
 -- Primary Key structure for table t_stage
 -- ----------------------------
 ALTER TABLE "public"."t_stage" ADD CONSTRAINT "t_stage_pkey" PRIMARY KEY ("id");
+
+-- ----------------------------
+-- Indexes structure for table t_statistic
+-- ----------------------------
+CREATE INDEX "Index_sta_time" ON "public"."t_statistic" USING btree (
+  "create_time" "pg_catalog"."timestamp_ops" ASC NULLS LAST
+);
 
 -- ----------------------------
 -- Indexes structure for table t_task
