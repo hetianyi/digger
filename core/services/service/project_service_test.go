@@ -108,3 +108,7 @@ func TestProjectServiceImp_SelectCronProjectList(t *testing.T) {
 	}
 	fmt.Println(projects)
 }
+
+func TestProjectServiceImp_AllProjectCount(t *testing.T) {
+	fmt.Println(service.ProjectService().AllProjectCount())
+}

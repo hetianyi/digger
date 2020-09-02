@@ -226,7 +226,7 @@ func initBuildInFunctions(cxt *models.Context) {
 		taskId, _ := convert.StrToInt(cxt.ENV["taskId"])
 		cxt.NewQueues[url] = &models.Queue{
 			TaskId:    taskId,
-			StageName: cxt.ENV["stage"],
+			StageName: stage,
 			Url:       url,
 		}
 		v, _ := cxt.VM.ToValue(true)

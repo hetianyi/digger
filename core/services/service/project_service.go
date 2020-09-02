@@ -364,3 +364,17 @@ func parsePlugin(s string) *models.Plugin {
 		Slot: slot,
 	}
 }
+
+
+func (t projectServiceImp) AllProjectCount() (int, error) {
+	// 查询数据
+	type CountResult struct {
+		Count int `gorm:"column:count"`
+	}
+	ret := &CountResult{}
+	if err := dbConn.Raw(`SELECT count(*) FROM t_project`).
+		Scan(ret).Error; err != nil {
+		return 0, err
+	}
+	return ret.Count, nil
+}

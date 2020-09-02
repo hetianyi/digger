@@ -142,3 +142,41 @@ func (queueServiceImpl) DeleteQueues(taskId int) error {
 	logger.Info("finish deleting queues of task ", taskId)
 	return nil
 }
+
+// 结束时统计最终错误数
+func (queueServiceImpl) StatisticFinal(taskId int) error {
+	// delete queues
+	logger.Info("doing final statistic work for queue, this may take a while...", taskId)
+	// 查询数据
+	type CountResult struct {
+		Count int `gorm:"column:count"`
+	}
+	ret := &CountResult{}
+	if err := dbConn.Raw(`select count(*) as count from t_queue a where a.task_id = ?`, taskId).
+		Scan(ret).Error; err != nil {
+		return err
+	}
+	total := ret.Count
+	if err := dbConn.Raw(`select count(*) as count from t_queue a where a.task_id = ? and a.status = ?`, taskId, 2).
+		Scan(ret).Error; err != nil {
+		return err
+	}
+	errorCount := ret.Count
+	if err := dbConn.Raw(`select count(*) as count from t_result a where a.task_id = ?`, taskId).
+		Scan(ret).Error; err != nil {
+		return err
+	}
+	resultCount := ret.Count
+
+	err := DoTransaction(func(tx *gorm.DB) error {
+		temp := tx.Table("t_task").Where("id = ?", taskId).
+			Update(map[string]interface{}{"result_count": resultCount, "success_request": total - errorCount, "error_request": errorCount})
+		if err := temp.Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	return err
+}
+
+

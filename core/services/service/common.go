@@ -32,6 +32,7 @@ var (
 	pluginService        services.PluginService
 	dbService            services.DBService
 	configService        services.ConfigService
+	statisticService        services.StatisticService
 )
 
 // 初始化数据库连接
@@ -70,7 +71,6 @@ func InitRedis(connString string) {
 	logger.Info("connect to redis success!")
 }
 
-// 暴露服务
 func DBService() services.DBService {
 	if dbService == nil {
 		initLock.Lock()
@@ -82,7 +82,6 @@ func DBService() services.DBService {
 	return dbService
 }
 
-// 暴露服务
 func CacheService() services.CacheService {
 	if cacheService == nil {
 		initLock.Lock()
@@ -97,7 +96,6 @@ func CacheService() services.CacheService {
 	return cacheService
 }
 
-// 暴露服务
 func ProjectService() services.ProjectService {
 	if projectService == nil {
 		initLock.Lock()
@@ -109,7 +107,6 @@ func ProjectService() services.ProjectService {
 	return projectService
 }
 
-// 暴露服务
 func ProjectConfigService() services.ProjectConfigService {
 	if projectConfigService == nil {
 		initLock.Lock()
@@ -121,7 +118,6 @@ func ProjectConfigService() services.ProjectConfigService {
 	return projectConfigService
 }
 
-// 暴露服务
 func ResultService() services.ResultService {
 	if resultService == nil {
 		initLock.Lock()
@@ -133,7 +129,6 @@ func ResultService() services.ResultService {
 	return resultService
 }
 
-// 暴露服务
 func TaskService() services.TaskService {
 	if taskService == nil {
 		initLock.Lock()
@@ -145,7 +140,6 @@ func TaskService() services.TaskService {
 	return taskService
 }
 
-// 暴露服务
 func QueueService() services.QueueService {
 	if queueService == nil {
 		initLock.Lock()
@@ -157,7 +151,6 @@ func QueueService() services.QueueService {
 	return queueService
 }
 
-// 暴露服务
 func PluginService() services.PluginService {
 	if pluginService == nil {
 		initLock.Lock()
@@ -169,7 +162,6 @@ func PluginService() services.PluginService {
 	return pluginService
 }
 
-// 暴露服务
 func ConfigService() services.ConfigService {
 	if configService == nil {
 		initLock.Lock()
@@ -179,6 +171,17 @@ func ConfigService() services.ConfigService {
 		}
 	}
 	return configService
+}
+
+func StatisticService() services.StatisticService {
+	if statisticService == nil {
+		initLock.Lock()
+		defer initLock.Unlock()
+		if statisticService == nil {
+			statisticService = &statisticServiceImp{}
+		}
+	}
+	return statisticService
 }
 
 func transformNotFoundErr(err error) error {

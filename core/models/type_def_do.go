@@ -255,3 +255,13 @@ type Config struct {
 func (Config) TableName() string {
 	return "t_config"
 }
+
+type Statistic struct {
+	Id         int       `json:"id" gorm:"column:id;primary_key"`
+	Data       string    `json:"data" gorm:"column:data"`
+	CreateTime time.Time `json:"create_time" yaml:"-" gorm:"column:create_time"`
+}
+
+func (Statistic) TableName() string {
+	return "t_statistic"
+}

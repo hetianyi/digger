@@ -39,6 +39,11 @@ var (
 	taskWorkLock      = make(map[int]*sync.Mutex)
 	notifiers         = make(map[int]*queue.NoneBlockQueue)
 	config            *models.BootstrapConfig
+	// statistic
+	assignRequests int
+	errorRequests  int
+	results        int
+	updateLock = new(sync.Mutex)
 )
 
 func StartDispatcher(_config *models.BootstrapConfig) {
@@ -48,6 +53,7 @@ func StartDispatcher(_config *models.BootstrapConfig) {
 }
 
 func scheduleScanTask() {
+	// 定时任务扫描任务状态
 	timer.Start(0, time.Second*30, 0, func(t *timer.Timer) {
 		tasks, err := service.TaskService().SelectActiveTasks()
 		if err != nil {
@@ -58,6 +64,108 @@ func scheduleScanTask() {
 		}
 		for _, task := range tasks {
 			DispatchTask(task)
+		}
+	})
+	// 定时任务记录统计数据
+	data := make(map[string]interface{})
+	reqCount := 0
+	reqCountLock := new(sync.Mutex)
+	timer.Start(0, time.Second*20, 0, func(t *timer.Timer) {
+		updateLock.Lock()
+		reqCountLock.Lock()
+		defer updateLock.Unlock()
+		defer reqCountLock.Unlock()
+
+		/*if assignRequests == 0 && assignRequests == 0 && errorRequests == 0 {
+			return
+		}*/
+		// {"request_count":120,"error_request_count":5,"result_count":206}
+		data["request_count"] = assignRequests
+		data["error_request_count"] = errorRequests
+		data["result_count"] = results
+		reqCount += assignRequests
+
+		if err := service.StatisticService().Save(data); err != nil {
+			logger.Error(err)
+		} else {
+			assignRequests = 0
+			errorRequests = 0
+			results = 0
+		}
+	})
+
+	// 定时任务统计全局数据，包括项目总数，任务总数，请求总数，结果总数等
+	timer.Start(0, time.Second*10, 0, func(t *timer.Timer) {
+		config, err := service.ConfigService().ListConfigs()
+		if err != nil {
+			logger.Error(err)
+			return
+		}
+
+		var resultCountSince int64 = 0
+		var resultCount int64 = -1
+		var totalReqCount int64 = -1
+		if config["total_request_count"] == "" {
+			config["total_request_count"] = "0"
+		}
+		if i, err := convert.StrToInt64(config["total_request_count"]); err == nil {
+			totalReqCount = i
+		}
+		if totalReqCount != -1 {
+			reqCountLock.Lock()
+			totalReqCount += int64(reqCount)
+			reqCount = 0
+			reqCountLock.Unlock()
+			if err =service.ConfigService().UpdateConfig("total_request_count", convert.Int64ToStr(totalReqCount)); err != nil {
+				logger.Error(err)
+			}
+		}
+
+		if config["result_count_since"] == "" {
+			config["result_count_since"] = "0"
+		}
+		if i, err := convert.StrToInt64(config["result_count_since"]); err == nil {
+			resultCountSince = i
+		}
+		if config["result_count"] == "" {
+			config["result_count"] = "0"
+		}
+		if i, err := convert.StrToInt64(config["result_count"]); err == nil {
+			resultCount = i
+		}
+
+		pc, err := service.ProjectService().AllProjectCount()
+		if err != nil {
+			logger.Error(err)
+		} else {
+			if err =service.ConfigService().UpdateConfig("project_count", convert.IntToStr(pc)); err != nil {
+				logger.Error(err)
+			}
+		}
+		tc, err := service.TaskService().AllTaskCount()
+		if err != nil {
+			logger.Error(err)
+		} else {
+			if err =service.ConfigService().UpdateConfig("task_count", convert.IntToStr(tc)); err != nil {
+				logger.Error(err)
+			}
+		}
+
+		if resultCount == -1 {
+			return
+		}
+		c, nextId, err := service.ResultService().ResultCountSince(resultCountSince)
+		if err != nil {
+			logger.Error(err)
+		} else {
+			resultCount += int64(c) + 1
+			resultCountSince = nextId
+			if err =service.ConfigService().UpdateConfig("result_count", convert.Int64ToStr(resultCount)); err != nil {
+				logger.Error(err)
+			}
+			if err =service.ConfigService().UpdateConfig("result_count_since", convert.Int64ToStr(resultCountSince)); err != nil {
+				logger.Error(err)
+			}
 		}
 	})
 }
@@ -203,6 +311,9 @@ func notify(taskId int, doWork func() bool) {
 
 func dispatchWork(requestId string, queue *models.Queue, client *WsClient) {
 	logger.Debug("分配任务：", queue.Id, "，requestId=", requestId)
+	updateLock.Lock()
+	assignRequests++
+	updateLock.Unlock()
 	push(client, CMD_DISPATCH_QUEUE, &models.DispatchWork{
 		RequestId: requestId,
 		Queue:     queue,

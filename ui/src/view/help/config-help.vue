@@ -104,7 +104,7 @@ stage可以引入多个插件，field只能引入一个插件，引入格式为�
 - **\`\`\`SET_RESPONSE_DATA(data)\`\`\`**
 - **\`\`\`QUEUE()\`\`\`**
 - **\`\`\`ABS(url)\`\`\`**
-- **\`\`\`ADD_QUEUE(url)\`\`\`**
+- **\`\`\`ADD_QUEUE(object})\`\`\`**
 - **\`\`\`AJAX(method, url, headers, querys, body)\`\`\`**
 
 

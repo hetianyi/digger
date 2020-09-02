@@ -140,6 +140,9 @@ func handleQueueResult(msg *WsMessage) {
 		}
 	}()
 	if ret.Error != "" {
+		updateLock.Lock()
+		errorRequests++
+		updateLock.Unlock()
 		oldSta.Error = oldSta.Error + 1
 		logger.Error("worker处理返回异常：", ret.Error)
 		n, err := service.CacheService().IncreQueueErrorCount([]int{ret.TaskId}, []int64{ret.QueueId})
@@ -154,6 +157,10 @@ func handleQueueResult(msg *WsMessage) {
 		}
 		return
 	}
+
+	updateLock.Lock()
+	results += len(ret.Results)
+	updateLock.Unlock()
 
 	if err = service.ResultService().SaveProcessResultData(&ret, false); err != nil {
 		logger.Info("err")

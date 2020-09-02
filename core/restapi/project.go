@@ -367,6 +367,7 @@ func ImportProjectConfig(c *gin.Context) {
 	var reqData models.Project
 	err = jsoniter.Unmarshal(buf, &reqData)
 	if err != nil {
+		logger.Error(err)
 		c.JSON(http.StatusOK, ErrorMsg(err.Error()))
 		return
 	}

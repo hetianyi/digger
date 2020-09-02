@@ -171,6 +171,11 @@ func (taskServiceImp) LoadConfigSnapshot(snapshotId int) (*models.Project, error
 }
 
 func (taskServiceImp) updateStatus(id, status int) error {
+	if status == 2 || status == 3 {
+		if err := QueueService().StatisticFinal(id); err != nil {
+			return err
+		}
+	}
 	err := DoTransaction(func(tx *gorm.DB) error {
 		temp := tx.Model(models.Task{}).Where("id = ?", id).Update("status", status)
 		if temp.Error != nil {
@@ -214,6 +219,10 @@ func (t taskServiceImp) FinishTask(id int) error {
 		return err
 	}
 
+	if err := t.updateStatus(id, 3); err != nil {
+		return err
+	}
+
 	configs, _ := ConfigService().ListConfigs()
 	if configs[common.EMAIL_CONFIG] == "" {
 		logger.Info("no email configured, skip email notification")
@@ -230,7 +239,7 @@ func (t taskServiceImp) FinishTask(id int) error {
 		}
 	}
 
-	return t.updateStatus(id, 3)
+	return nil
 }
 
 // 关闭任务
@@ -329,4 +338,18 @@ func (t taskServiceImp) DeleteTask(taskId int) error {
 		}
 		return nil
 	})
+}
+
+// 查询所有任务数量
+func (t taskServiceImp) AllTaskCount() (int, error) {
+	// 查询数据
+	type CountResult struct {
+		Count int `gorm:"column:count"`
+	}
+	ret := &CountResult{}
+	if err := dbConn.Raw(`SELECT count(*) FROM t_task`).
+		Scan(ret).Error; err != nil {
+		return 0, err
+	}
+	return ret.Count, nil
 }

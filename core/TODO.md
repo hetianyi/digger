@@ -54,7 +54,7 @@
 - [x] 日志乱码
 - [x] node_affinity改为list类型
 - [x] 无法完成任务：task already shutdown   无法完成任务：task not exists
-
+- [ ] restapi打印错误日志
 
 
 

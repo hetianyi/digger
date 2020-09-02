@@ -29,3 +29,8 @@ func TestQueueServiceImp_InsertQueue(t *testing.T) {
 func TestQueueServiceImpl_GetUnFinishedCount(t *testing.T) {
 	fmt.Println(service.QueueService().GetUnFinishedCount(1))
 }
+
+
+func TestQueueServiceImpl_StatisticFinal(t *testing.T) {
+	service.QueueService().StatisticFinal(52)
+}

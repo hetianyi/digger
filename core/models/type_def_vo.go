@@ -9,8 +9,11 @@ import (
 	"digger/common"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/hetianyi/gox/convert"
+	"github.com/hetianyi/gox/logger"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/robertkrimen/otto"
 	"io"
+	"time"
 )
 
 type BootstrapConfig struct {
@@ -223,3 +226,23 @@ type KV struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }
+
+type StatisticVO struct {
+	Id         int                    `json:"id"`
+	Data       map[string]interface{} `json:"data"`
+	CreateTime time.Time              `json:"create_time"`
+}
+
+func (s StatisticVO) From(d *Statistic) *StatisticVO {
+	data := make(map[string]interface{})
+	err := jsoniter.UnmarshalFromString(d.Data, &data)
+	if err != nil {
+		logger.Error(err)
+		return &s
+	}
+	s.Id = d.Id
+	s.Data = data
+	s.CreateTime = d.CreateTime
+	return &s
+}
+

@@ -66,3 +66,8 @@ func TestResultServiceImp_ResultCount(t *testing.T) {
 func TestResultServiceImp_SaveCheckData(t *testing.T) {
 	fmt.Println("1"[0:1])
 }
+
+
+func TestResultServiceImp_ResultCountSince(t *testing.T) {
+	fmt.Println(service.ResultService().ResultCountSince(16359))
+}

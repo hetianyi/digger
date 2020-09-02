@@ -71,3 +71,7 @@ func TestTaskServiceImp_TaskCount(t *testing.T) {
 	bytes, _ := json.Marshal(cos)
 	fmt.Println(string(bytes))
 }
+
+func TestTaskServiceImp_AllTaskCount(t *testing.T) {
+	fmt.Println(service.TaskService().AllTaskCount())
+}

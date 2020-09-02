@@ -203,6 +203,32 @@ func (resultServiceImp) SaveProcessResultData(result *models.QueueProcessResult,
 	})
 }
 
+
+// 查询从某个id起后续结果总数
+func (resultServiceImp) ResultCountSince(id int64) (int, int64, error) {
+	// 查询数据
+	type CountResult struct {
+		Count int `gorm:"column:count"`
+	}
+	type MaxId struct {
+		Id int64 `gorm:"column:max"`
+	}
+	max := &MaxId{}
+	if err := dbConn.Raw(`SELECT max(id) as max FROM t_result`).
+		Scan(max).Error; err != nil {
+		return 0, id, err
+	}
+	if max.Id <= id {
+		return 0, id, nil
+	}
+	ret := &CountResult{}
+	if err := dbConn.Raw(`SELECT count(*) FROM t_result r WHERE r.id > ? and r.id < ?`, id, max.Id).
+		Scan(ret).Error; err != nil {
+		return 0, id, err
+	}
+	return ret.Count, max.Id, nil
+}
+
 func buildBatchInsertQueue(queues []*models.Queue) (string, []interface{}) {
 	var buff bytes.Buffer
 	buff.WriteString("insert into t_queue (task_id, stage_name, url, middle_data, expire) values")

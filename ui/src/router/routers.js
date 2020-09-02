@@ -46,7 +46,7 @@ export default [
           notCache: true,
           icon: 'md-home'
         },
-        component: () => import('@/view/project/index.vue')
+        component: () => import('@/view/home/index.vue')
       }
     ]
   },

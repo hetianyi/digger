@@ -105,6 +105,8 @@ func StartAgentManager(_config *models.BootstrapConfig) {
 
 		authGroup.GET("/v1/nodes", restapi.GetNodes)
 
+		authGroup.GET("/v1/statistics", restapi.GetStatistic)
+
 		authGroup.POST("/v1/play", restapi.PlayExistStage)
 		authGroup.POST("/v2/play", restapi.PlayFromTempStage)
 		authGroup.POST("/v2/play/parse", restapi.ParseConfigFile)

@@ -7,6 +7,7 @@ package services
 
 import (
 	"digger/models"
+	"time"
 )
 
 // 项目服务
@@ -27,6 +28,8 @@ type ProjectService interface {
 	DeleteProject(projectId int) (bool, error)
 	// 查询启用定时任务的项目
 	SelectCronProjectList() ([]*models.Project, error)
+	// 查询所有项目数量
+	AllProjectCount() (int, error)
 }
 
 // 项目配置服务
@@ -63,8 +66,10 @@ type TaskService interface {
 	PauseTask(id int) error
 	// 开启任务
 	StartTask(id int) error
-	// 查询项目结果数量
+	// 查询任务数量
 	TaskCount(projectIds ...int) ([]*models.TaskCountCO, error)
+	// 查询所有任务数量
+	AllTaskCount() (int, error)
 	// 检查task是否完成
 	CheckTaskFinish(taskId int) (bool, error)
 	// 删除task
@@ -94,6 +99,8 @@ type ResultService interface {
 	SaveProcessResultData(result *models.QueueProcessResult, exceedMaxRetry bool) error
 	// 查询任务成功结果数量
 	ResultCount(taskId ...int) ([]*models.ResultCountCO, error)
+	// 查询从某个id起后续结果总数
+	ResultCountSince(id int64) (int, int64, error)
 }
 
 // 调度任务服务
@@ -110,6 +117,8 @@ type QueueService interface {
 	DeleteQueues(taskId int) error
 	// 查询任务失败queue数量
 	ErrorCount(taskId ...int) ([]*models.ResultCountCO, error)
+	// 结束时统计最终错误数
+	StatisticFinal(taskId int) error
 }
 
 // 调度任务服务
@@ -128,4 +137,10 @@ type PluginService interface {
 type ConfigService interface {
 	ListConfigs() (map[string]string, error)
 	UpdateConfig(key, value string) error
+}
+
+// 配置服务
+type StatisticService interface {
+	Save(data map[string]interface{}) error
+	List(start time.Time, end time.Time) ([]*models.StatisticVO, error)
 }

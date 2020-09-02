@@ -15,6 +15,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"time"
 )
 
 func ConvertLogLevel(levelString string) logger.Level {
@@ -137,4 +138,16 @@ func ParseNodeAffinity(label string) *models.KV {
 	name := _regex.ReplaceAllString(label, "$1")
 	value := _regex.ReplaceAllString(label, "$2")
 	return &models.KV{name, value}
+}
+
+func LocalizeTime(t time.Time) time.Time {
+	tz := os.Getenv("TZ")
+	if tz == "" {
+		tz = "Asia/Shanghai"
+	}
+	location, err := time.LoadLocation(tz)
+	if err != nil {
+		return t
+	}
+	return t.In(location)
 }
