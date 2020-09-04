@@ -43,7 +43,7 @@ var (
 	assignRequests int
 	errorRequests  int
 	results        int
-	updateLock = new(sync.Mutex)
+	updateLock     = new(sync.Mutex)
 )
 
 func StartDispatcher(_config *models.BootstrapConfig) {
@@ -83,6 +83,11 @@ func scheduleScanTask() {
 		data["request_count"] = assignRequests
 		data["error_request_count"] = errorRequests
 		data["result_count"] = results
+
+		if assignRequests == 0 && errorRequests == 0 && results == 0 {
+			return
+		}
+
 		reqCount += assignRequests
 
 		if err := service.StatisticService().Save(data); err != nil {
@@ -116,7 +121,7 @@ func scheduleScanTask() {
 			totalReqCount += int64(reqCount)
 			reqCount = 0
 			reqCountLock.Unlock()
-			if err =service.ConfigService().UpdateConfig("total_request_count", convert.Int64ToStr(totalReqCount)); err != nil {
+			if err = service.ConfigService().UpdateConfig("total_request_count", convert.Int64ToStr(totalReqCount)); err != nil {
 				logger.Error(err)
 			}
 		}
@@ -138,7 +143,7 @@ func scheduleScanTask() {
 		if err != nil {
 			logger.Error(err)
 		} else {
-			if err =service.ConfigService().UpdateConfig("project_count", convert.IntToStr(pc)); err != nil {
+			if err = service.ConfigService().UpdateConfig("project_count", convert.IntToStr(pc)); err != nil {
 				logger.Error(err)
 			}
 		}
@@ -146,7 +151,7 @@ func scheduleScanTask() {
 		if err != nil {
 			logger.Error(err)
 		} else {
-			if err =service.ConfigService().UpdateConfig("task_count", convert.IntToStr(tc)); err != nil {
+			if err = service.ConfigService().UpdateConfig("task_count", convert.IntToStr(tc)); err != nil {
 				logger.Error(err)
 			}
 		}
@@ -158,12 +163,15 @@ func scheduleScanTask() {
 		if err != nil {
 			logger.Error(err)
 		} else {
+			if c == 0 {
+				return
+			}
 			resultCount += int64(c) + 1
 			resultCountSince = nextId
-			if err =service.ConfigService().UpdateConfig("result_count", convert.Int64ToStr(resultCount)); err != nil {
+			if err = service.ConfigService().UpdateConfig("result_count", convert.Int64ToStr(resultCount)); err != nil {
 				logger.Error(err)
 			}
-			if err =service.ConfigService().UpdateConfig("result_count_since", convert.Int64ToStr(resultCountSince)); err != nil {
+			if err = service.ConfigService().UpdateConfig("result_count_since", convert.Int64ToStr(resultCountSince)); err != nil {
 				logger.Error(err)
 			}
 		}
