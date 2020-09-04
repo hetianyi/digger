@@ -12,7 +12,7 @@
  Target Server Version : 90618
  File Encoding         : 65001
 
- Date: 02/09/2020 23:35:40
+ Date: 04/09/2020 23:22:56
 */
 
 
@@ -158,7 +158,8 @@ CREATE TABLE "public"."t_field" (
   "remark" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
   "next_stage" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
   "name" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::character varying,
-  "plugin" varchar(50) COLLATE "pg_catalog"."default" NOT NULL
+  "plugin" varchar(50) COLLATE "pg_catalog"."default",
+  "xpath" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::character varying
 )
 ;
 COMMENT ON COLUMN "public"."t_field"."id" IS 'ID';
@@ -172,6 +173,7 @@ COMMENT ON COLUMN "public"."t_field"."remark" IS '字段备注';
 COMMENT ON COLUMN "public"."t_field"."next_stage" IS '下一阶段';
 COMMENT ON COLUMN "public"."t_field"."name" IS '字段名';
 COMMENT ON COLUMN "public"."t_field"."plugin" IS '插件';
+COMMENT ON COLUMN "public"."t_field"."xpath" IS 'xpath选择器';
 COMMENT ON TABLE "public"."t_field" IS '字段表';
 
 -- ----------------------------
@@ -275,7 +277,9 @@ CREATE TABLE "public"."t_stage" (
   "page_css" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
   "page_attr" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
   "plugins" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
-  "is_unique" bool NOT NULL DEFAULT false
+  "is_unique" bool NOT NULL DEFAULT false,
+  "page_xpath" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::character varying,
+  "list_xpath" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::character varying
 )
 ;
 COMMENT ON COLUMN "public"."t_stage"."project_id" IS '所属项目id';
@@ -286,6 +290,8 @@ COMMENT ON COLUMN "public"."t_stage"."page_css" IS '分页css选择器';
 COMMENT ON COLUMN "public"."t_stage"."page_attr" IS '分页css选择器属性';
 COMMENT ON COLUMN "public"."t_stage"."plugins" IS '插件';
 COMMENT ON COLUMN "public"."t_stage"."is_unique" IS '该阶段的链接是否全局唯一';
+COMMENT ON COLUMN "public"."t_stage"."page_xpath" IS '分页xpath选择器';
+COMMENT ON COLUMN "public"."t_stage"."list_xpath" IS '列表的xpath选择器';
 COMMENT ON TABLE "public"."t_stage" IS '阶段表';
 
 -- ----------------------------

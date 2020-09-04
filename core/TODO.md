@@ -55,7 +55,8 @@
 - [x] node_affinity改为list类型
 - [x] 无法完成任务：task already shutdown   无法完成任务：task not exists
 - [ ] restapi打印错误日志
-- [ ] 支持xpath
+- [x] 支持xpath
+- [ ] 任务调度节奏性卡顿问题
 
 
 

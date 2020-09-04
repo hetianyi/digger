@@ -127,7 +127,9 @@ type Stage struct {
 	Name         string   `json:"name" yaml:"name" gorm:"column:name"`
 	IsList       bool     `json:"is_list" yaml:"is_list" gorm:"column:is_list"`
 	IsUnique     bool     `json:"is_unique" yaml:"is_unique" gorm:"column:is_unique"`
+	ListXpath    string   `json:"list_xpath" yaml:"list_xpath" gorm:"column:list_xpath"`
 	ListCss      string   `json:"list_css" yaml:"list_css" gorm:"column:list_css"`
+	PageXpath    string   `json:"page_xpath" yaml:"page_xpath" gorm:"column:page_xpath"`
 	PageCss      string   `json:"page_css" yaml:"page_css" gorm:"column:page_css"`
 	PageAttr     string   `json:"page_attr" yaml:"page_attr" gorm:"column:page_attr"`
 	PluginsDB    string   `json:"plugins" yaml:"plugin" gorm:"column:plugins"`
@@ -160,6 +162,7 @@ type Field struct {
 	Name      string  `json:"name" yaml:"name" gorm:"column:name"`
 	IsArray   bool    `json:"is_array" yaml:"is_array" gorm:"column:is_array"`
 	IsHtml    bool    `json:"is_html" yaml:"is_html" gorm:"column:is_html"`
+	Xpath     string  `json:"xpath" yaml:"xpath" gorm:"column:xpath"`
 	Css       string  `json:"css" yaml:"css" gorm:"column:css"`
 	Attr      string  `json:"attr" yaml:"attr" gorm:"column:attr"`
 	PluginDB  string  `json:"plugin" yaml:"plugin" gorm:"column:plugin"`

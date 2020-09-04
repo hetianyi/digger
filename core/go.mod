@@ -4,6 +4,8 @@ go 1.12
 
 require (
 	github.com/PuerkitoBio/goquery v1.5.1
+	github.com/antchfx/htmlquery v1.2.3
+	github.com/antchfx/xpath v1.1.8
 	github.com/bsm/redislock v0.5.0
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -31,6 +33,7 @@ require (
 	github.com/stretchr/testify v1.6.1 // indirect
 	github.com/urfave/cli v1.22.4
 	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9 // indirect
+	golang.org/x/net v0.0.0-20200602114024-627f9648deb9
 	golang.org/x/text v0.3.3 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df

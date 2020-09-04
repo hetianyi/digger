@@ -6,13 +6,11 @@
 package utils_test
 
 import (
-	"digger/models"
 	"digger/utils"
 	"encoding/json"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly/v2"
-	jsoniter "github.com/json-iterator/go"
 	"log"
 	"net/http"
 	"testing"

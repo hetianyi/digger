@@ -33,7 +33,7 @@ export default [
     redirect: '/home',
     component: Main,
     meta: {
-      hideInMenu: true,
+      hideInMenu: false,
       notCache: true
     },
     children: [
@@ -41,7 +41,7 @@ export default [
         path: '/home',
         name: 'home',
         meta: {
-          hideInMenu: true,
+          hideInMenu: false,
           title: '首页',
           notCache: true,
           icon: 'md-home'

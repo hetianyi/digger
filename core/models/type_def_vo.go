@@ -7,11 +7,13 @@ package models
 
 import (
 	"digger/common"
+	"github.com/PuerkitoBio/goquery"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/hetianyi/gox/convert"
 	"github.com/hetianyi/gox/logger"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/robertkrimen/otto"
+	"golang.org/x/net/html"
 	"io"
 	"time"
 )
@@ -130,11 +132,13 @@ type Context struct {
 	// stage
 	// taskId
 	//
-	ENV        map[string]string
-	NewQueues  map[string]*Queue
-	MiddleData map[string]string
-	Results    []*Result
-	VM         *otto.Otto
+	ENV           map[string]string
+	NewQueues     map[string]*Queue
+	MiddleData    map[string]string
+	Results       []*Result
+	VM            *otto.Otto
+	CssQueryDoc   *goquery.Document
+	XpathQueryDoc *html.Node
 }
 
 func (c *Context) Exec(script string) (string, error) {
@@ -245,4 +249,3 @@ func (s StatisticVO) From(d *Statistic) *StatisticVO {
 	s.CreateTime = d.CreateTime
 	return &s
 }
-
