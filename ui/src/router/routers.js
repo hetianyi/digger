@@ -141,7 +141,7 @@ export default [
     meta: {
       icon: 'ios-book',
       title: '文档',
-      href: 'https://docs.auxxs.com/zh/digger/digger',
+      href: 'https://docs.diggerit.me/',
     },
   },
   {
