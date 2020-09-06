@@ -30,5 +30,8 @@ jobs:
         DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
       run: |
         docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
-        sudo docker build -t hehety/digger:latest .
+        tag=RELEASE.$(date "+%Y-%m-%d_%H-%M-%S")
+        sudo docker build -t hehety/digger:${tag} .
+        docker tag hehety/digger:${tag} hehety/digger:latest
+        sudo docker push hehety/digger:${tag}
         sudo docker push hehety/digger:latest
