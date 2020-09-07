@@ -29,10 +29,10 @@
             </keep-alive>
             <ABackTop :height="100" :bottom="80" :right="50" container=".content-wrapper"></ABackTop>
           </Content>
-          <Footer style="background: #EAEAEA; height: 20px; padding: 0 10px; line-height: 20px; color: ">
-            Digger Version v0.0.1&nbsp;|&nbsp;
-            <a target="_blank" href="https://github.com/hetianyi/digger">Github</a>&nbsp;|&nbsp;
-            <a target="_blank" href="https://github.com/hetianyi/digger/issues">Issues</a>&nbsp;|&nbsp;
+          <Footer style="background: #EAEAEA; height: 20px; padding: 0 10px; line-height: 20px; color: #707070; font-size: 10px;">
+            Digger Version v0.0.1&nbsp;|
+            <a target="_blank" href="https://github.com/hetianyi/digger">Github</a>&nbsp;|
+            <a target="_blank" href="https://github.com/hetianyi/digger/issues">Issues</a>&nbsp;|
             &copy;2020 Powered by
             <a target="_blank" href="https://github.com/hetianyi">Jason He</a>
           </Footer>
