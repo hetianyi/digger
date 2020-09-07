@@ -145,6 +145,7 @@ func NewTasks(c *gin.Context) {
 	}
 
 	err = scheduler.Schedule(task)
+	dispatcher.DispatchTask(task)
 
 	if err != nil {
 		c.JSON(http.StatusOK, ErrorMsg(err.Error()))

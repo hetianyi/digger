@@ -211,10 +211,14 @@ func releaseTaskQueueCache(blockQueue *queue.NoneBlockQueue) {
 	}
 }
 
-// 用redis分布式锁从数据库查询queue
 func fetchQueue(taskId int, fetchSize int) bool {
-	queryLock[taskId].Lock()
-	defer queryLock[taskId].Unlock()
+	lock := queryLock[taskId]
+	if lock != nil {
+		queryLock[taskId].Lock()
+		defer queryLock[taskId].Unlock()
+	} else {
+		return false
+	}
 
 	var queues []*models.Queue
 	queues, err := service.QueueService().SelectQueues(models.QueueQueryVO{
@@ -265,7 +269,14 @@ func checkStatusFinishStatus(taskId int) {
 		return
 	}
 	checkExist := func(t *timer.Timer) bool {
-		if taskFinishTimer[taskId] == nil {
+		scheduleLock.Lock()
+		defer scheduleLock.Unlock()
+		task, err := service.TaskService().SelectTask(taskId)
+		if err != nil {
+			logger.Error(err)
+			return true
+		}
+		if task.Status == 2 || task.Status == 3 {
 			t.Destroy()
 			return false
 		}
@@ -275,12 +286,7 @@ func checkStatusFinishStatus(taskId int) {
 		logger.Debug("检查任务是否完成")
 		f, err := service.TaskService().CheckTaskFinish(taskId)
 		if err != nil {
-			if !checkExist(t) {
-				logger.Info("任务已完成：", taskId)
-				Stop(taskId)
-			} else {
-				logger.Error(err)
-			}
+			logger.Error(err)
 			return
 		}
 		if f {
@@ -289,7 +295,7 @@ func checkStatusFinishStatus(taskId int) {
 					logger.Info("任务已完成：", taskId)
 					Stop(taskId)
 				} else {
-					logger.Error("无法完成任务：", err)
+					logger.Error("无法完成任务", taskId, "：", err)
 				}
 				return
 			}
