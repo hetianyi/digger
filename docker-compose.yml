@@ -6,8 +6,8 @@ services:
     command: --timezone=PRC
     networks:
       - digger
-    ports:
-      - 15432:5432
+#    ports:
+#      - 15432:5432
     volumes:
       - ./db:/docker-entrypoint-initdb.d:ro
       - postgres:/var/lib/postgresql/data
@@ -29,8 +29,8 @@ services:
     command: redis-server --bind 0.0.0.0 --protected-mode no --appendonly yes --requirepass 123456
     networks:
       - digger
-    ports:
-      - 16379:6379
+#    ports:
+#      - 16379:6379
     volumes:
       - redis:/data
     deploy:
@@ -48,7 +48,7 @@ services:
     networks:
       - digger
     ports:
-      - 80:9012
+      - 9012:9012
     deploy:
       replicas: 1
       placement:

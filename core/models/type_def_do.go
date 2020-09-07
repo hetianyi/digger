@@ -21,7 +21,7 @@ type Project struct {
 	Remark             string            `json:"remark" yaml:"-" gorm:"column:remark"`
 	Tags               string            `json:"tags" yaml:"-" gorm:"column:tags"`
 	StartUrls          []string          `json:"start_urls" yaml:"start_urls" gorm:"-"`
-	StartUrlsDB        string            `json:"start_urls" yaml:"-" gorm:"column:start_urls"`
+	StartUrlsDB        string            `json:"-" yaml:"-" gorm:"column:start_urls"`
 	StartStage         string            `json:"start_stage" yaml:"start_stage" gorm:"column:start_stage"`
 	Cron               string            `json:"cron" yaml:"-" gorm:"column:cron"`
 	EnableCron         bool              `json:"enable_cron" yaml:"-" gorm:"column:enable_cron"`

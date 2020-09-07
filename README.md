@@ -4,36 +4,35 @@
 
 # 简介
 
-[Digger](https://github/hetianyi/digger)是用[Golang](https://golang.org)开发的配置式分布式跨平台爬虫系统，支持使用Javascript编写插件来实现各种你想要达到的目标。
+[Digger](https://github/hetianyi/digger)是用纯[Golang](https://golang.org)开发的配置式分布式跨平台爬虫系统，支持使用Javascript编写插件来实现各种你想要达到的目标。Digger及相关组件能够以极低的资源开销运行在各种廉价服务器和开发板上，如树莓派。
 
-Digger部署十分简单，支持Linux和Windows平台（MacOS暂未测试）。
-
-目前支持的CPU架构有：```amd64```, ```arm```, ```arm64```
+Digger没有复杂的依赖，部署十分简单，支持Linux和Windows平台，目前支持的CPU架构有：```amd64```, ```arm```, ```arm64```
 
 ## 功能简介
 
-- 支持使用css选择器
+- 支持使用Css选择器和Xpath选择器
 - 支持多种结果类型：plain text，html，array等
-- web在线调试配置，精准定位问题
+- web在线调试爬虫配置，精准定位问题
 - 支持插件功能
 - 实时浏览爬虫日志
 - 结果在线浏览、导出，一键生成数据库schema（postgres和mysql）
 - 定时任务
 - 支持暂停任务
-- 支持多个worker实例
+- 分布式worker实例，有效避免爬虫被block
 - 支持任务和worker标签匹配调度功能
 - 支持配置导入导出
 - 邮件通知功能
 - 钉钉通知功能（TODO）
+- DiggerHub支持爬虫配置分享（TODO）
 
 
 >  更多功能敬请探索！
 
 # 安装
-## 使用docker安装
+## 使用docker安装（推荐）
 使用docker部署digger是最简单的方式，你可以在[Docker Hub](https://hub.docker.com/repository/docker/hehety/tiller)下载digger的镜像。
 
-这里用单机作为演示部署完整的digger服务。
+这里以单机作为演示部署完整的digger服务。
 
 **部署环境**
 - 操作系统：CentOS 7
@@ -54,19 +53,21 @@ docker stack deploy -c docker-compose.yml --prune digger
 如果集群启动成功，就可以在9012端口使用浏览器访问digger控制台。
 
 ## 使用二进制安装
-从二进制可执行程序安装比docker方式稍微繁琐一些，需要自行手动部署postgres服务器，redis服务器以及manager，ui，worker等
+从二进制可执行程序安装比docker方式稍微繁琐一些，需要自行手动部署postgres数据库，redis以及manager，ui，worker等
 postgres和redis安装过程此处不再赘述，这里假设这两个服务已存在。
 首先，需要下载可执行程序```digger```和前端ui压缩包，下载地址在[此处](https://github.com/hetianyi/digger/releases)，
-下载完成后，你应该得到以下两个文件：
+选择版本下载完成后，你应该得到以下两个文件：
+
 ```shell
-| ..
-| digger
-| ui.tar.gz
+│ ..
+├ digger_0.0.1_linux_amd64.tar.gz
+└ ui_0.0.1.tar.gz
 ```
-将可执行程序复制到```/usr/local/bin```目录下，然后将ui.tar.gz解压，放到```/usr/share/digger```下：
+将这两个文件解压，得到一个可执行程序<kbd>digger</kbd>和一个目录<kbd>ui</kbd>，将可执行文件复制到```/usr/local/bin```目录下，然后将ui.tar.gz解压，放到```/usr/share/digger```下：
 ```shell
+tar xzf digger_0.0.1_linux_amd64.tar.gz
 cp digger /usr/local/bin
-tar xzf ui.tar.gz
+tar xzf ui_0.0.1.tar.gz
 mkdir -p /usr/share/digger
 cp ui /usr/share/digger/
 ```
@@ -83,6 +84,14 @@ digger worker --id=1 -m http://127.0.0.1:9012
 ```
 
 manager和worker都启动成功，那么就可以使用浏览器通过9012端口访问web控制台了。
+
+## 使用Kubernetes安装（TODO）
+
+### 普通安装
+
+### Helm安装
+
+
 
 
 # 第一个爬虫项目
@@ -137,7 +146,6 @@ Options:
    --labels value               node labels, format:
                                 key1=value1<,key2=value2>
    --ui-dir value               ui dir (default: "/var/www/html")
-   --access-url value           public access url (default: "127.0.0.1:9012")
    
 ```
 
@@ -146,11 +154,10 @@ Options:
 | ```--secret``` | ```-s``` | string | 密码用于加密token |
 | ```--port``` | ```-p``` | int | manager监听端口 |
 | ```--log-level``` | ```-l``` | string | 日志级别，可选值：```debug```, ```info```, ```warn```, ```error```, ```fatal``` |
-| ```--log-dir``` | - | string | 日志文件目录 | 
+| ```--log-dir``` | - | string | 日志文件目录 |
 | ```--database``` | ```-d``` | string | postgres数据库连接，例如：```postgres://user:pass@127.0.0.1:5432/digger?sslmode=disable``` |
 | ```--redis``` | ```-r``` | string | redis连接，例如：```pass@demo.com:6379#0``` |
 | ```--ui-dir``` | - | string | 前端ui目录 |
-| ```--access-url``` | - | string | 公共访问URL，用于通知动态worker访问manager |
 
 
 
@@ -180,17 +187,18 @@ Options:
 | -- | -- | -- | -- |
 | ```--id``` | - | int | 标识该worker的唯一id |
 | ```--log-level``` | ```-l``` | string | 日志级别，可选值：```debug```, ```info```, ```warn```, ```error```, ```fatal``` |
-| ```--log-dir``` | - | string | 日志文件目录 | 
-| ```--manager``` | ```-m``` | string | manager地址，例如：```http://localhost:9012``` | 
-| ```--labels``` | - | string | worker的标签，用于任务匹配，例如：```app=demo,zone=east-cn``` | 
+| ```--log-dir``` | - | string | 日志文件目录 |
+| ```--manager``` | ```-m``` | string | manager地址，例如：```http://localhost:9012``` |
+| ```--labels``` | - | string | worker的标签，用于任务匹配，例如：```app=demo,zone=east-cn``` |
 
 # 爬虫项目配置文件
 ## 爬虫配置文件介绍
 digger爬虫采用yaml文件配置，yaml文件结构清晰，易于编写。更多yaml入门知识，请参阅[菜鸟入门教程](https://www.runoob.com/w3cnote/yaml-intro.html)。
 digger爬虫配置文件主要由6部分组成：
-- start: 起始部分，标识爬虫从哪里开始
+- start: 起始部分，标识爬虫从哪里开始，可配置多个start url
 ```yaml
-start_url: https://music.163.com/discover/playlist
+start_urls:
+- https://music.163.com/discover/playlist
 start_stage: list
 ```
 - stage: 阶段，表示爬虫进行到了哪个环节，或者页面层次
@@ -237,7 +245,8 @@ node_affinity:
 
 ## 爬虫配置参数释义
 ```yaml
-start_url: https://music.163.com/discover/playlist # 爬虫起始URL
+start_url: 
+- https://music.163.com/discover/playlist # 爬虫起始URL
 start_stage: list # 起始stage
 stages: 
 - name: list # stage的name
@@ -348,12 +357,13 @@ TODO 处理中，处理使用的引擎，默认为goquery，否则为自定义�
   return TRIM(REPLACE(ENV("currentFieldValue"), "创建", ""));
 })()
 ```
-> 这里进行了三个操作： 
-> ENV("currentFieldValue")&nbsp;&nbsp;-->&nbsp;&nbsp;获取当前字段的值
-> REPLACE()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->&nbsp;&nbsp;当前字段的值中的“创建”替换为空字符串
-> TRIM()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->&nbsp;&nbsp;将替换后的结果去除头尾部空格
-> 然后将结果返回作为字段create_date最终结果。
-> ENV, REPLACE, TRIM为digger内置函数，可以直接在插件中调用，更多内置函数参见“内置函数”一节。
+这里进行了三个操作： 
+- ENV("currentFieldValue")&nbsp;&nbsp;-->&nbsp;&nbsp;获取当前字段的值
+ - REPLACE()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->&nbsp;&nbsp;当前字段的值中的“创建”替换为空字符串
+ - TRIM()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-->&nbsp;&nbsp;将替换后的结果去除头尾部空格
+
+然后将结果返回作为字段create_date最终结果。
+ENV, REPLACE, TRIM为digger内置函数，可以直接在插件中调用，更多内置函数参见“内置函数”一节。
 
 > 编写完插件要记得保存！
 
