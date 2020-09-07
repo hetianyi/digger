@@ -211,7 +211,7 @@ func DispatchTask(task *models.Task) {
 	}
 	taskSig[task.Id] = 1
 	// 并发配置
-	conSize := project.GetIntSetting(common.SETTINGS_CONCURRENT_REQUESTS)
+	conSize := project.GetIntSetting(common.SETTINGS_CONCURRENT_REQUESTS, 5)
 
 	var doWork = func() bool {
 		taskWorkLock[task.Id].Lock()

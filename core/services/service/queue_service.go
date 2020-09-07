@@ -45,7 +45,7 @@ func (queueServiceImpl) SelectQueues(params models.QueueQueryVO) ([]*models.Queu
 		return nil, nil
 	}
 
-	now := gox.GetTimestamp(time.Now().Add(time.Second * 10 * time.Duration(len(retArray))))
+	now := gox.GetTimestamp(time.Now().Add(time.Second * time.Duration(params.QueueExpireSeconds*len(retArray))))
 	for _, v := range retArray {
 		v.Expire = now
 	}
@@ -178,5 +178,3 @@ func (queueServiceImpl) StatisticFinal(taskId int) error {
 	})
 	return err
 }
-
-

@@ -101,7 +101,7 @@ func BackPushNotify(taskId int) {
 	}
 }
 
-func backPushListener(taskId, fetchSize int) {
+func backPushListener(taskId, fetchSize, queueExpireSeconds int) {
 	for {
 		time.Sleep(time.Millisecond * 100)
 		blockQueue := backPushNotifier[taskId]
@@ -117,7 +117,7 @@ func backPushListener(taskId, fetchSize int) {
 			continue
 		}
 		//logger.Info("背压")
-		fetchQueue(taskId, fetchSize)
+		fetchQueue(taskId, fetchSize, queueExpireSeconds)
 	}
 }
 
@@ -136,15 +136,13 @@ func Schedule(task *models.Task) error {
 		return err
 	}
 
-	conSize := project.GetIntSetting(common.SETTINGS_CONCURRENT_REQUESTS)
-	if conSize == 0 {
-		conSize = 5
-	}
+	conSize := project.GetIntSetting(common.SETTINGS_CONCURRENT_REQUESTS, 5)
+	queueExpireSeconds := project.GetIntSetting(common.SETTINGS_QUEUE_EXPIRE_SECONDS, 10)
 	blockQueueCache[task.Id] = queue.NewNoneBlockQueue(conSize * 5)
 	queryLock[task.Id] = new(sync.Mutex)
 	backPushNotifier[task.Id] = queue.NewNoneBlockQueue(1)
 	checkStatusFinishStatus(task.Id)
-	go backPushListener(task.Id, conSize)
+	go backPushListener(task.Id, conSize, queueExpireSeconds)
 
 	logger.Info("开始调度任务：", task.Id)
 	timer.Start(time.Second*2, time.Second*10, 0, func(t *timer.Timer) {
@@ -169,7 +167,7 @@ func Schedule(task *models.Task) error {
 				return
 			}
 			if selectTask.Status == 1 {
-				if fetchQueue(task.Id, conSize) {
+				if fetchQueue(task.Id, conSize, queueExpireSeconds) {
 					continue
 				}
 				// 没有更多，睡一会
@@ -211,7 +209,7 @@ func releaseTaskQueueCache(blockQueue *queue.NoneBlockQueue) {
 	}
 }
 
-func fetchQueue(taskId int, fetchSize int) bool {
+func fetchQueue(taskId int, fetchSize, queueExpireSeconds int) bool {
 	lock := queryLock[taskId]
 	if lock != nil {
 		queryLock[taskId].Lock()
@@ -222,10 +220,11 @@ func fetchQueue(taskId int, fetchSize int) bool {
 
 	var queues []*models.Queue
 	queues, err := service.QueueService().SelectQueues(models.QueueQueryVO{
-		TaskId:     taskId,
-		LockStatus: true,
-		Status:     0,
-		Limit:      fetchSize,
+		TaskId:             taskId,
+		LockStatus:         true,
+		Status:             0,
+		QueueExpireSeconds: queueExpireSeconds,
+		Limit:              fetchSize,
 	})
 	if err != nil {
 		logger.Debug("error query queue from database: ", err)
@@ -276,7 +275,7 @@ func checkStatusFinishStatus(taskId int) {
 			logger.Error(err)
 			return true
 		}
-		if task.Status == 2 || task.Status == 3 {
+		if task == nil || task.Status == 2 || task.Status == 3 {
 			t.Destroy()
 			return false
 		}

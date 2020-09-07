@@ -79,10 +79,11 @@ type TaskQueryVO struct {
 }
 
 type QueueQueryVO struct {
-	TaskId     int  `json:"task_id"`
-	Status     int  `json:"status"`
-	Limit      int  `json:"limit"`
-	LockStatus bool `json:"lock"` // 查询之后是否立即锁定状态
+	TaskId             int  `json:"task_id"`
+	Status             int  `json:"status"`
+	Limit              int  `json:"limit"`
+	QueueExpireSeconds int  `json:"queue_expire_seconds"`
+	LockStatus         bool `json:"lock"` // 查询之后是否立即锁定状态
 }
 
 type FetchQueueResponseVO struct {

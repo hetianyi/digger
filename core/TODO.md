@@ -56,10 +56,10 @@
 - [x] 无法完成任务：task already shutdown   无法完成任务：task not exists
 - [ ] restapi打印错误日志
 - [x] 支持xpath
-- [ ] 任务调度节奏性卡顿问题
+- [x] 任务调度节奏性卡顿问题
 - [x] 构建时替换UI底部的版本
-- [ ] 首次启动任务时很慢
-- [ ] settings增加配置单queue过期时间
+- [x] 首次启动任务时很慢
+- [x] settings增加配置单queue过期时间
 
 
 

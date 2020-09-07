@@ -68,8 +68,11 @@ func (p *Project) GetPluginByName(plugin string) *Stage {
 	return nil
 }
 
-func (p *Project) GetIntSetting(name string) int {
+func (p *Project) GetIntSetting(name string, defaultVal int) int {
 	i, _ := convert.StrToInt(p.Settings[name])
+	if i == 0 {
+		return defaultVal
+	}
 	return i
 }
 
