@@ -37,7 +37,7 @@ export default {
         },
         legend: {
           orient: 'horizontal',
-          icon: 'stack',
+          icon: 'roundRect',
           x: 'left',
           data: []
         },
@@ -81,7 +81,7 @@ export default {
         if (this.series && this.series.length > 0) {
           for (let i = 0; i < this.series.length; i++) {
             let res = this.series[i]
-            res.symbol = "circle"
+            res.symbol = "none"
             that.option.series.push(res)
             that.option.legend.data[i] = res.name
           }

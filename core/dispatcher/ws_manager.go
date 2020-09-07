@@ -279,6 +279,12 @@ func selectClient(labels []models.KV) *WsClient {
 	return retList[index]
 }
 
+func CountClient() int {
+	wsManageLock.Lock()
+	defer wsManageLock.Unlock()
+	return len(clientMap)
+}
+
 func selectClientById(id int) *WsClient {
 	wsManageLock.Lock()
 	defer wsManageLock.Unlock()

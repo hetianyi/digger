@@ -7,6 +7,7 @@ package restapi
 
 import (
 	"compress/gzip"
+	"digger/dispatcher"
 	"digger/models"
 	"digger/services/service"
 	"fmt"
@@ -24,10 +25,10 @@ type Item struct {
 }
 
 type LineType struct {
-	Type  string `json:"type"`
-	Name  string `json:"name"`
-	Color string `json:"color"`
-	Data  [][]interface{}  `json:"data"`
+	Type  string          `json:"type"`
+	Name  string          `json:"name"`
+	Color string          `json:"color"`
+	Data  [][]interface{} `json:"data"`
 }
 
 func GetStatistic(c *gin.Context) {
@@ -53,22 +54,22 @@ func GetStatistic(c *gin.Context) {
 	retMap := make(map[string]interface{})
 	var ret []*LineType
 	totalRequests := &LineType{
-		Name: "请求数",
-		Type: "line",
+		Name:  "请求数",
+		Type:  "line",
 		Color: "#00F730",
-		Data: [][]interface{}{},
+		Data:  [][]interface{}{},
 	}
 	errorRequests := &LineType{
-		Name: "错误数",
-		Type: "line",
+		Name:  "错误数",
+		Type:  "line",
 		Color: "#FF0000",
-		Data: [][]interface{}{},
+		Data:  [][]interface{}{},
 	}
 	result := &LineType{
-		Name: "结果数",
+		Name:  "结果数",
 		Color: "#B117AC",
-		Type: "line",
-		Data: [][]interface{}{},
+		Type:  "line",
+		Data:  [][]interface{}{},
 	}
 	ret = append(ret, totalRequests, errorRequests, result)
 
@@ -77,36 +78,35 @@ func GetStatistic(c *gin.Context) {
 	retMap["inforCardData"] = []map[string]interface{}{
 		{
 			"title": "项目",
-			"icon": "md-apps",
+			"icon":  "md-apps",
 			"count": configs["project_count"],
 			"color": "#2d8cf0",
 		},
 		{
 			"title": "任务",
-			"icon": "ios-stats",
+			"icon":  "ios-stats",
 			"count": configs["task_count"],
 			"color": "#19be6b",
 		},
 		{
 			"title": "工作节点",
-			"icon": "ios-globe-outline",
-			"count": 2,
+			"icon":  "ios-globe-outline",
+			"count": dispatcher.CountClient(),
 			"color": "#ff9900",
 		},
 		{
 			"title": "累计请求",
-			"icon": "md-paper-plane",
+			"icon":  "md-paper-plane",
 			"count": configs["total_request_count"],
 			"color": "#ed3f14",
 		},
 		{
 			"title": "累计结果",
-			"icon": "md-checkbox",
+			"icon":  "md-checkbox",
 			"count": configs["result_count"],
 			"color": "#E46CBB",
 		},
 	}
-
 
 	for _, e := range vos {
 		val := 0
