@@ -46,9 +46,7 @@
 - [ ] 模板引擎渲染结果
 - [ ] 资源下载
 - [ ] http代理
-- [ ] 根据sql展示task进度图select a.stage_name, count(*) from t_queue a where a.task_id = 31 and status=0 group by a.stage_name
 - [x] 任务删除功能，同时清理数据
-- [ ] postgres压力太大，想办法降低
 - [x] 压缩导出文件
 - [ ] 用户管理
 - [x] 日志乱码
@@ -60,6 +58,8 @@
 - [x] 构建时替换UI底部的版本
 - [x] 首次启动任务时很慢
 - [x] settings增加配置单queue过期时间
+- [ ] DiggerHub
+- [x] start_url改为list类型
 
 
 

@@ -43,6 +43,7 @@ func GetProjectList(c *gin.Context) {
 	})
 
 	if err != nil {
+		logger.Error(err)
 		c.JSON(http.StatusOK, ErrorMsg(err.Error()))
 		return
 	}
@@ -92,7 +93,7 @@ func CreateProject(c *gin.Context) {
 	if reqData.DisplayName == "" {
 		reqData.DisplayName = reqData.Name
 	}
-	reqData.StartUrl = ""
+	reqData.StartUrls = nil
 	reqData.StartStage = ""
 
 	project, err := service.ProjectService().CreateProject(reqData)
@@ -276,7 +277,7 @@ func SaveProjectConfig(c *gin.Context) {
 	}
 	oldProject.Headers = project.Headers
 	oldProject.Settings = project.Settings
-	oldProject.StartUrl = project.StartUrl
+	oldProject.StartUrls = project.StartUrls
 	oldProject.StartStage = project.StartStage
 	oldProject.NodeAffinity = project.NodeAffinity
 

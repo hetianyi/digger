@@ -273,6 +273,12 @@ func toDB(project *models.Project) error {
 	}
 	project.HeadersDB = h
 
+	u, err := json.MarshalToString(project.StartUrls)
+	if err != nil {
+		return err
+	}
+	project.StartUrlsDB = u
+
 	n, err := json.MarshalToString(project.NodeAffinity)
 	if err != nil {
 		return err
@@ -285,6 +291,7 @@ func fromDB(project *models.Project) error {
 	s := make(map[string]string)
 	h := make(map[string]string)
 	var n []string
+	var us []string
 	err := json.UnmarshalFromString(project.SettingsDB, &s)
 	if err != nil {
 		return err
@@ -296,6 +303,12 @@ func fromDB(project *models.Project) error {
 		return err
 	}
 	project.Headers = h
+
+	err = json.UnmarshalFromString(project.StartUrlsDB, &us)
+	if err != nil {
+		return err
+	}
+	project.StartUrls = us
 
 	err = json.UnmarshalFromString(project.NodeAffinityDB, &n)
 	if err != nil {
@@ -364,7 +377,6 @@ func parsePlugin(s string) *models.Plugin {
 		Slot: slot,
 	}
 }
-
 
 func (t projectServiceImp) AllProjectCount() (int, error) {
 	// 查询数据

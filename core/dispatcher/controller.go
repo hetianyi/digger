@@ -42,11 +42,14 @@ func (*stopFuncImp) Stop(taskId int) {
 	dispatchLock.Lock()
 	defer dispatchLock.Unlock()
 
-	if taskWorkLock[taskId] != nil {
-		taskWorkLock[taskId].Lock()
-		defer taskWorkLock[taskId].Unlock()
+	l := taskWorkLock[taskId]
+	if l != nil {
+		l.Lock()
+		defer l.Unlock()
+	} else {
+		return
 	}
-	logger.Info("停止任务：", taskId)
+	logger.Info("dispatcher:停止任务：", taskId)
 
 	if taskScheduleTimer[taskId] != nil {
 		taskScheduleTimer[taskId].Destroy()
@@ -56,6 +59,7 @@ func (*stopFuncImp) Stop(taskId int) {
 	delete(notifiers, taskId)
 	file := logFileMap[taskId]
 	if file != nil {
+		logger.Debug("closing log file")
 		file.Close()
 	}
 	delete(logFileMap, taskId)

@@ -20,7 +20,8 @@ type Project struct {
 	DisplayName        string            `json:"display_name" yaml:"-" gorm:"column:display_name"`
 	Remark             string            `json:"remark" yaml:"-" gorm:"column:remark"`
 	Tags               string            `json:"tags" yaml:"-" gorm:"column:tags"`
-	StartUrl           string            `json:"start_url" yaml:"start_url" gorm:"column:start_url"`
+	StartUrls          []string          `json:"start_urls" yaml:"start_urls" gorm:"-"`
+	StartUrlsDB        string            `json:"start_urls" yaml:"-" gorm:"column:start_urls"`
 	StartStage         string            `json:"start_stage" yaml:"start_stage" gorm:"column:start_stage"`
 	Cron               string            `json:"cron" yaml:"-" gorm:"column:cron"`
 	EnableCron         bool              `json:"enable_cron" yaml:"-" gorm:"column:enable_cron"`
@@ -93,8 +94,8 @@ func (p *Project) Validate() (bool, error) {
 	if p.DisplayName == "" {
 		return false, errors.New("invalid display_name: \"" + p.DisplayName + "\"")
 	}
-	if p.StartUrl == "" {
-		return false, errors.New("invalid start_url: \"" + p.StartUrl + "\"")
+	if len(p.StartUrls) == 0 {
+		return false, errors.New("no start_urls")
 	}
 	if len(p.Stages) == 0 {
 		return false, errors.New("no stage")

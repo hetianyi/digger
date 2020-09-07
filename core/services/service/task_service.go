@@ -57,16 +57,17 @@ func (taskServiceImp) CreateTask(task models.Task) (*models.Task, error) {
 			return err
 		}
 
-		// 保存第一个queue
-		firstQueue := &models.Queue{
-			Id:         0,
-			TaskId:     task.Id,
-			StageName:  project.StartStage,
-			Url:        project.StartUrl,
-			MiddleData: "{}",
-		}
-		if err := tx.Save(&firstQueue).Error; err != nil {
-			return err
+		for _, u := range project.StartUrls {
+			// 保存第一个queue
+			bootstrapQueue := &models.Queue{
+				TaskId:     task.Id,
+				StageName:  project.StartStage,
+				Url:        u,
+				MiddleData: "{}",
+			}
+			if err := tx.Save(&bootstrapQueue).Error; err != nil {
+				return err
+			}
 		}
 		return nil
 	})

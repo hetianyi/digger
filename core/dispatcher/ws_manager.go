@@ -135,6 +135,10 @@ func handleQueueResult(msg *WsMessage) {
 		}
 	}
 	defer func() {
+		// ??
+		ret.Results = nil
+		ret.NewQueues = nil
+		ret.Logs = ""
 		if logFile != nil {
 			logFile.Sync()
 		}

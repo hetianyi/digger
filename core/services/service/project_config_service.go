@@ -167,7 +167,7 @@ func (projectConfigServiceImp) ImportProjectConfig(project *models.Project) erro
 				"settings":      project.SettingsDB,
 				"headers":       project.HeadersDB,
 				"node_affinity": project.NodeAffinityDB,
-				"start_url":     project.StartUrl,
+				"start_urls":    project.StartUrlsDB,
 				"start_stage":   project.StartStage,
 			}).Error; err != nil {
 			return err

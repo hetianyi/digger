@@ -294,15 +294,16 @@ func DispatchTask(task *models.Task) {
 	})
 }
 
+// 监听schedule的信号
 func notify(taskId int, doWork func() bool) {
 	for {
-		blockQueue := notifiers[taskId]
+		q := notifiers[taskId]
 		lock := taskWorkLock[taskId]
-		if blockQueue == nil || lock == nil {
+		if q == nil || lock == nil {
 			break
 		}
 		lock.Lock()
-		_, s := blockQueue.Fetch()
+		_, s := q.Fetch()
 		lock.Unlock()
 		if s {
 			logger.Debug("notify推送")
@@ -313,12 +314,12 @@ func notify(taskId int, doWork func() bool) {
 			})
 			continue
 		}
-		time.Sleep(time.Second)
+		time.Sleep(time.Millisecond * 200)
 	}
 }
 
 func dispatchWork(requestId string, queue *models.Queue, client *WsClient) {
-	logger.Debug("分配任务：", queue.Id, "，requestId=", requestId)
+	logger.Info("分配任务：", queue.Id, "，requestId=", requestId)
 	updateLock.Lock()
 	assignRequests++
 	updateLock.Unlock()
