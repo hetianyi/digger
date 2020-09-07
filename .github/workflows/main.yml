@@ -22,8 +22,8 @@ jobs:
     # 构建ui
     - name: Build UI
       run:  |
-        export tag=RELEASE.$(date "+%Y-%m-%d_%H-%M-%S")
-        echo "tag is $tag"
+        echo RELEASE.$(date "+%Y-%m-%d_%H-%M-%S") > docker.tag
+        tag=$(cat docker.tag)
         sed "s@Digger Version v0.0.1@Digger Version $tag@g" -i ui/src/components/main/main.vue
         sh build-ui.sh
 
@@ -33,6 +33,7 @@ jobs:
         DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
         DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
       run: |
+        tag=$(cat docker.tag)
         echo "tag is $tag"
         docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
         sudo docker build -t hehety/digger:${tag} .
