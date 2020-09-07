@@ -12,7 +12,7 @@
  Target Server Version : 90618
  File Encoding         : 65001
 
- Date: 04/09/2020 23:22:56
+ Date: 07/09/2020 21:21:18
 */
 
 
@@ -153,10 +153,10 @@ CREATE TABLE "public"."t_field" (
   "stage_id" int4 NOT NULL,
   "is_array" bool NOT NULL,
   "is_html" bool NOT NULL,
-  "css" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
-  "attr" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
-  "remark" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
-  "next_stage" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
+  "css" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::character varying,
+  "attr" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::character varying,
+  "remark" varchar(255) COLLATE "pg_catalog"."default",
+  "next_stage" varchar(255) COLLATE "pg_catalog"."default",
   "name" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::character varying,
   "plugin" varchar(50) COLLATE "pg_catalog"."default",
   "xpath" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::character varying
@@ -205,7 +205,7 @@ CREATE TABLE "public"."t_project" (
   "create_time" timestamp(6) NOT NULL DEFAULT now(),
   "update_time" timestamp(6) NOT NULL DEFAULT now(),
   "tags" varchar(255) COLLATE "pg_catalog"."default",
-  "start_url" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
+  "start_urls" json NOT NULL,
   "start_stage" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
   "headers" json,
   "node_affinity" json,
@@ -220,7 +220,7 @@ COMMENT ON COLUMN "public"."t_project"."settings" IS '配置';
 COMMENT ON COLUMN "public"."t_project"."create_time" IS '创建时间';
 COMMENT ON COLUMN "public"."t_project"."update_time" IS '更新时间';
 COMMENT ON COLUMN "public"."t_project"."tags" IS '标签';
-COMMENT ON COLUMN "public"."t_project"."start_url" IS '开始地址';
+COMMENT ON COLUMN "public"."t_project"."start_urls" IS '开始地址';
 COMMENT ON COLUMN "public"."t_project"."start_stage" IS '开始阶段';
 COMMENT ON COLUMN "public"."t_project"."headers" IS '自定义headers';
 COMMENT ON COLUMN "public"."t_project"."node_affinity" IS '节点亲和标签配置';
@@ -273,10 +273,10 @@ CREATE TABLE "public"."t_stage" (
   "project_id" int4 NOT NULL,
   "name" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
   "is_list" bool NOT NULL,
-  "list_css" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
-  "page_css" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
-  "page_attr" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
-  "plugins" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
+  "list_css" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::character varying,
+  "page_css" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::character varying,
+  "page_attr" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::character varying,
+  "plugins" varchar(255) COLLATE "pg_catalog"."default" DEFAULT ''::character varying,
   "is_unique" bool NOT NULL DEFAULT false,
   "page_xpath" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::character varying,
   "list_xpath" varchar(255) COLLATE "pg_catalog"."default" NOT NULL DEFAULT ''::character varying
