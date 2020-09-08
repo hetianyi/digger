@@ -42,7 +42,6 @@ func handleSR(cxt *models.Context) error {
 			cxt.ResponseData = body
 			return nil
 		} else {
-
 			return errors.New("error http status " + convert.IntToStr(resp.StatusCode()))
 		}
 	}

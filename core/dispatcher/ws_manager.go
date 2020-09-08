@@ -159,6 +159,8 @@ func handleQueueResult(msg *WsMessage) {
 				logger.Info("err")
 			}
 		}
+		// 将并发移除
+		service.CacheService().DecreConcurrentTaskCount(ret.RequestId, ret.TaskId)
 		return
 	}
 
@@ -166,6 +168,11 @@ func handleQueueResult(msg *WsMessage) {
 	results += len(ret.Results)
 	updateLock.Unlock()
 
+	/*if len(ret.Results) > 0 {
+		temp := make(map[string]string)
+		jsoniter.UnmarshalFromString(ret.Results[0].Result, &temp)
+		fmt.Println(temp)
+	}*/
 	if err = service.ResultService().SaveProcessResultData(&ret, false); err != nil {
 		logger.Info("err")
 	}

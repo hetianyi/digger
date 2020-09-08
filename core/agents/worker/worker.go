@@ -13,7 +13,6 @@ import (
 	"os/signal"
 	"sync"
 	"syscall"
-	"time"
 )
 
 var (
@@ -37,20 +36,4 @@ func StartAgentWorker(_config *models.BootstrapConfig) {
 
 func startClient() {
 	client.InitWsClient(config)
-}
-
-func watchAge(ageSec int) {
-	if ageSec > 3600 {
-		ageSec = 3600
-	}
-	if ageSec < 60 {
-		ageSec = 60
-	}
-	logger.Info("开始生命倒计时：", ageSec, "s")
-	time.Sleep(time.Second * time.Duration(ageSec))
-	logger.Info("==================================================")
-	logger.Info("!!!Exit due to exceed max age!!!")
-	logger.Info("!!!Worker正常退出：已达到最大生命!!!")
-	logger.Info("==================================================")
-	os.Exit(0)
 }

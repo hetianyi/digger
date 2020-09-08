@@ -7,8 +7,10 @@ package crawler
 
 import (
 	"bytes"
+	"digger/common"
 	"digger/models"
 	"digger/plugins"
+	"errors"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/antchfx/htmlquery"
@@ -18,17 +20,13 @@ import (
 	"github.com/json-iterator/go"
 	"golang.org/x/net/html"
 	"io"
+	"net/http"
 	"time"
 )
 
 var (
-	httpClient = resty.New()
-	json       = jsoniter.ConfigFastest
+	json = jsoniter.ConfigFastest
 )
-
-func init() {
-	httpClient.SetTimeout(time.Second * 30)
-}
 
 // 根据爬虫任务和队列数据开始处理
 func Process(
@@ -115,7 +113,21 @@ func Play(
 }
 
 func request(queue *models.Queue, project *models.Project) (*resty.Response, error) {
-	return httpClient.R().SetHeaders(project.Headers).Get(queue.Url)
+	return resty.New().
+		SetTimeout(time.Second * time.Duration(project.GetIntSetting(common.SETTINGS_REQUEST_TIMEOUT, 60))).
+		SetRedirectPolicy(resty.RedirectPolicyFunc(func(req *http.Request, via []*http.Request) error {
+			// return nil for continue redirect otherwise return error to stop/prevent redirect
+			f := project.GetBoolSetting(common.SETTINGS_FOLLOW_REDIRECT)
+			if f {
+				return nil
+			}
+			return errors.New("follow redirect is disabled")
+		})).
+		SetRetryCount(project.GetIntSetting(common.SETTINGS_RETRY_COUNT, 0)).
+		SetRetryWaitTime(time.Second * time.Duration(project.GetIntSetting(common.SETTINGS_RETRY_WAIT, 3))).
+		R().
+		SetHeaders(project.Headers).
+		Get(queue.Url)
 }
 
 func handlerEngineRoute(

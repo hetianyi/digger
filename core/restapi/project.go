@@ -154,13 +154,11 @@ func UpdateProject(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(project))
 }
 
-// 为项目开始一个新任务
 func StartNewTask(c *gin.Context) {
 	//projectId := c.Param("id")
 	c.JSON(http.StatusOK, Success(nil))
 }
 
-// 为项目开始一个新任务
 func DeleteProject(c *gin.Context) {
 
 	id := c.Param("id")
@@ -185,7 +183,6 @@ func DeleteProject(c *gin.Context) {
 	c.JSON(http.StatusOK, Success(nil))
 }
 
-// 为项目开始一个新任务
 func GetProject(c *gin.Context) {
 
 	id := c.Param("id")
@@ -224,6 +221,9 @@ func GetProject(c *gin.Context) {
 	}
 	if project.NodeAffinity == nil || len(project.NodeAffinity) == 0 {
 		project.NodeAffinity = []string{""}
+	}
+	if project.StartUrls == nil || len(project.StartUrls) == 0 {
+		project.StartUrls = []string{""}
 	}
 	if project.Stages == nil || len(project.Stages) == 0 {
 		project.Stages = []models.Stage{
