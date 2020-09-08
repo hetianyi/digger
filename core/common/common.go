@@ -42,9 +42,9 @@ const (
 	// 请求超时时间(s)
 	SETTINGS_REQUEST_TIMEOUT = "REQUEST_TIMEOUT"
 	// 重试次数（单节点，非全局）
-	SETTINGS_RETRY_COUNT = "0"
+	SETTINGS_RETRY_COUNT = "RETRY_COUNT"
 	// 重试间隔时间(s)
-	SETTINGS_RETRY_WAIT = "3"
+	SETTINGS_RETRY_WAIT = "RETRY_WAIT"
 
 	NAME_REGEXP = "^[a-zA-Z0-9_]+$"
 	REPO_DIR    = "/var/digger/repo"
