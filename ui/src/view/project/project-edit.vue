@@ -238,6 +238,8 @@
   import 'codemirror/mode/javascript/javascript'
   import 'codemirror/addon/lint/lint'
   import 'codemirror/addon/lint/yaml-lint'
+  import 'codemirror/keymap/sublime.js'
+  import 'codemirror/addon/hint/javascript-hint'
 
   import {
     getProject,
@@ -326,6 +328,9 @@
           }
           this.tags = JSON.parse(_tags)
           this.plugins = data.data.plugins == null ? [] : data.data.plugins
+          if (this.plugins.length > 0) {
+            that.activePluginEditor(this.plugins[0].name)
+          }
           this.crawlerFileEditor.setValue(data.data.yaml)
           this.crawlerFileEditor.refresh()
           this.crawlerFileEditor.focus()
@@ -635,6 +640,12 @@
 
     watch: {
       projectId(val) {
+        this.plugins = []
+        this.project = {}
+        this.tags = []
+        this.activeEditPluginName = ''
+        this.crawlerFileEditor && this.crawlerFileEditor.setValue('')
+        this.pluginFileEditor && this.pluginFileEditor.setValue('')
         this.saveProjectLoading = true
         this.saveProjectConfigLoading = true
         this.savePluginLoading = true
@@ -643,7 +654,7 @@
     },
 
     mounted() {
-
+      let that = this
       // 初始化配置文件编辑器
       this.crawlerFileEditor = CodeMirror.fromTextArea(this.$refs.config_textarea, {
         lineNumbers: true, // 显示行号
@@ -676,6 +687,23 @@
       this.pluginFileEditor.getWrapperElement().style.height='100%'
       this.pluginFileEditor.refresh();
 
+
+      CodeMirror.commands.saveProject = function (cm) {
+        that.saveProjectConfig()
+      }
+      CodeMirror.commands.savePlugin = function (cm) {
+        that.savePlugins()
+      }
+      // 判断是否为Mac
+      let mac = CodeMirror.keyMap.default == CodeMirror.keyMap.macDefault
+      let runKey = (mac ? "Cmd" : "Ctrl") + "-S"
+      let projectExtraKeys = {}
+      projectExtraKeys[runKey] = "saveProject"
+      let pluginExtraKeys = {}
+      pluginExtraKeys[runKey] = "savePlugin"
+
+      this.crawlerFileEditor.setOption("extraKeys", projectExtraKeys)
+      this.pluginFileEditor.setOption("extraKeys", pluginExtraKeys)
     }
   }
 </script>
