@@ -60,7 +60,8 @@
 - [x] settings增加配置单queue过期时间
 - [ ] DiggerHub
 - [x] start_url改为list类型
-- [ ] 插件编辑切换项目无法刷新
+- [x] 插件编辑切换项目无法刷新
+- [ ] 内置函数增加json处理
 
 
 

@@ -100,6 +100,11 @@
       },
 
       async saveConfig(key, value) {
+        let isDemo = false
+        if (isDemo) {
+          this.$Message.error('演示环境无法更改此项')
+          return
+        }
         let d = {
           key: key,
           value: value,
