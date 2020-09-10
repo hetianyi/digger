@@ -347,8 +347,8 @@
         if (data && data.code == 0) {
           console.log(data.data)
           this.debugParams.stages = data.data.stages
-          if (this.debugParams.input == '' && data.data.start_url != '') {
-            this.debugParams.input = data.data.start_url
+          if (this.debugParams.input == '' && data.data.start_urls != null && data.data.start_urls.length > 0) {
+            this.debugParams.input = data.data.start_urls[0]
           }
           this.showDebugModal = true
         } else {

@@ -12,7 +12,8 @@ Digger没有复杂的依赖，部署十分简单，支持Linux和Windows平台�
 
 - 支持使用Css选择器和Xpath选择器
 - 支持多种结果类型：plain text，html，array等
-- web在线调试爬虫配置，精准定位问题
+- web端爬虫配置编辑器
+- 在线调试爬虫配置，精准定位问题
 - 支持插件功能
 - 实时浏览爬虫日志
 - 结果在线浏览、导出，一键生成数据库schema（postgres和mysql）
