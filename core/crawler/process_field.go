@@ -10,7 +10,7 @@ import (
 )
 
 // 使用css selector处理stage的字段
-func processCssField(field *models.Field, s *goquery.Selection) string {
+func processCssField(cxt *models.Context, field *models.Field, s *goquery.Selection) string {
 	ret := ""
 	if field.IsArray {
 		var arrayFieldValue []string
@@ -55,11 +55,13 @@ func processCssField(field *models.Field, s *goquery.Selection) string {
 		}
 		ret = v
 	}
+	// slot s4
+	ret = handleS4(cxt, field, field.Name, ret)
 	return ret
 }
 
 // 使用css selector处理stage的字段
-func processXpathField(field *models.Field, node *html.Node) string {
+func processXpathField(cxt *models.Context, field *models.Field, node *html.Node) string {
 	ret := ""
 	if field.IsArray {
 		var arrayFieldValue []string
@@ -100,6 +102,7 @@ func processXpathField(field *models.Field, node *html.Node) string {
 			}
 		}
 	}
-	//fmt.Println(ret)
+	// slot s4
+	ret = handleS4(cxt, field, field.Name, ret)
 	return ret
 }

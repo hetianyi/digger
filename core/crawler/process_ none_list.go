@@ -23,16 +23,14 @@ func processNoneList(cxt *models.Context) error {
 			if err != nil {
 				return err
 			}
-			ret = processCssField(&f, doc.Selection)
+			ret = processCssField(cxt, &f, doc.Selection)
 		} else if f.Xpath != "" {
 			doc, err := parseXpathDocument(cxt)
 			if err != nil {
 				return err
 			}
-			ret = processXpathField(&f, doc)
+			ret = processXpathField(cxt, &f, doc)
 		}
-		// slot s4
-		ret = handleS4(cxt, &f, f.Name, ret)
 
 		cxt.Log.Write([]byte(fmt.Sprintf("%s: %s\n", f.Name, ret)))
 

@@ -40,9 +40,7 @@ func processListByCssSelector(cxt *models.Context) error {
 		var itemMiddleData []*models.Queue
 		for i := range stage.Fields {
 			f := stage.Fields[i]
-			ret := processCssField(&f, s)
-			// slot s4
-			ret = handleS4(cxt, &f, f.Name, ret)
+			ret := processCssField(cxt, &f, s)
 
 			cxt.Log.Write([]byte(fmt.Sprintf("%s: %s", f.Name, ret)))
 
@@ -96,9 +94,7 @@ func processListByXpathSelector(cxt *models.Context) error {
 		var itemMiddleData []*models.Queue
 		for i := range stage.Fields {
 			f := stage.Fields[i]
-			ret := processXpathField(&f, node)
-			// slot s4
-			ret = handleS4(cxt, &f, f.Name, ret)
+			ret := processXpathField(cxt, &f, node)
 
 			cxt.Log.Write([]byte(fmt.Sprintf("%s: %s", f.Name, ret)))
 
