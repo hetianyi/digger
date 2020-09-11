@@ -45,6 +45,8 @@ const (
 	SETTINGS_RETRY_COUNT = "RETRY_COUNT"
 	// 重试间隔时间(s)
 	SETTINGS_RETRY_WAIT = "RETRY_WAIT"
+	// 是否跳过tls验证，解决自谦证书问题
+	SETTINGS_SKIP_TLS_VERIFY = "SKIP_TLS_VERIFY"
 
 	NAME_REGEXP = "^[a-zA-Z0-9_]+$"
 	REPO_DIR    = "/var/digger/repo"

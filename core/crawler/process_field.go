@@ -72,21 +72,33 @@ func processXpathField(cxt *models.Context, field *models.Field, node *html.Node
 				return ""
 			}
 			for _, item := range list {
+				itemVal := ""
 				if field.IsHtml {
-					arrayFieldValue = append(arrayFieldValue, htmlquery.OutputHTML(item, false))
+					itemVal = htmlquery.OutputHTML(item, false)
 				} else {
-					arrayFieldValue = append(arrayFieldValue, htmlquery.InnerText(item))
+					itemVal = htmlquery.InnerText(item)
 				}
+				// slot s4
+				itemVal = handleS4(cxt, field, field.Name, itemVal)
+				arrayFieldValue = append(arrayFieldValue, itemVal)
 			}
 			ret, _ = json.MarshalToString(arrayFieldValue)
 		} else {
-			arrayFieldValue = append(arrayFieldValue, strings.TrimSpace(node.Data))
+			// TODO 提取公共代码
+			itemVal := ""
+			if field.IsHtml {
+				itemVal = htmlquery.OutputHTML(node, false)
+			} else {
+				itemVal = strings.TrimSpace(htmlquery.InnerText(node))
+			}
+			// slot s4
+			itemVal = handleS4(cxt, field, field.Name, itemVal)
+			arrayFieldValue = append(arrayFieldValue, strings.TrimSpace(itemVal))
 		}
 		ret, _ = json.MarshalToString(arrayFieldValue)
 	} else {
 		if field.Xpath != "" {
 			item := htmlquery.FindOne(node, field.Xpath)
-			//fmt.Println(htmlquery.OutputHTML(node, false))
 			if item != nil {
 				if field.IsHtml {
 					ret = htmlquery.OutputHTML(item, false)
@@ -101,8 +113,8 @@ func processXpathField(cxt *models.Context, field *models.Field, node *html.Node
 				ret = strings.TrimSpace(htmlquery.InnerText(node))
 			}
 		}
+		// slot s4
+		ret = handleS4(cxt, field, field.Name, ret)
 	}
-	// slot s4
-	ret = handleS4(cxt, field, field.Name, ret)
 	return ret
 }

@@ -1,6 +1,7 @@
 package crawler
 
 import (
+	"crypto/tls"
 	"digger/common"
 	"digger/models"
 	"errors"
@@ -50,6 +51,9 @@ func getClient(queue *models.Queue, project *models.Project) *resty.Client {
 		restyClientCache[queue.TaskId] = &restyClient{
 			client: resty.New().
 				SetTimeout(time.Second * time.Duration(project.GetIntSetting(common.SETTINGS_REQUEST_TIMEOUT, 60))).
+				SetTLSClientConfig(&tls.Config{
+					InsecureSkipVerify: project.GetBoolSetting(common.SETTINGS_SKIP_TLS_VERIFY),
+				}).
 				SetRedirectPolicy(resty.RedirectPolicyFunc(func(req *http.Request, via []*http.Request) error {
 					// return nil for continue redirect otherwise return error to stop/prevent redirect
 					f := project.GetBoolSetting(common.SETTINGS_FOLLOW_REDIRECT)
