@@ -1,4 +1,4 @@
-package crawler
+package httpclient
 
 import (
 	"crypto/tls"
@@ -42,13 +42,13 @@ func expireClientDetect() {
 	})
 }
 
-func getClient(queue *models.Queue, project *models.Project) *resty.Client {
+func GetClient(taskId int, project *models.Project) *resty.Client {
 	restyClientLock.Lock()
 	defer restyClientLock.Unlock()
 
-	client := restyClientCache[queue.TaskId]
+	client := restyClientCache[taskId]
 	if client == nil {
-		restyClientCache[queue.TaskId] = &restyClient{
+		restyClientCache[taskId] = &restyClient{
 			client: resty.New().
 				SetTimeout(time.Second * time.Duration(project.GetIntSetting(common.SETTINGS_REQUEST_TIMEOUT, 60))).
 				SetTLSClientConfig(&tls.Config{
@@ -67,5 +67,5 @@ func getClient(queue *models.Queue, project *models.Project) *resty.Client {
 			lastUse: time.Now(),
 		}
 	}
-	return restyClientCache[queue.TaskId].client
+	return restyClientCache[taskId].client
 }

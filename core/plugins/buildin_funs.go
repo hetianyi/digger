@@ -6,6 +6,7 @@
 package plugins
 
 import (
+	"digger/httpclient"
 	"digger/models"
 	"digger/utils"
 	"github.com/go-resty/resty/v2"
@@ -271,7 +272,8 @@ func initBuildInFunctions(cxt *models.Context) {
 		var resp *resty.Response
 		var err error
 
-		req := httpClient.R().
+		req := httpclient.GetClient(0, cxt.Project).
+			R().
 			SetHeaders(headers).
 			SetQueryParams(params).
 			SetBody(body)

@@ -7,6 +7,7 @@ package crawler
 
 import (
 	"bytes"
+	"digger/httpclient"
 	"digger/models"
 	"digger/plugins"
 	"fmt"
@@ -109,7 +110,7 @@ func Play(
 }
 
 func request(queue *models.Queue, project *models.Project) (*resty.Response, error) {
-	return getClient(queue, project).
+	return httpclient.GetClient(queue.TaskId, project).
 		R().
 		SetHeaders(project.Headers).
 		Get(queue.Url)

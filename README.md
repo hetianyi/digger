@@ -287,6 +287,11 @@ headers: # 爬虫请求时会携带的http头部
     Gecko) Chrome/78.0.3904.108 Safari/537.36
 settings: 
   CONCURRENT_REQUESTS: "5" # 全局最大并发请求数
+  FOLLOW_REDIRECT: "false" # 是否跟随重定向
+  REQUEST_TIMEOUT: "60" # 请求超时时间(s)
+  RETRY_COUNT: "3" # 重试次数（单节点，非全局）
+  RETRY_WAIT: "0" # 重试间隔时间(s)
+  SKIP_TLS_VERIFY: "false" # 是否跳过tls验证，解决自谦证书问题
 node_affinity: # 节点亲和标签列表
   "": ""
 
@@ -440,17 +445,14 @@ AJAX("POST", "https://demo.com/some/page", {
 curl -X POST -H "X-TOKEN:xxx" -d "{\"field1\":\"value1\"}" "https://demo.com/some/page?page=1"
 ```
 
+# 常见问题
+1. ```x509: certificate signed by unknown authority```
+可以尝试在爬虫配置的settings下添加配置项：
+```yaml
+settings:
+	SKIP_TLS_VERIFY: "true"
+```
 
-# 运行爬虫
-## 启动新任务
-## 启动定时任务
-## 任务状态
-
-# 结果处理
-## 导出数据库schema
-## 导出爬虫数据
-# 演示
-# 截图
 
 # 加入讨论组
 如果您在使用过程中遇到任何问题，欢迎加作者微信，由作者邀请加入微信讨论群。
