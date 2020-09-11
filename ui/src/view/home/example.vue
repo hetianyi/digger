@@ -28,42 +28,41 @@ export default {
         tooltip: {
           trigger: 'axis',
         },
+        legend: {
+          orient: 'horizontal',
+          icon: 'roundRect',
+          left: '1.2%',
+          top: '0',
+          data: []
+        },
         grid: {
           top: '15%',
           left: '1.2%',
           right: '1%',
           bottom: '3%',
+          borderColor: '#F55F5F',
           containLabel: true
         },
-        legend: {
-          orient: 'horizontal',
-          icon: 'roundRect',
-          x: 'left',
-          data: []
+        dataZoom: {
+          type: 'inside',
+          start: 0,
+          end: 100,
+          handleSize: 8
         },
-        xAxis: [
-          {
-            type: 'time',
-          }
-        ],
+        xAxis: [],
         yAxis: {
           type: 'value',
-          boundaryGap: [0, '100%'],
-          splitLine: {
-            show: false
-          }
+          axisLine: {
+            lineStyle: {
+              color: "#656565"
+            }
+          },
         },
-        /*dataZoom: [{
-          startValue: '2014-06-01'
-        }, {
-          type: 'inside'
-        }],*/
         series: []
       },
     }
   },
   props: {
-    xAxis: Array,
     series: Array,
   },
   methods: {
@@ -78,41 +77,46 @@ export default {
       this.$nextTick(() => {
         that.option.series = []
         that.option.legend.data = []
+        that.option.xAxis = []
         if (this.series && this.series.length > 0) {
           for (let i = 0; i < this.series.length; i++) {
             let res = this.series[i]
-            res.symbol = "none"
-            that.option.series.push(res)
-            that.option.legend.data[i] = res.name
+            that.option.series.push({
+              type: 'line',
+              symbol: "none",
+              name: res.name,
+              color: res.color,
+              lineStyle: {
+                type: "solid"
+              },
+              smooth: true,
+              data: res.data.map(function (item) {
+                return Number(item[1]);
+              })
+            })
+            that.option.xAxis.push({
+              color: res.color,
+              position: 'bottom',
+              axisLine: {
+                lineStyle: {
+                  color: "#656565"
+                }
+              },
+              data: res.data.map(function (item) {
+                return item[0];
+              })
+            })
+            that.option.legend.data.push(res.name)
           }
+          console.log(that.option.legend.data)
         }
-        this.dom = echarts.init(this.$refs.dom, 'tdTheme')
+        this.dom = echarts.init(this.$refs.dom)
         this.dom.setOption(that.option)
         on(window, 'resize', this.resize)
       })
     },
   },
 
-  mounted () {
-    let that = this
-    this.$nextTick(() => {
-      that.option.series = []
-      that.option.legend.data = []
-      if (this.series && this.series.length > 0) {
-        for (let i = 0; i < this.series.length; i++) {
-          let res = this.series[i]
-          res.showSymbol = false
-          res.clip = true
-          that.option.series.push(res)
-          that.option.legend.data[i] = res.name
-        }
-      }
-
-      this.dom = echarts.init(this.$refs.dom, 'tdTheme')
-      this.dom.setOption(that.option)
-      on(window, 'resize', this.resize)
-    })
-  },
   beforeDestroy () {
     off(window, 'resize', this.resize)
   }

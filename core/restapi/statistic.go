@@ -8,12 +8,10 @@ package restapi
 import (
 	"compress/gzip"
 	"digger/dispatcher"
-	"digger/models"
 	"digger/services/service"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/hetianyi/gox"
-	jsoniter "github.com/json-iterator/go"
+	json "github.com/json-iterator/go"
 	"net/http"
 	"strings"
 	"time"
@@ -127,14 +125,9 @@ func GetStatistic(c *gin.Context) {
 	}
 
 	success := Success(retMap)
-	bytes, _ := jsoniter.Marshal(success)
-	fmt.Println(len(bytes))
+	bytes, _ := json.Marshal(success)
 	c.Writer.Header().Set("Content-Encoding", "gzip")
 	gwriter := gzip.NewWriter(c.Writer)
 	gwriter.Write(bytes)
 	gwriter.Close()
-}
-
-func group(vos []*models.StatisticVO, parts int, step time.Duration) {
-
 }

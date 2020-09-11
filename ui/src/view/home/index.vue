@@ -27,7 +27,7 @@
     <Row>
       <Col span="24">
         <Card shadow>
-          <example style="height: 350px;" :xAxis="xAxis" :series="series"/>
+          <example style="height: 350px;" :series="series"/>
         </Card>
       </Col>
     </Row>
@@ -61,7 +61,6 @@
           { title: '累计请求', icon: 'md-share', count: 657, color: '#ed3f14' },
           { title: '累计结果', icon: 'md-chatbubbles', count: 12, color: '#E46CBB' },
         */],
-        xAxis: [],
         series: [],
       }
     },
@@ -88,9 +87,12 @@
           end: end,
         })
         if (data && data.code == 0) {
-            this.xAxis = data.data.xAxis
-            this.series = data.data.series
-            this.inforCardData = data.data.inforCardData
+          this.series = data.data.series
+          let trans = data.data.inforCardData.map(function (res) {
+            res.count = Number(res.count)
+            return res
+          })
+          this.inforCardData = trans
         } else {
           this.$Message.error('加载失败：' + data.msg)
         }
