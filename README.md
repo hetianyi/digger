@@ -292,8 +292,9 @@ settings:
   RETRY_COUNT: "3" # 重试次数（单节点，非全局）
   RETRY_WAIT: "0" # 重试间隔时间(s)
   SKIP_TLS_VERIFY: "false" # 是否跳过tls验证，解决自谦证书问题
-node_affinity: # 节点亲和标签列表
-  "": ""
+  EXPORT_PAGE_SIZE: "1000" # 导出时每次从数据库查询的分页大小，影响导出速度和内存占用
+node_affinity: # 节点亲和标签列表，标签能够匹配相应的worker
+- "key=value"
 
 ```
 ## 调试爬虫

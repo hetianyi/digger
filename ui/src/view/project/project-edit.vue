@@ -137,6 +137,8 @@
                       <Button icon="md-help-circle" @click="showConfigHelp = true"></Button>
                       &nbsp;&nbsp;&nbsp;
                       <Button icon="md-checkbox-outline" :loading="savePluginLoading" type="success" @click="savePlugins">保存</Button>
+                      &nbsp;&nbsp;&nbsp;
+                      <Button icon="md-bug" type="success" @click="parseConfig">调试</Button>
                     </Footer>
                   </Layout>
                 </Content>
