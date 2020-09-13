@@ -32,7 +32,7 @@ var (
 	pluginService        services.PluginService
 	dbService            services.DBService
 	configService        services.ConfigService
-	statisticService        services.StatisticService
+	statisticService     services.StatisticService
 )
 
 // 初始化数据库连接
@@ -41,14 +41,9 @@ func InitDb(connString string) {
 	if err != nil {
 		logger.Fatal(err)
 	}
-	// db.LogMode(true)
+	//db.LogMode(true)
 	dbConn = db
 	logger.Info("connect to database success!")
-}
-
-// 检查数据库scheme属否完备
-func CheckDBSchema() {
-
 }
 
 func InitRedis(connString string) {

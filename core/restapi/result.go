@@ -7,6 +7,7 @@ package restapi
 
 import (
 	"bytes"
+	"digger/common"
 	"digger/models"
 	"digger/services/service"
 	"encoding/csv"
@@ -44,7 +45,8 @@ func QueryResult(c *gin.Context) {
 			PageSize: pageSize,
 			Page:     page,
 		},
-		TaskId: taskId,
+		TaskId:       taskId,
+		LastResultId: 0,
 	}
 
 	if reqBody.TaskId == 0 {
@@ -67,65 +69,6 @@ func QueryResult(c *gin.Context) {
 		Total:    total,
 		Data:     arr,
 	}))
-}
-
-// 为项目开始一个新任务
-func SaveResult(c *gin.Context) {
-
-	// 绑定数据
-	/*var reqBody models.QueueCallbackRequestVO
-	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorMsg(err.Error()))
-		return
-	}
-
-	if reqBody.Check == "" {
-		c.JSON(http.StatusOK, Success(nil))
-		return
-	}
-
-	// 已经超过最大重试次数的queue
-	var exceedsIds []int64
-	counts, err := service.CacheService().IncreQueueErrorCount(reqBody.ErrorQueueTaskIds, reqBody.ErrorQueueIds)
-	for i, v := range counts {
-		if v > common.MAX_RETRY {
-			exceedsIds = append(exceedsIds, reqBody.ErrorQueueIds[i])
-		}
-	}*/
-
-	/*m := groupByTaskId(&reqBody)
-
-	var finalSuccessQueueIds []int64
-	for taskId, ids := range m {
-		// 过滤已完成的任务
-		doneTable, err := service.CacheService().ExistMembers(taskId, ids)
-		if err == nil {
-			for i, v := range doneTable {
-				if !v {
-					finalSuccessQueueIds = append(finalSuccessQueueIds, ids[i].(int64))
-				}
-			}
-		}
-	}
-	reqBody.SuccessQueueIds = finalSuccessQueueIds*/
-	// TODO 过期不存在的check则丢弃此次结果
-	/*if !scheduler.ExistCheck(reqBody.Check) {
-		logger.Error("check不存在，丢弃结果")
-		c.JSON(http.StatusOK, Success(nil))
-		return
-	}
-
-	scheduler.LockChecks()
-	defer scheduler.UnLockChecks()
-
-	err = service.ResultService().SaveCheckData(&reqBody, exceedsIds)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, ErrorMsg(err.Error()))
-	} else {
-		scheduler.RemoveCheck(&reqBody)
-		service.CacheService().SaveSuccessQueueIds(&reqBody)
-		c.JSON(http.StatusOK, Success(nil))
-	}*/
 }
 
 func ExportResult(c *gin.Context) {
@@ -158,6 +101,8 @@ func ExportResult(c *gin.Context) {
 		return
 	}
 
+	exportPageSize := project.GetIntSetting(common.SETTINGS_EXPORT_PAGE_SIZE, 1000)
+
 	tempFileName := fmt.Sprintf("%s%s-%d-%d.%s", gox.TValue(format == "sql", "t_", "").(string), strings.ToLower(project.Name), taskId, gox.GetTimestamp(time.Now()), format)
 
 	resultFile, err := file.CreateFile(os.TempDir() + "/" + tempFileName)
@@ -171,7 +116,6 @@ func ExportResult(c *gin.Context) {
 	}()
 
 	page := 0
-	pageSize := 10000
 	writeCol := true
 	var buf bytes.Buffer
 	var csvWriter *csv.Writer
@@ -181,16 +125,18 @@ func ExportResult(c *gin.Context) {
 		resultFile.WriteString("\xEF\xBB\xBF")
 	}
 
+	var lastResultId int64 = 0
 	for {
 		page++
 		buf.Reset()
 		logger.Info(fmt.Sprintf("正在导出第%d页...", page))
-		_, trs, err := service.ResultService().SelectResults(models.ResultQueryVO{
+		trs, err := service.ResultService().ExportResults(models.ResultQueryVO{
 			PageQueryVO: models.PageQueryVO{
 				Page:     page,
-				PageSize: pageSize,
+				PageSize: exportPageSize,
 			},
-			TaskId: taskId,
+			TaskId:       taskId,
+			LastResultId: lastResultId,
 		})
 		if err != nil {
 			c.JSON(http.StatusOK, ErrorMsg(err.Error()))
@@ -203,11 +149,12 @@ func ExportResult(c *gin.Context) {
 			}
 			writeCol = false
 		}
+		lastResultId = trs[len(trs)-1].Id
 		if _, err := resultFile.WriteString(buf.String()); err != nil {
 			c.JSON(http.StatusOK, ErrorMsg(err.Error()))
 			return
 		}
-		if len(trs) < pageSize {
+		if len(trs) < exportPageSize {
 			break
 		}
 	}
@@ -285,7 +232,7 @@ func buildSQLItem(buff *bytes.Buffer, project *models.Project, r *models.Result)
 	buff.WriteString(") values (")
 	for i, v := range fs {
 		buff.WriteString("'")
-		buff.WriteString(strings.ReplaceAll(m[v], "'", "''"))
+		buff.WriteString(strings.ReplaceAll(strings.ReplaceAll(m[v], "'", "''"), "\\", "\\\\"))
 		buff.WriteString("'")
 		if i != fLen-1 {
 			buff.WriteString(",")

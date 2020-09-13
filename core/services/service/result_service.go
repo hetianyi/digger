@@ -23,13 +23,12 @@ func (resultServiceImp) SelectResults(params models.ResultQueryVO) (int64, []*mo
 		return query
 	}
 
+	var total int64 = 0
 	// 查询总数
 	var countQuery = baseQuery(dbConn.Table("t_result"))
-	var total int64
 	if err := countQuery.Count(&total).Error; err != nil {
 		return 0, nil, err
 	}
-
 	if total == 0 {
 		return 0, nil, nil
 	}
@@ -56,6 +55,37 @@ func (resultServiceImp) SelectResults(params models.ResultQueryVO) (int64, []*mo
 		retArray = append(retArray, &item)
 	}
 	return total, retArray, nil
+}
+
+// 导出结果
+func (resultServiceImp) ExportResults(params models.ResultQueryVO) ([]*models.Result, error) {
+	var baseQuery = func(query *gorm.DB) *gorm.DB {
+		query = query.Where("id > ? and task_id = ?", params.LastResultId, params.TaskId)
+		return query
+	}
+
+	// 查询数据
+	var dataQuery = baseQuery(dbConn.Table("t_result"))
+	dataQuery = dataQuery.Order("id asc")
+	rows, err := dataQuery.Limit(params.PageSize).Rows()
+	if transformNotFoundErr(err) != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var retArray []*models.Result
+	for rows.Next() {
+		var item models.Result
+		if err := dataQuery.ScanRows(rows, &item); err != nil {
+			return nil, err
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		retArray = append(retArray, &item)
+	}
+	return retArray, nil
 }
 
 // 插入结果
@@ -202,7 +232,6 @@ func (resultServiceImp) SaveProcessResultData(result *models.QueueProcessResult,
 		return nil
 	})
 }
-
 
 // 查询从某个id起后续结果总数
 func (resultServiceImp) ResultCountSince(id int64) (int, int64, error) {

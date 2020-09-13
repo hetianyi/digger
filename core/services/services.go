@@ -91,6 +91,8 @@ type SnapshotService interface {
 type ResultService interface {
 	// 查询任务的结果列表
 	SelectResults(params models.ResultQueryVO) (int64, []*models.Result, error)
+	// 导出结果
+	ExportResults(params models.ResultQueryVO) ([]*models.Result, error)
 	// 插入结果
 	InsertResults(taskId int, results []models.Result) error
 	// 保存一个check内的数据 v1

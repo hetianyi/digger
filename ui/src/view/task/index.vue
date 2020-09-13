@@ -143,8 +143,6 @@
         noDataText: '空空如也',
         showTaskDetailModal: false,
         taskDetailId: 0,
-        projectDetailModalTitle: '',
-
         searchParams: {
           projectId: 0,
           taskStatus: 0,
@@ -167,10 +165,6 @@
         ],
         taskList: [],
 
-        tasks: {
-          page: 1,
-          pageSize: 20,
-        },
         columns: [
           {
             title: 'ID',
@@ -296,9 +290,7 @@
         }
         this.loading = true
         this.noDataText = '加载中...'
-        let that = this
-        const { data: data } = await taskList(this.currentTaskPageSelectedProjectId, this.tasks.page, this.tasks.pageSize, this.selectedStatus)
-
+        const { data: data } = await taskList(this.currentTaskPageSelectedProjectId, this.page, this.pageSize, this.selectedStatus)
         console.log(data)
         if (data && data.code == 0) {
           this.total = data.data.total

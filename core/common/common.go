@@ -47,6 +47,8 @@ const (
 	SETTINGS_RETRY_WAIT = "RETRY_WAIT"
 	// 是否跳过tls验证，解决自谦证书问题
 	SETTINGS_SKIP_TLS_VERIFY = "SKIP_TLS_VERIFY"
+	// 导出时每次从数据库查询的分页大小，影响导出速度和内存占用
+	SETTINGS_EXPORT_PAGE_SIZE = "EXPORT_PAGE_SIZE"
 
 	NAME_REGEXP = "^[a-zA-Z0-9_]+$"
 	REPO_DIR    = "/var/digger/repo"

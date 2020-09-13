@@ -69,7 +69,8 @@ type ProjectQueryVO struct {
 
 type ResultQueryVO struct {
 	PageQueryVO
-	TaskId int `json:"task_id"`
+	TaskId       int   `json:"task_id"`
+	LastResultId int64 `json:"last_result_id"`
 }
 
 type TaskQueryVO struct {
