@@ -4,7 +4,7 @@
   "display_name": "第一个爬虫项目",
   "remark": "",
   "tags": "[\"测试\"]",
-  "start_url": "https://music.163.com/discover/playlist",
+  "start_urls": ["https://music.163.com/discover/playlist"],
   "start_stage": "list",
   "create_time": "2020-08-28T11:32:49.760002Z",
   "update_time": "2020-08-28T12:43:41.602291Z",
@@ -186,8 +186,6 @@
   "settings": {
     "CONCURRENT_REQUESTS": "5"
   },
-  "node_affinity": {
-    "": ""
-  },
+  "node_affinity": [],
   "extras": null
 }
