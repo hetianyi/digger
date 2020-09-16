@@ -61,14 +61,14 @@ postgres和redis安装过程此处不再赘述，这里假设这两个服务已�
 
 ```shell
 │ ..
-├ digger_0.0.1_linux_amd64.tar.gz
-└ ui_0.0.1.tar.gz
+├ digger_0.0.4_linux_amd64.tar.gz
+└ ui_0.0.4.tar.gz
 ```
 将这两个文件解压，得到一个可执行程序<kbd>digger</kbd>和一个目录<kbd>ui</kbd>，将可执行文件复制到```/usr/local/bin```目录下，然后将ui.tar.gz解压，放到```/usr/share/digger```下：
 ```shell
-tar xzf digger_0.0.1_linux_amd64.tar.gz
+tar xzf digger_0.0.4_linux_amd64.tar.gz
 cp digger /usr/local/bin
-tar xzf ui_0.0.1.tar.gz
+tar xzf ui_0.0.4.tar.gz
 mkdir -p /usr/share/digger
 cp ui /usr/share/digger/
 ```
@@ -387,31 +387,64 @@ digger的内置函数包含常见的字符处理和其他常用函数，如果�
 
 内置函数列表：
 - ```LEN(str)```
-返回字符串长度，返回值类型int
+  返回字符串长度，返回值类型int
+
 - ```STARTS_WITH(source, target)```
-判断字符串```source```是否有前缀```target```，返回值类型```boolean```
+  判断字符串```source```是否有前缀```target```，返回值类型```boolean```
+
 - ```END_WITH(source, target)```
-判断字符串```source```是否有后缀```target```，返回值类型```boolean```
+  判断字符串```source```是否有后缀```target```，返回值类型```boolean```
+
 - ```SUBSTR(source, start, end)```
-获取字符串```source```的子串，位于```start```, ```end```之间，返回值类型```string```
+  获取字符串```source```的子串，位于```start```, ```end```之间，返回值类型```string```
+
 - ```CONTAINS(source, target)```
-判断字符串```source```是否包含字符串```target```，返回值类型```boolean```
+  判断字符串```source```是否包含字符串```target```，返回值类型```boolean```
+
 - ```REPLACE(source, old, new)```
-将字符串```source```中的字符串```old```替换为```new```并返回替换后的字符串
+  将字符串```source```中的字符串```old```替换为```new```并返回替换后的字符串
+
 - ```REGEXP_GROUP_FIND(regexp, source, target)```
-正则表达式匹配组替换，例如```REGEXP_GROUP_FIND(".\*([0-9]+).\*", "abc123mn", "$1")```将得到返回结果```123```
+  正则表达式匹配组替换，例如```REGEXP_GROUP_FIND(".\*([0-9]+).\*", "abc123mn", "$1")```将得到返回结果```123```
+
 - ```MD5(source)```
-计算字符串```source```的md5值
+  计算字符串```source```的md5值
+
 - ```TRIM(source)```
-去除字符串```source```首尾空格
+  去除字符串```source```首尾空格
+
 - ```ENV(key)```
-获取环境值，目前可用的key有：```currentFieldName```，```currentFieldValue```
+  获取环境值，目前可用的key有：```currentFieldName```，```currentFieldValue```
+
+- ```MIDDLE_DATA()```
+  获取中间值，可以获取父级stage里的field值和本级stage里其他field的值。例如：```MIDDLE_DATA().field_name1```
+
+- ```FROM_JSON(string)```
+  将字符串解析为js对象
+
+- ```TO_JSON()```
+  将js对象转成json字符串
+  如果使用脚本引擎默认的JSON.stringify()，则效果如下：
+  ```JSON.stringify({name: "张三 <h1> + </h1> xxx"})```
+  输出：
+
+  ```txt
+  {\"name\":\"张三 \\u003ch1\\u003e + \\u003c/h1\\u003e xxx\"}
+  ```
+  使用```TO_JSON({name: "张三 <h1> + </h1> xxx"})```输出：
+
+  ```txt
+  {\"name\":\"张三 <h1> + </h1> xxx\"}
+  ```
+
 - ```RESPONSE_DATA()```
-获取http请求响应结果
+  获取http请求响应结果
+
 - ```SET_RESPONSE_DATA(data)```
-如果是自定义AJAX请求，可以通过该函数将响应结果设置到上下文中供go程序使用
+  如果是自定义AJAX请求，可以通过该函数将响应结果设置到上下文中供go程序使用
+
 - ```QUEUE()```
-获取当前任务实体类信息，Queue的 go struct 定义如下：
+  获取当前任务实体类信息，Queue的 go struct 定义如下：
 ```golang
 type Queue struct {
 	Id         int64  `json:"id" gorm:"column:id;primary_key"`
@@ -425,9 +458,8 @@ type Queue struct {
 例如，可以通过```QUEUE().Url```获取当前任务的Url
 - ```ABS(url)```
 将相对URL转化为绝对URL
-- ```ADD_QUEUE(url)```
-添加任务，适用于需要从当前任务派生出子任务的场景，如根据尾页码计算所有分页的URL，并手动添加至队列。
-注意，派生出的任务stage和当前任务的stage相同。
+- ```ADD_QUEUE({stage, url})```
+  添加任务，适用于需要从当前任务派生出子任务的场景，如根据尾页码计算所有分页的URL，并手动添加至队列。
 - ```AJAX(method, url, headers, querys, body)```
 发送AJAX请求，例如：
 ```shell
@@ -446,7 +478,16 @@ AJAX("POST", "https://demo.com/some/page", {
 curl -X POST -H "X-TOKEN:xxx" -d "{\"field1\":\"value1\"}" "https://demo.com/some/page?page=1"
 ```
 
+
+
+# Digger Hub
+
+DiggerHub是一个爬虫配置仓库，您可以在这里找到别人分享的爬虫配置，或者分享自己的爬虫配置。
+
+仓库地址：<https://github.com/hetianyi/diggerhub-dataset>
+
 # 常见问题
+
 1. ```x509: certificate signed by unknown authority```
 可以尝试在爬虫配置的settings下添加配置项：
 ```yaml
