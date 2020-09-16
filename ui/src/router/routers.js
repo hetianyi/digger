@@ -146,6 +146,15 @@ export default [
   },
   {
     path: '',
+    name: 'DiggerHub',
+    meta: {
+      icon: 'md-bulb',
+      title: 'DiggerHub',
+      href: 'https://github.com/hetianyi/diggerhub-dataset',
+    },
+  },
+  {
+    path: '',
     name: 'issues',
     meta: {
       icon: 'md-megaphone',
