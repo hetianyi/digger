@@ -13,6 +13,7 @@ import (
 	"github.com/hetianyi/gox"
 	"github.com/hetianyi/gox/convert"
 	"github.com/hetianyi/gox/logger"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/robertkrimen/otto"
 	"regexp"
 	"strings"
@@ -21,6 +22,7 @@ import (
 var (
 	cachedRegexp = make(map[string]*regexp.Regexp)
 	httpClient   = resty.New()
+	json         = jsoniter.ConfigFastest
 )
 
 func InitVM(cxt *models.Context) {
@@ -309,4 +311,42 @@ func initBuildInFunctions(cxt *models.Context) {
 		return ret
 	})
 
+	cxt.VM.Set("FROM_JSON", func(call otto.FunctionCall) otto.Value {
+		if len(call.ArgumentList) != 1 {
+			logger.Error("script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList)))
+			result, _ := cxt.VM.ToValue(nil)
+			return result
+		}
+		var r interface{}
+		err := json.UnmarshalFromString(call.ArgumentList[0].String(), &r)
+		if err != nil {
+			logger.Error("cannot parse json: ", err)
+			result, _ := cxt.VM.ToValue(nil)
+			return result
+		}
+		result, _ := cxt.VM.ToValue(r)
+		return result
+	})
+
+	cxt.VM.Set("TO_JSON", func(call otto.FunctionCall) otto.Value {
+		if len(call.ArgumentList) != 1 {
+			logger.Error("script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList)))
+			result, _ := cxt.VM.ToValue("")
+			return result
+		}
+		obj, err := call.ArgumentList[0].Export()
+		if err != nil {
+			logger.Error("cannot format json: ", err)
+			result, _ := cxt.VM.ToValue("")
+			return result
+		}
+		str, err := json.MarshalToString(obj)
+		if err != nil {
+			logger.Error("cannot format json: ", err)
+			result, _ := cxt.VM.ToValue("")
+			return result
+		}
+		result, _ := cxt.VM.ToValue(str)
+		return result
+	})
 }

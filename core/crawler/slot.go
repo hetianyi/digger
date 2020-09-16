@@ -9,6 +9,7 @@ import (
 	"digger/models"
 	"errors"
 	"github.com/hetianyi/gox/convert"
+	"github.com/hetianyi/gox/logger"
 	"net/http"
 )
 
@@ -93,6 +94,7 @@ func handleS4(cxt *models.Context, field *models.Field, fieldName, fieldValue st
 	}
 	finalValue, err := cxt.Exec(field.Plugin.Script)
 	if err != nil {
+		logger.Error(err)
 		return fieldValue
 	}
 	return finalValue
