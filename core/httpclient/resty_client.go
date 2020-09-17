@@ -67,5 +67,7 @@ func GetClient(taskId int, project *models.Project) *resty.Client {
 			lastUse: time.Now(),
 		}
 	}
+	// remove old proxy if has one
+	restyClientCache[taskId].client.RemoveProxy()
 	return restyClientCache[taskId].client
 }

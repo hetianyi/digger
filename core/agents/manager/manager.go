@@ -110,6 +110,10 @@ func StartAgentManager(_config *models.BootstrapConfig) {
 		authGroup.POST("/v1/play", restapi.PlayExistStage)
 		authGroup.POST("/v2/play", restapi.PlayFromTempStage)
 		authGroup.POST("/v2/play/parse", restapi.ParseConfigFile)
+
+		authGroup.GET("/v1/proxies", restapi.QueryProxy)
+		authGroup.POST("/v1/proxies", restapi.SaveProxy)
+		authGroup.DELETE("/v1/proxies", restapi.DeleteProxy)
 	}
 
 	app.Use(static.Serve("/", static.LocalFile(config.UIDir, true)))

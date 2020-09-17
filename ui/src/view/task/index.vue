@@ -39,6 +39,7 @@
                   @click="showTaskDetail(row)"
                   title="查看结果"></Button>
           <Button type="info"
+                  :disabled="row.status != 1"
                   ghost
                   shape="circle"
                   icon="md-document"

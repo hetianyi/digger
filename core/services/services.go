@@ -24,6 +24,8 @@ type ProjectService interface {
 	CreateProject(project models.Project) (*models.Project, error)
 	// 修改项目信息
 	UpdateProject(project models.Project) (bool, error)
+	// 修改项目代理服务器
+	UpdateProjectProxies(projectId int, proxyIds []int) error
 	// 根据项目名称查询项目信息
 	DeleteProject(projectId int) (bool, error)
 	// 查询启用定时任务的项目
@@ -145,4 +147,12 @@ type ConfigService interface {
 type StatisticService interface {
 	Save(data map[string]interface{}) error
 	List(start time.Time, end time.Time) ([]*models.StatisticVO, error)
+}
+
+// 代理配置服务
+type ProxyService interface {
+	Save(proxy models.Proxy) error
+	Delete(idList []int) error
+	List(params *models.ProxyQueryVO) (int64, []*models.Proxy, error)
+	SelectByProject(projectId int) ([]*models.Proxy, error)
 }

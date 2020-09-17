@@ -56,7 +56,7 @@ func TestProjectServiceImp_InsertProject(t *testing.T) {
 		Remark:      "阿萨德",
 		Settings:    nil,
 		Tags:        "是大三大四的",
-		StartUrl:    "http://xxx",
+		StartUrls:   []string{"http://xxx"},
 		StartStage:  "StartStage",
 		Stages:      nil,
 	})

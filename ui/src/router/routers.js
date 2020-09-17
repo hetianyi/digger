@@ -115,6 +115,27 @@ export default [
     ]
   },
   {
+    path: '/proxy',
+    name: 'proxy',
+    meta: {
+      icon: 'md-swap',
+      title: '代理',
+      hideInBread: true
+    },
+    component: Main,
+    children: [
+      {
+        path: 'proxy',
+        name: 'list-proxy',
+        meta: {
+          icon: 'md-swap',
+          title: '代理'
+        },
+        component: () => import('@/view/proxy/index.vue')
+      },
+    ]
+  },
+  {
     path: '/settings',
     name: 'settings',
     meta: {
@@ -126,7 +147,7 @@ export default [
     children: [
       {
         path: 'settings',
-        name: 'settings',
+        name: 'show-settings',
         meta: {
           icon: 'md-settings',
           title: '设置'
