@@ -30,6 +30,9 @@ func processPageByCssSelector(cxt *models.Context) (string, error) {
 	}
 	nextPage := ""
 	sel := doc.Selection.Find(stage.PageCss)
+	if sel == nil {
+		return "", nil
+	}
 	if stage.PageAttr == "" {
 		nextPage = sel.Text()
 	} else {
@@ -48,6 +51,9 @@ func processPageByXpathSelector(cxt *models.Context) (string, error) {
 		return "", err
 	}
 	node := htmlquery.FindOne(doc, stage.PageXpath)
+	if node == nil {
+		return "", nil
+	}
 	nextPage := strings.TrimSpace(htmlquery.InnerText(node))
 	return handleNextPage(cxt, nextPage), nil
 }
