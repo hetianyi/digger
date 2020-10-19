@@ -34,7 +34,7 @@
                   ghost
                   icon="md-trash"
                   style="margin-right: 5px"
-                  @click=""
+                  @click="doDeleteProxies([row.id])"
                   title="删除"></Button>
         </template>
       </Table>
@@ -274,6 +274,28 @@
             this.$Message.error('保存失败：' + data.msg)
           }
         }
+      },
+
+      async doDeleteProxies(proxyIds) {
+        let that = this
+        this.$Modal.confirm({
+          title: '确定删除吗？',
+          loading: true,
+          onOk: () => {
+            deleteProxies(proxyIds).then(res=>{
+              console.log(res)
+              if (res.status == 200) {
+                this.$Message.success('删除成功');
+                that.listProxies()
+              } else {
+                this.$Message.error('删除失败');
+              }
+            }).catch(err=> {
+              this.$Message.error('删除失败');
+            })
+            this.$Modal.remove();
+          }
+        });
       },
 
       initScriptEditor() {

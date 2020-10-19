@@ -336,8 +336,6 @@
           if (this.plugins.length > 0) {
             that.activePluginEditor(this.plugins[0].name)
           }
-          console.log(data.data.project.proxies)
-          console.log(data.data.project.proxies.map(res=>res.id))
           this.selectedProxyIdList = data.data.project.proxies == null ? [] : data.data.project.proxies.map(res=>res.id)
           this.crawlerFileEditor.setValue(data.data.yaml)
           this.crawlerFileEditor.refresh()

@@ -72,6 +72,7 @@
 - [ ] 添加插件输入框enter键出发刷新bug
 - [ ] is_array=true的类型导出为json
 - [ ] 支持robots指令
+- [ ] 支持文件转储
 
 
 
