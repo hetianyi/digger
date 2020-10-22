@@ -12,7 +12,7 @@
  Target Server Version : 90618
  File Encoding         : 65001
 
- Date: 07/09/2020 21:21:18
+ Date: 22/10/2020 15:59:36
 */
 
 
@@ -54,6 +54,17 @@ CACHE 1;
 -- ----------------------------
 DROP SEQUENCE IF EXISTS "public"."seq_project";
 CREATE SEQUENCE "public"."seq_project" 
+INCREMENT 1
+MINVALUE  1
+MAXVALUE 9223372036854775807
+START 1
+CACHE 1;
+
+-- ----------------------------
+-- Sequence structure for seq_proxy
+-- ----------------------------
+DROP SEQUENCE IF EXISTS "public"."seq_proxy";
+CREATE SEQUENCE "public"."seq_proxy" 
 INCREMENT 1
 MINVALUE  1
 MAXVALUE 9223372036854775807
@@ -229,6 +240,30 @@ COMMENT ON COLUMN "public"."t_project"."enable_cron" IS '是否启用定时任�
 COMMENT ON TABLE "public"."t_project" IS '项目表';
 
 -- ----------------------------
+-- Table structure for t_project_proxy
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."t_project_proxy";
+CREATE TABLE "public"."t_project_proxy" (
+  "project_id" int4 NOT NULL,
+  "proxy_id" int4 NOT NULL
+)
+;
+
+-- ----------------------------
+-- Table structure for t_proxy
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."t_proxy";
+CREATE TABLE "public"."t_proxy" (
+  "id" int4 NOT NULL DEFAULT nextval('seq_proxy'::regclass),
+  "address" varchar(255) COLLATE "pg_catalog"."default" NOT NULL,
+  "enable_script" bool NOT NULL DEFAULT false,
+  "proxy_gen_script" text COLLATE "pg_catalog"."default",
+  "remark" varchar(255) COLLATE "pg_catalog"."default",
+  "create_time" timestamp(6) DEFAULT now()
+)
+;
+
+-- ----------------------------
 -- Table structure for t_queue
 -- ----------------------------
 DROP TABLE IF EXISTS "public"."t_queue";
@@ -365,6 +400,7 @@ SELECT setval('"public"."seq_config_snapshot"', 1, true);
 SELECT setval('"public"."seq_field"', 1, true);
 SELECT setval('"public"."seq_plugin"', 1, true);
 SELECT setval('"public"."seq_project"', 1, true);
+SELECT setval('"public"."seq_proxy"', 1, true);
 SELECT setval('"public"."seq_result"', 1, true);
 SELECT setval('"public"."seq_schedule_queue"', 1, true);
 SELECT setval('"public"."seq_stage"', 1, true);
@@ -412,6 +448,11 @@ CREATE UNIQUE INDEX "Index_p_name" ON "public"."t_project" USING btree (
 -- Primary Key structure for table t_project
 -- ----------------------------
 ALTER TABLE "public"."t_project" ADD CONSTRAINT "t_project_pkey" PRIMARY KEY ("id");
+
+-- ----------------------------
+-- Primary Key structure for table t_project_proxy
+-- ----------------------------
+ALTER TABLE "public"."t_project_proxy" ADD CONSTRAINT "t_project_proxy_pkey" PRIMARY KEY ("project_id", "proxy_id");
 
 -- ----------------------------
 -- Indexes structure for table t_queue
