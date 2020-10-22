@@ -141,6 +141,7 @@ func UpdateProject(c *gin.Context) {
 	oldProject.Tags = reqData.Tags
 	oldProject.Cron = reqData.Cron
 	oldProject.EnableCron = reqData.EnableCron
+	oldProject.Proxies = reqData.Proxies
 
 	if !oldProject.EnableCron {
 		crontask.RemoveCron(pid)
@@ -316,6 +317,7 @@ func ExportProjectConfig(c *gin.Context) {
 		c.JSON(http.StatusOK, ErrorMsg(err.Error()))
 		return
 	}
+	project.Proxies = nil
 
 	marshalIndentBytes, err := jsoniter.MarshalIndent(project, "", "  ")
 	if err != nil {

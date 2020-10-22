@@ -15,6 +15,7 @@ import (
 	"github.com/hetianyi/gox/logger"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/robertkrimen/otto"
+	"net/http"
 	"regexp"
 	"strings"
 )
@@ -273,7 +274,16 @@ func initBuildInFunctions(cxt *models.Context) {
 
 		var resp *resty.Response
 		var err error
+		result := make(map[string]interface{})
 
+		parsedUrl, err := utils.Parse(url)
+		if err != nil {
+			result["error"] = err.Error()
+			ret, _ := cxt.VM.ToValue(result)
+			return ret
+		}
+		client := httpclient.GetClient(0, cxt.Project)
+		feedback := utils.TryProxy(parsedUrl.Scheme, client, cxt.Queue.TaskId, cxt)
 		req := httpclient.GetClient(0, cxt.Project).
 			R().
 			SetHeaders(headers).
@@ -299,7 +309,14 @@ func initBuildInFunctions(cxt *models.Context) {
 			resp, err = req.Get(url)
 		}
 
-		result := make(map[string]interface{})
+		// feedback
+		if feedback != nil {
+			if err != nil || resp.StatusCode() != http.StatusOK {
+				feedback.Fail()
+			} else {
+				feedback.Success()
+			}
+		}
 		if err != nil {
 			result["error"] = err.Error()
 		} else {

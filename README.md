@@ -92,8 +92,33 @@ manager和worker都启动成功，那么就可以使用浏览器通过9012端口
 
 ### Helm安装
 
+## 从源代码编译安装
 
+编译环境要求：
 
+| 软件 | 版本 |
+| ---- | ---- |
+| Go | 1.11+ |
+| NodeJs | 14.2 |
+| OS | Windows/Linux |
+
+> 其他版本没有经过测试和实验
+
+### Windows下编译
+```shell
+build-win.cmd
+```
+Linux下编译
+```shell
+sh build-all.sh
+```
+
+输出
+```txt
+│ ..
+├ core/bin/digger.exe
+└ ui/dist
+```
 
 # 第一个爬虫项目
 > 该节介绍如何开始你的第一个爬虫项目，请确保有一个搭建完整的digger服务

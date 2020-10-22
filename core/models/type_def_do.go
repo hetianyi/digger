@@ -35,6 +35,7 @@ type Project struct {
 	NodeAffinity       []string          `json:"node_affinity" yaml:"node_affinity" gorm:"-"`
 	NodeAffinityParsed []KV              `json:"node_affinity_parsed" yaml:"-" gorm:"-"`
 	NodeAffinityDB     string            `json:"-" yaml:"-" gorm:"column:node_affinity"`
+	Proxies            []*Proxy          `json:"proxies" yaml:"-" gorm:"-"`
 	// web接口附加额外信息
 	Extras map[string]interface{} `json:"extras" yaml:"-" gorm:"-"`
 }
@@ -271,4 +272,26 @@ type Statistic struct {
 
 func (Statistic) TableName() string {
 	return "t_statistic"
+}
+
+type Proxy struct {
+	Id             int       `json:"id" gorm:"column:id;primary_key"`
+	Address        string    `json:"address" gorm:"column:address"`
+	EnableScript   bool      `json:"enable_script" gorm:"column:enable_script"`
+	ProxyGenScript string    `json:"proxy_gen_script" gorm:"column:proxy_gen_script"`
+	Remark         string    `json:"remark" gorm:"column:remark"`
+	CreateTime     time.Time `json:"create_time" gorm:"column:create_time"`
+}
+
+func (Proxy) TableName() string {
+	return "t_proxy"
+}
+
+type ProjectProxy struct {
+	ProjectId int `json:"project_id" gorm:"column:project_id;primary_key"`
+	ProxyId   int `json:"proxy_id" gorm:"column:proxy_id;primary_key"`
+}
+
+func (ProjectProxy) TableName() string {
+	return "t_project_proxy"
 }

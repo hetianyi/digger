@@ -31,7 +31,7 @@ func handleS1(cxt *models.Context) error {
 func handleSR(cxt *models.Context) error {
 	plugin := cxt.Stage.FindPlugins("sr")
 	if plugin == nil {
-		resp, err := request(cxt.Queue, cxt.Project)
+		resp, err := request(cxt.Queue, cxt)
 		if err != nil {
 			return err
 		}

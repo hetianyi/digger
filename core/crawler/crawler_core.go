@@ -10,6 +10,7 @@ import (
 	"digger/httpclient"
 	"digger/models"
 	"digger/plugins"
+	"digger/utils"
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/antchfx/htmlquery"
@@ -19,6 +20,7 @@ import (
 	"github.com/json-iterator/go"
 	"golang.org/x/net/html"
 	"io"
+	"net/http"
 )
 
 var (
@@ -109,11 +111,25 @@ func Play(
 	return nil
 }
 
-func request(queue *models.Queue, project *models.Project) (*resty.Response, error) {
-	return httpclient.GetClient(queue.TaskId, project).
-		R().
-		SetHeaders(project.Headers).
+func request(queue *models.Queue, cxt *models.Context) (*resty.Response, error) {
+	url, err := utils.Parse(queue.Url)
+	if err != nil {
+		return nil, err
+	}
+	client := httpclient.GetClient(queue.TaskId, cxt.Project)
+	feedback := utils.TryProxy(url.Scheme, client, queue.TaskId, cxt)
+	response, err := client.R().
+		SetHeaders(cxt.Project.Headers).
 		Get(queue.Url)
+	// feedback
+	if feedback != nil {
+		if err != nil || response.StatusCode() != http.StatusOK {
+			feedback.Fail()
+		} else {
+			feedback.Success()
+		}
+	}
+	return response, err
 }
 
 func handlerEngineRoute(

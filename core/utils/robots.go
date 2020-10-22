@@ -17,7 +17,14 @@ func LoadRobotsTxt(_url string, project *models.Project) ([]byte, error) {
 		return nil, err
 	}
 	robotTxtUrl := base.Scheme + "://" + base.Host + gox.TValue(base.Port() == "", "", ":"+base.Port()).(string) + "/robots.txt"
-	response, err := httpclient.GetClient(0, project).R().Get(robotTxtUrl)
+	url, err := Parse(robotTxtUrl)
+	if err != nil {
+		return nil, err
+	}
+	client := httpclient.GetClient(0, project)
+	TryProxy(url.Scheme, client, 0, nil) // TODO
+
+	response, err := client.R().Get(robotTxtUrl)
 	if err != nil {
 		logger.Warn("无法获取robots.txt: ", err)
 		return nil, err

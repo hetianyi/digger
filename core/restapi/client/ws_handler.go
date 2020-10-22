@@ -50,7 +50,6 @@ func processQueue(queue *models.Queue) (*models.QueueProcessResult, error) {
 		job: func() error {
 			return crawler.Process(queue, project, log, func(oldQueue *models.Queue, newQueues []*models.Queue, _results []*models.Result, err error) {
 				if err != nil {
-					logger.Error(err)
 					return
 				}
 				results = append(results, _results...)

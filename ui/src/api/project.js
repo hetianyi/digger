@@ -63,8 +63,6 @@ export const updateProjectBaseInfo = (data) => {
   })
 }
 
-
-
 export const saveProjectConfig = (data) => {
   return axios.request({
     url: 'api/v1/projects/' + data.id + '/config',
@@ -96,6 +94,15 @@ export const startNewTask = (projectId) => {
     params: {
       projectId: projectId
     },
+    method: 'post'
+  })
+}
+
+
+export const updateProjectProxies = (projectId, proxyIds) => {
+  return axios.request({
+    url: 'api/v1/projects/'+ projectId +'/proxies',
+    data: proxyIds,
     method: 'post'
   })
 }

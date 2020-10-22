@@ -112,7 +112,7 @@ func buildRaspberryPiLabsProject() int {
 			"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML,like Gecko) Chrome/78.0.3904.108 Safari/537.36",
 		},
 		Tags:       "",
-		StartUrl:   "https://www.taptap.com/ajax/top/download?page=1&total=30",
+		StartUrls:  []string{"https://www.taptap.com/ajax/top/download?page=1&total=30"},
 		StartStage: "page_list",
 		Stages:     nil,
 	})

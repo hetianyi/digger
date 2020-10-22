@@ -251,3 +251,8 @@ func (s StatisticVO) From(d *Statistic) *StatisticVO {
 	s.CreateTime = d.CreateTime
 	return &s
 }
+
+type ProxyQueryVO struct {
+	PageQueryVO
+	Key string `json:"key"`
+}

@@ -84,6 +84,14 @@ func (p projectServiceImp) SelectFullProjectInfo(projectId int) (*models.Project
 		return nil, err
 	}
 
+	proxies, err := ProxyService().SelectByProject(projectId)
+	if err != nil {
+		logger.Debug(fmt.Sprintf("error get proxies data: %s", err.Error()))
+		return nil, err
+	}
+
+	project.Proxies = proxies
+
 	for i, s := range stages {
 		var fs []models.Field
 		hasNextStage := false
@@ -206,6 +214,29 @@ func (projectServiceImp) UpdateProject(project models.Project) (bool, error) {
 		}
 		if temp.Error == nil {
 			success = true
+		}
+		// update proxies
+		if err := tx.Delete(models.ProjectProxy{}, "project_id = ?", project.Id).Error; err != nil {
+			return err
+		}
+		for _, p := range project.Proxies {
+			if p.Id <= 0 {
+				return errors.New("invalid proxy: no proxy id")
+			}
+			if p.Address == "" {
+				return errors.New("invalid proxy: no proxy address")
+			}
+			// 删除项目
+			temp := tx.Save(&models.ProjectProxy{
+				ProjectId: project.Id,
+				ProxyId:   p.Id,
+			})
+			if temp.RowsAffected == 0 {
+				if temp.Error != nil {
+					return temp.Error
+				}
+				return errors.New("update failed")
+			}
 		}
 		return temp.Error
 	})
@@ -378,7 +409,7 @@ func parsePlugin(s string) *models.Plugin {
 	}
 }
 
-func (t projectServiceImp) AllProjectCount() (int, error) {
+func (projectServiceImp) AllProjectCount() (int, error) {
 	// 查询数据
 	type CountResult struct {
 		Count int `gorm:"column:count"`
@@ -389,4 +420,27 @@ func (t projectServiceImp) AllProjectCount() (int, error) {
 		return 0, err
 	}
 	return ret.Count, nil
+}
+
+// 修改项目代理服务器
+func (projectServiceImp) UpdateProjectProxies(projectId int, proxyIds []int) error {
+	return DoTransaction(func(tx *gorm.DB) error {
+		if err := tx.Delete(models.ProjectProxy{}, "project_id = ?", projectId).Error; err != nil {
+			return err
+		}
+		for _, id := range proxyIds {
+			// 删除项目
+			temp := tx.Save(&models.ProjectProxy{
+				ProjectId: projectId,
+				ProxyId:   id,
+			})
+			if temp.RowsAffected == 0 {
+				if temp.Error != nil {
+					return temp.Error
+				}
+				return errors.New("update failed")
+			}
+		}
+		return nil
+	})
 }

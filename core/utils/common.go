@@ -8,6 +8,7 @@ package utils
 import (
 	"bytes"
 	"digger/models"
+	"github.com/go-resty/resty/v2"
 	"github.com/hetianyi/gox/convert"
 	"github.com/hetianyi/gox/logger"
 	jsoniter "github.com/json-iterator/go"
@@ -15,8 +16,19 @@ import (
 	"regexp"
 	"sort"
 	"strings"
-	"time"
+	"sync"
 )
+
+var (
+	proxyStageManagerInstance *proxyStageManager
+)
+
+func init() {
+	proxyStageManagerInstance = &proxyStageManager{
+		lock:       new(sync.Mutex),
+		proxiesMap: make(map[int][]*proxyState),
+	}
+}
 
 func ConvertLogLevel(levelString string) logger.Level {
 	levelString = strings.ToLower(levelString)
@@ -140,14 +152,35 @@ func ParseNodeAffinity(label string) *models.KV {
 	return &models.KV{name, value}
 }
 
-func LocalizeTime(t time.Time) time.Time {
-	tz := os.Getenv("TZ")
-	if tz == "" {
-		tz = "Asia/Shanghai"
+func TryProxy(schema string, client *resty.Client, taskId int, cxt *models.Context) *proxyState {
+	// select proxy from project config
+	if cxt != nil && len(cxt.Project.Proxies) > 0 {
+		if proxy, state := proxyStageManagerInstance.selectProxy(taskId, cxt.Project.Proxies); proxy != nil {
+			client.SetProxy(checkProxyUrl(proxy.Address))
+			return state
+		}
 	}
-	location, err := time.LoadLocation(tz)
-	if err != nil {
-		return t
+	// if project proxy config is not available, take from environment.
+	schema = strings.ToLower(schema)
+	if schema == "https" {
+		proxyUrl := GetEnv("https_proxy")
+		if proxyUrl != "" {
+			logger.Info("using proxy: ", proxyUrl)
+			client.SetProxy(checkProxyUrl(proxyUrl))
+		}
+	} else {
+		proxyUrl := GetEnv("http_proxy")
+		if proxyUrl != "" {
+			logger.Info("using proxy: ", proxyUrl)
+			client.SetProxy(checkProxyUrl(proxyUrl))
+		}
 	}
-	return t.In(location)
+	return nil
+}
+
+func checkProxyUrl(address string) string {
+	if !strings.HasPrefix(address, "http://") && !strings.HasPrefix(address, "https://") {
+		return "http://" + address
+	}
+	return address
 }

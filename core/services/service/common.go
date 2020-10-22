@@ -33,6 +33,7 @@ var (
 	dbService            services.DBService
 	configService        services.ConfigService
 	statisticService     services.StatisticService
+	proxyService         services.ProxyService
 )
 
 // 初始化数据库连接
@@ -41,7 +42,7 @@ func InitDb(connString string) {
 	if err != nil {
 		logger.Fatal(err)
 	}
-	//db.LogMode(true)
+	//	db.LogMode(true)
 	dbConn = db
 	logger.Info("connect to database success!")
 }
@@ -177,6 +178,17 @@ func StatisticService() services.StatisticService {
 		}
 	}
 	return statisticService
+}
+
+func ProxyService() services.ProxyService {
+	if proxyService == nil {
+		initLock.Lock()
+		defer initLock.Unlock()
+		if proxyService == nil {
+			proxyService = &proxyServiceImp{}
+		}
+	}
+	return proxyService
 }
 
 func transformNotFoundErr(err error) error {
