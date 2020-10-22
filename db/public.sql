@@ -12,7 +12,7 @@
  Target Server Version : 90618
  File Encoding         : 65001
 
- Date: 22/10/2020 15:59:36
+ Date: 22/10/2020 16:18:19
 */
 
 
@@ -248,6 +248,7 @@ CREATE TABLE "public"."t_project_proxy" (
   "proxy_id" int4 NOT NULL
 )
 ;
+COMMENT ON TABLE "public"."t_project_proxy" IS '项目-代理关联表';
 
 -- ----------------------------
 -- Table structure for t_proxy
@@ -262,6 +263,7 @@ CREATE TABLE "public"."t_proxy" (
   "create_time" timestamp(6) DEFAULT now()
 )
 ;
+COMMENT ON TABLE "public"."t_proxy" IS '代理配置表';
 
 -- ----------------------------
 -- Table structure for t_queue
