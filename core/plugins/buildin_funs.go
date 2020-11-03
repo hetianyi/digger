@@ -55,7 +55,7 @@ func initBuildInFunctions(cxt *models.Context) {
 		return result
 	})
 
-	cxt.VM.Set("END_WITH", func(call otto.FunctionCall) otto.Value {
+	cxt.VM.Set("ENDS_WITH", func(call otto.FunctionCall) otto.Value {
 		boo := false
 		if len(call.ArgumentList) != 2 {
 			logger.Error("script Err: invalid arg number, expect 2, got " + convert.IntToStr(len(call.ArgumentList)))

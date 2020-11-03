@@ -28,5 +28,5 @@ func TestDetect(t *testing.T) {
 	}
 	body := resp.Body()
 
-	utils.DetectStructure(string(body))
+	utils.DetectStructure(body)
 }
