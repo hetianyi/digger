@@ -45,7 +45,7 @@
 - [x] worker自动将自己的id加入label
 - [ ] 模板引擎渲染结果
 - [ ] 资源下载
-- [ ] http代理
+- [x] http代理
 - [x] 任务删除功能，同时清理数据
 - [x] 压缩导出文件
 - [ ] 用户管理
@@ -58,7 +58,7 @@
 - [x] 构建时替换UI底部的版本
 - [x] 首次启动任务时很慢
 - [x] settings增加配置单queue过期时间
-- [ ] DiggerHub
+- [x] DiggerHub
 - [x] start_url改为list类型
 - [x] 插件编辑切换项目无法刷新
 - [ ] 内置函数增加json处理
@@ -71,7 +71,7 @@
 - [ ] 添加任务结束时间和项目创建时间
 - [ ] 添加插件输入框enter键出发刷新bug
 - [ ] is_array=true的类型导出为json
-- [ ] 支持robots指令
+- [x] 支持robots指令
 - [ ] 支持文件转储
 
 

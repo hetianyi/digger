@@ -6,11 +6,17 @@
 package crawler
 
 import (
+	"digger/common"
+	"digger/crawler/robots"
 	"digger/models"
 	"errors"
 	"github.com/hetianyi/gox/convert"
 	"github.com/hetianyi/gox/logger"
 	"net/http"
+)
+
+var (
+	RobotsBlockErr = errors.New("robots txt disable this request")
 )
 
 func handleS1(cxt *models.Context) error {
@@ -29,6 +35,11 @@ func handleS1(cxt *models.Context) error {
 }
 
 func handleSR(cxt *models.Context) error {
+	// 先判断robots
+	followRobots := cxt.Project.GetBoolSetting(common.SETTINGS_FOLLOW_ROBOTS_TXT)
+	if followRobots && !robots.TestAgent(cxt.Queue.Url, cxt.Project) {
+		return RobotsBlockErr
+	}
 	plugin := cxt.Stage.FindPlugins("sr")
 	if plugin == nil {
 		resp, err := request(cxt.Queue, cxt)

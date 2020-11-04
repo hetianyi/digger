@@ -49,6 +49,8 @@ const (
 	SETTINGS_SKIP_TLS_VERIFY = "SKIP_TLS_VERIFY"
 	// 导出时每次从数据库查询的分页大小，影响导出速度和内存占用
 	SETTINGS_EXPORT_PAGE_SIZE = "EXPORT_PAGE_SIZE"
+	// 是否遵循robots指令
+	SETTINGS_FOLLOW_ROBOTS_TXT = "FOLLOW_ROBOTS_TXT"
 
 	NAME_REGEXP = "^[a-zA-Z0-9_]+$"
 	REPO_DIR    = "/var/digger/repo"

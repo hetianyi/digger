@@ -124,6 +124,7 @@ func StartAgentManager(_config *models.BootstrapConfig) {
 		Addr:    "0.0.0.0:" + convert.IntToStr(config.Port),
 	}
 
+	logger.Info("server is listening on 0.0.0.0:", config.Port)
 	go func() {
 		if err := srv.ListenAndServe(); err != nil {
 			if err != http.ErrServerClosed {

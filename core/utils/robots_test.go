@@ -11,7 +11,7 @@ import (
 )
 
 func TestLoadRobotsTxt(t *testing.T) {
-	bytes, err := utils.LoadRobotsTxt("http://www.zhanxixi.com/robots.txt", &models.Project{})
+	bytes, err := utils.LoadRobotsTxt("https://www.meijutt.tv/robots.txt", &models.Project{})
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -19,17 +19,15 @@ func TestLoadRobotsTxt(t *testing.T) {
 
 	r1, err := robotstxt.FromBytes(bytes)
 
-	u1 := "/forum-41-1.html"
-	u2 := "/api/"
-	u3 := "/api/v1/upload"
-	u4 := "/api/v1/upload?name=zhangsan"
+	u1 := "/content/meiju25616.html"
+	u2 := "/help/"
+	u3 := "/webcache/v1/upload"
 	fmt.Println(r1.TestAgent(u1, "Bot"))
 	fmt.Println(r1.TestAgent(u2, "Bot"))
 	fmt.Println(r1.TestAgent(u3, "Bot"))
-	fmt.Println(r1.TestAgent(u4, "Bot"))
 
 	fmt.Println("\n\n-------------------------------------------------")
-	bytes, err = utils.LoadRobotsTxt("https://news.163.com/robots.txt", &models.Project{})
+	bytes, err = utils.LoadRobotsTxt("https://www.meijutt.tv/robots.txt", &models.Project{})
 	if err != nil {
 		logger.Fatal(err)
 	}

@@ -61,6 +61,10 @@ func processQueue(queue *models.Queue) (*models.QueueProcessResult, error) {
 	if err != nil {
 		logger.Error(err)
 		log.Write([]byte(fmt.Sprintf("<span style=\"color:#F38F8F\">Err: process queue(%d): %s</span>\n", queue.Id, err.Error())))
+		errMsg := ""
+		if err != crawler.RobotsBlockErr {
+			errMsg = log.Get()
+		}
 		return &models.QueueProcessResult{
 			TaskId:    queue.TaskId,
 			QueueId:   queue.Id,
@@ -68,7 +72,7 @@ func processQueue(queue *models.Queue) (*models.QueueProcessResult, error) {
 			Logs:      log.Get(),
 			NewQueues: nil,
 			Results:   nil,
-			Error:     log.Get(),
+			Error:     errMsg,
 		}, err
 	}
 	return &models.QueueProcessResult{
