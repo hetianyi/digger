@@ -210,6 +210,7 @@
             :closable="true"
             :transfer="false"
             :mask="false"
+            width="360"
             v-model="showConfigHelp">
       <ConfigHelp/>
     </Drawer>
