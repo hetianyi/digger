@@ -41,7 +41,6 @@
 - [x] worker精简，去掉redis和postgres
 - [x] worker支持travisCI识别和定时关闭
 - [x] managerUrl的schema处理
-- [ ] t_queue和t_result的分库分表
 - [x] worker自动将自己的id加入label
 - [ ] 模板引擎渲染结果
 - [ ] 资源下载
@@ -61,7 +60,7 @@
 - [x] DiggerHub
 - [x] start_url改为list类型
 - [x] 插件编辑切换项目无法刷新
-- [ ] 内置函数增加json处理
+- [x] 内置函数增加json处理
 - [ ] 删除项目同时删除任务
 - [x] echarts曲线折回问题
 - [ ] 教程：如何编写css选择器配置（chrome调试面板）
@@ -70,7 +69,6 @@
 - [x] 导出效率优化
 - [ ] 添加任务结束时间和项目创建时间
 - [ ] 添加插件输入框enter键出发刷新bug
-- [ ] is_array=true的类型导出为json
 - [x] 支持robots指令
 - [ ] 支持文件转储
 

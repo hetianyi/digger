@@ -45,7 +45,7 @@ func Process(
 			"stage":  queue.StageName,
 			"taskId": convert.IntToStr(queue.TaskId),
 		},
-		NewQueues:  make(map[string]*models.Queue),
+		NewQueues:  []*models.Queue{},
 		MiddleData: make(map[string]string),
 	}
 	plugins.InitVM(cxt)
@@ -88,7 +88,7 @@ func Play(
 			"stage":  queue.StageName,
 			"taskId": convert.IntToStr(queue.TaskId),
 		},
-		NewQueues:  make(map[string]*models.Queue),
+		NewQueues:  []*models.Queue{},
 		MiddleData: make(map[string]string),
 	}
 	plugins.InitVM(cxt)
@@ -116,6 +116,7 @@ func request(queue *models.Queue, cxt *models.Context) (*resty.Response, error) 
 	if err != nil {
 		return nil, err
 	}
+	// TODO bugs
 	client := httpclient.GetClient(queue.TaskId, cxt.Project)
 	feedback := utils.TryProxy(url.Scheme, client, queue.TaskId, cxt)
 	response, err := client.R().
@@ -192,12 +193,12 @@ func processDefaultStage(
 	}
 
 	if nextPage != "" {
-		cxt.NewQueues[nextPage] = &models.Queue{
+		cxt.NewQueues = append(cxt.NewQueues, &models.Queue{
 			TaskId:     queue.TaskId,
 			StageName:  stage.Name,
 			Url:        nextPage,
 			MiddleData: queue.MiddleData,
-		}
+		})
 		cxt.Log.Write([]byte(fmt.Sprintf("Next page: %s", nextPage)))
 	}
 

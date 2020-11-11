@@ -64,7 +64,7 @@ func processListByCssSelector(cxt *models.Context) error {
 		temp, _ := json.MarshalToString(cxt.MiddleData)
 		for _, i := range itemMiddleData {
 			i.MiddleData = temp
-			cxt.NewQueues[i.Url] = i
+			cxt.NewQueues = append(cxt.NewQueues, i)
 		}
 
 		if !stage.HasNextStage {
@@ -118,7 +118,7 @@ func processListByXpathSelector(cxt *models.Context) error {
 		temp, _ := json.MarshalToString(cxt.MiddleData)
 		for _, i := range itemMiddleData {
 			i.MiddleData = temp
-			cxt.NewQueues[i.Url] = i
+			cxt.NewQueues = append(cxt.NewQueues, i)
 		}
 
 		if !stage.HasNextStage {

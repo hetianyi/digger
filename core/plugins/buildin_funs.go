@@ -221,6 +221,23 @@ func initBuildInFunctions(cxt *models.Context) {
 			v, _ := cxt.VM.ToValue(false)
 			return v
 		}
+		middleDataValue, err := k.Get("middle_data")
+		if err != nil {
+			v, _ := cxt.VM.ToValue(false)
+			return v
+		}
+		middleDataObj := middleDataValue.Object()
+		middleData := make(map[string]string)
+		if middleDataObj != nil {
+			for _, k := range middleDataObj.Keys() {
+				value, _ := middleDataObj.Get(k)
+				if value.String() != "" {
+					middleData[k] = value.String()
+				}
+			}
+		}
+		middleDataString, _ := json.Marshal(middleData)
+
 		url := urlValue.String()
 		stage := stageValue.String()
 		if url == "" || stage == "" {
@@ -228,11 +245,12 @@ func initBuildInFunctions(cxt *models.Context) {
 			return v
 		}
 		taskId, _ := convert.StrToInt(cxt.ENV["taskId"])
-		cxt.NewQueues[url] = &models.Queue{
-			TaskId:    taskId,
-			StageName: stage,
-			Url:       url,
-		}
+		cxt.NewQueues = append(cxt.NewQueues, &models.Queue{
+			TaskId:     taskId,
+			StageName:  stage,
+			Url:        url,
+			MiddleData: string(middleDataString),
+		})
 		v, _ := cxt.VM.ToValue(true)
 		return v
 	})

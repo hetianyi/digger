@@ -135,7 +135,7 @@ type Context struct {
 	// taskId
 	//
 	ENV           map[string]string
-	NewQueues     map[string]*Queue
+	NewQueues     []*Queue
 	MiddleData    map[string]string
 	Results       []*Result
 	VM            *otto.Otto
@@ -153,7 +153,7 @@ func (c *Context) Exec(script string) (string, error) {
 }
 
 func (c *Context) AddQueue(q *Queue) {
-	c.NewQueues[q.Url] = q
+	c.NewQueues = append(c.NewQueues, q)
 }
 
 func (c *Context) AddResult(r *Result) {
