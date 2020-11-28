@@ -98,6 +98,9 @@ func (p *Project) Validate() (bool, error) {
 	if len(p.StartUrls) == 0 {
 		return false, errors.New("no start_urls")
 	}
+	if p.StartStage == "" {
+		return false, errors.New("no start_stage")
+	}
 	if len(p.Stages) == 0 {
 		return false, errors.New("no stage")
 	}
