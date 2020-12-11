@@ -47,6 +47,12 @@
                 </Select>
               </FormItem>
 
+              <FormItem label="推送源">
+                <Select v-model="selectedPushIdList">
+                  <Option v-for="item in pushList" :value="item.id" :key="item.id">{{ item.url }}</Option>
+                </Select>
+              </FormItem>
+
 
             </Form>
           </Content>
@@ -254,6 +260,9 @@
   import {
     proxyList
   } from "@/api/proxy"
+  import {
+    pushList
+  } from "@/api/push"
   import ConfigHelp from '../help/config-help'
 
   export default {
@@ -274,7 +283,9 @@
         savePluginLoading: false,
         importLoading: false,
         proxyList: [],
+        pushList: [],
         selectedProxyIdList: [],
+        selectedPushIdList: [],
 
         showConfigHelp: false,
 
@@ -338,6 +349,7 @@
             that.activePluginEditor(this.plugins[0].name)
           }
           this.selectedProxyIdList = data.data.project.proxies == null ? [] : data.data.project.proxies.map(res=>res.id)
+          this.selectedPushIdList = data.data.project.pushes == null ? [] : data.data.project.pushes.map(res=>res.id)
           this.crawlerFileEditor.setValue(data.data.yaml)
           this.crawlerFileEditor.refresh()
           this.crawlerFileEditor.focus()
@@ -352,6 +364,16 @@
           this.proxyList = data.data.data == null ? [] : data.data.data
         } else {
           this.$Message.error('无法加载代理服务器：' + data.msg)
+        }
+      },
+
+      async listPushes() {
+        const {data: data} = await pushList('', 1, 1000000)
+        if (data && data.code == 0) {
+          console.log(data.data.data)
+          this.pushList = data.data.data == null ? [] : data.data.data
+        } else {
+          this.$Message.error('无法加载推送源服务器：' + data.msg)
         }
       },
 
@@ -412,10 +434,18 @@
 
         let that = this
         let proxies = new Array()
+        let pushes = new Array()
         this.proxyList.forEach(res=>{
           that.selectedProxyIdList.forEach(v=>{
             if (res.id === v) {
               proxies.push(res)
+            }
+          })
+        })
+        this.pushList.forEach(res=>{
+          that.selectedPushIdList.forEach(v=>{
+            if (res.id === v) {
+              pushes.push(res)
             }
           })
         })
@@ -428,6 +458,7 @@
           enable_cron: that.project.enable_cron,
           tags: JSON.stringify(that.tags),
           proxies: proxies,
+          pushes: pushes,
         })
         this.saveProjectLoading = false
         if (data && data.code == 0) {
@@ -676,6 +707,7 @@
         this.saveProjectConfigLoading = true
         this.savePluginLoading = true
         this.listProxies()
+        this.listPushes()
         this.getProjectDetail()
       },
     },

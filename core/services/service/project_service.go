@@ -92,6 +92,14 @@ func (p projectServiceImp) SelectFullProjectInfo(projectId int) (*models.Project
 
 	project.Proxies = proxies
 
+	pushes, err := PushService().SelectByProject(projectId)
+	if err != nil {
+		logger.Debug(fmt.Sprintf("error get pushes data: %s", err.Error()))
+		return nil, err
+	}
+
+	project.PushSources = pushes
+
 	for i, s := range stages {
 		var fs []models.Field
 		hasNextStage := false
@@ -230,6 +238,29 @@ func (projectServiceImp) UpdateProject(project models.Project) (bool, error) {
 			temp := tx.Save(&models.ProjectProxy{
 				ProjectId: project.Id,
 				ProxyId:   p.Id,
+			})
+			if temp.RowsAffected == 0 {
+				if temp.Error != nil {
+					return temp.Error
+				}
+				return errors.New("update failed")
+			}
+		}
+		// update push sources
+		if err := tx.Delete(models.ProjectPush{}, "project_id = ?", project.Id).Error; err != nil {
+			return err
+		}
+		for _, p := range project.PushSources {
+			if p.Id <= 0 {
+				return errors.New("invalid proxy: no push source id")
+			}
+			if p.Url == "" {
+				return errors.New("invalid proxy: no push url")
+			}
+			// 删除项目
+			temp := tx.Save(&models.ProjectPush{
+				ProjectId: project.Id,
+				PushId:    p.Id,
 			})
 			if temp.RowsAffected == 0 {
 				if temp.Error != nil {

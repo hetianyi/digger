@@ -136,6 +136,27 @@ export default [
     ]
   },
   {
+    path: '/push',
+    name: 'push',
+    meta: {
+      icon: 'md-swap',
+      title: '推送源',
+      hideInBread: true
+    },
+    component: Main,
+    children: [
+      {
+        path: 'push',
+        name: 'list-push',
+        meta: {
+          icon: 'md-swap',
+          title: '推送源'
+        },
+        component: () => import('@/view/push/index.vue')
+      },
+    ]
+  },
+  {
     path: '/settings',
     name: 'settings',
     meta: {

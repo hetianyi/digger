@@ -256,3 +256,8 @@ type ProxyQueryVO struct {
 	PageQueryVO
 	Key string `json:"key"`
 }
+
+type PushQueryVO struct {
+	PageQueryVO
+	Key string `json:"key"`
+}

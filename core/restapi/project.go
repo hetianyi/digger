@@ -142,6 +142,7 @@ func UpdateProject(c *gin.Context) {
 	oldProject.Cron = reqData.Cron
 	oldProject.EnableCron = reqData.EnableCron
 	oldProject.Proxies = reqData.Proxies
+	oldProject.PushSources = reqData.PushSources
 
 	if !oldProject.EnableCron {
 		crontask.RemoveCron(pid)

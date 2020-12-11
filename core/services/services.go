@@ -156,3 +156,15 @@ type ProxyService interface {
 	List(params *models.ProxyQueryVO) (int64, []*models.Proxy, error)
 	SelectByProject(projectId int) ([]*models.Proxy, error)
 }
+
+// 代理推送源
+type PushSourceService interface {
+	Save(proxy models.PushSource) error
+	Delete(idList []int) error
+	List(params *models.PushQueryVO) (int64, []*models.PushSource, error)
+	SelectByProject(projectId int) ([]*models.PushSource, error)
+	UpdatePushTaskResultId(taskId int, lastResultId int64) error
+	FinishPushTask(taskId int) error
+	SelectPushTasks() ([]*models.PushTask, error)
+	SelectPushResults(taskId, size int, lastResultId int64) ([]*models.Result, error)
+}

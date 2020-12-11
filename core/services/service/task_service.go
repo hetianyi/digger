@@ -177,6 +177,7 @@ func (taskServiceImp) updateStatus(id, status int) error {
 			return err
 		}
 	}
+
 	err := DoTransaction(func(tx *gorm.DB) error {
 		temp := tx.Model(models.Task{}).Where("id = ?", id).Update("status", status)
 		if temp.Error != nil {
@@ -185,6 +186,30 @@ func (taskServiceImp) updateStatus(id, status int) error {
 		i := temp.RowsAffected
 		if i == 0 {
 			return errors.New("update status failed")
+		}
+		// 推送任务
+		if status == 3 {
+			project, err := CacheService().GetSnapshotConfig(id)
+			if err != nil {
+				return err
+			}
+			if len(project.PushSources) > 0 {
+				logger.Info("增加推送任务:", id)
+				// 查询总数
+				var total int64
+				if err := tx.Table("t_push_task").Where("task_id = ?", id).Count(&total).Error; err != nil {
+					return err
+				}
+				if total == 0 {
+					if err := tx.Save(&models.PushTask{
+						TaskId:   id,
+						ResultId: 0,
+						Finished: false,
+					}).Error; err != nil {
+						return err
+					}
+				}
+			}
 		}
 		return nil
 	})

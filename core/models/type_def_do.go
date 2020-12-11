@@ -36,6 +36,7 @@ type Project struct {
 	NodeAffinityParsed []KV              `json:"node_affinity_parsed" yaml:"-" gorm:"-"`
 	NodeAffinityDB     string            `json:"-" yaml:"-" gorm:"column:node_affinity"`
 	Proxies            []*Proxy          `json:"proxies" yaml:"-" gorm:"-"`
+	PushSources        []*PushSource     `json:"pushes" yaml:"-" gorm:"-"`
 	// web接口附加额外信息
 	Extras map[string]interface{} `json:"extras" yaml:"-" gorm:"-"`
 }
@@ -297,4 +298,36 @@ type ProjectProxy struct {
 
 func (ProjectProxy) TableName() string {
 	return "t_project_proxy"
+}
+
+type PushSource struct {
+	Id           int    `json:"id" gorm:"column:id;primary_key"`
+	Url          string `json:"url" gorm:"column:url"`
+	Method       string `json:"method" gorm:"column:method"`
+	PushSize     int    `json:"push_size" gorm:"column:push_size"`
+	EnableRetry  bool   `json:"enable_retry" gorm:"column:enable_retry"`
+	PushInterval int    `json:"push_interval" gorm:"column:push_interval"`
+}
+
+func (PushSource) TableName() string {
+	return "t_push_source"
+}
+
+type ProjectPush struct {
+	ProjectId int `json:"project_id" gorm:"column:project_id;primary_key"`
+	PushId    int `json:"push_id" gorm:"column:push_id;primary_key"`
+}
+
+func (ProjectPush) TableName() string {
+	return "t_project_push"
+}
+
+type PushTask struct {
+	TaskId   int   `json:"task_id" gorm:"column:task_id;primary_key"`
+	ResultId int64 `json:"result_id" gorm:"column:result_id"`
+	Finished bool  `json:"finished" gorm:"column:finished"`
+}
+
+func (PushTask) TableName() string {
+	return "t_push_task"
 }

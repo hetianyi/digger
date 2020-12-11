@@ -114,6 +114,10 @@ func StartAgentManager(_config *models.BootstrapConfig) {
 		authGroup.GET("/v1/proxies", restapi.QueryProxy)
 		authGroup.POST("/v1/proxies", restapi.SaveProxy)
 		authGroup.DELETE("/v1/proxies", restapi.DeleteProxy)
+
+		authGroup.GET("/v1/pushes", restapi.QueryPushSource)
+		authGroup.POST("/v1/pushes", restapi.SavePushSource)
+		authGroup.DELETE("/v1/pushes", restapi.DeletePush)
 	}
 
 	app.Use(static.Serve("/", static.LocalFile(config.UIDir, true)))

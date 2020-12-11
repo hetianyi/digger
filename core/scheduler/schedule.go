@@ -50,6 +50,7 @@ func Stop(taskId int) {
 func StartScheduler() {
 	scheduleScanTask()
 	scheduleResetQueue()
+	scheduleScanPushTask()
 }
 
 // 定时扫描任务，适用于程序启动时恢复task状态

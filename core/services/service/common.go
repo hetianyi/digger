@@ -34,6 +34,7 @@ var (
 	configService        services.ConfigService
 	statisticService     services.StatisticService
 	proxyService         services.ProxyService
+	pushService          services.PushSourceService
 )
 
 // 初始化数据库连接
@@ -189,6 +190,17 @@ func ProxyService() services.ProxyService {
 		}
 	}
 	return proxyService
+}
+
+func PushService() services.PushSourceService {
+	if pushService == nil {
+		initLock.Lock()
+		defer initLock.Unlock()
+		if pushService == nil {
+			pushService = &pushServiceImp{}
+		}
+	}
+	return pushService
 }
 
 func transformNotFoundErr(err error) error {
