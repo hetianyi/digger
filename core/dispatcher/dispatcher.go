@@ -224,7 +224,7 @@ func DispatchTask(task *models.Task) {
 		// 执行任务必须有worker
 		client := selectClient(project.NodeAffinityParsed)
 		if client == nil {
-			logger.Debug("没有worker，无法调度任务")
+			logger.Info("没有worker，无法调度任务")
 			return false
 		}
 		// 先取并发锁，拿不到则说明达到最大并发

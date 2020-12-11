@@ -27,7 +27,7 @@ var (
 
 // 定时扫描任务，适用于程序启动时恢复task状态
 func scheduleScanPushTask() {
-	timer.Start(0, time.Second*30, 0, func(t *timer.Timer) {
+	timer.Start(0, time.Second*5, 0, func(t *timer.Timer) {
 		tasks, err := service.PushService().SelectPushTasks()
 		if err != nil {
 			logger.Error("cannot get active tasks: ", err)
@@ -76,11 +76,11 @@ func SchedulePush(task *models.PushTask) {
 	}
 
 	timer.Start(0, time.Second*3, 0, func(t *timer.Timer) {
-		data := ""
+		var data []interface{}
 		retryTimes := 0
 		var results []*models.Result
 		for true {
-			if data == "" {
+			if data == nil {
 				results, err = service.PushService().SelectPushResults(task.TaskId, pushSize, lastResultId)
 				if err != nil {
 					logger.Error("cannot get push result: ", err)
@@ -101,7 +101,7 @@ func SchedulePush(task *models.PushTask) {
 			// retry too many times, skip
 			if retryTimes > 5 { // TODO
 				retryTimes = 0
-				data = ""
+				data = nil
 				logger.Info("cannot push: reach max retry times: ", task.TaskId)
 				if err = service.PushService().UpdatePushTaskResultId(task.TaskId, lastResultId); err != nil {
 					logger.Error("[1]error update push state: ", err)
@@ -131,14 +131,14 @@ func SchedulePush(task *models.PushTask) {
 				continue
 			}
 			retryTimes = 0
-			data = ""
+			data = nil
 		}
 	})
 }
 
-func buildResultArray(results []*models.Result) string {
+func buildResultArray(results []*models.Result) []interface{} {
 	if len(results) == 0 {
-		return "[]"
+		return nil
 	}
 	var resultArray []interface{}
 	for _, v := range results {
@@ -146,16 +146,18 @@ func buildResultArray(results []*models.Result) string {
 		json.Unmarshal([]byte(v.Result), &temp)
 		resultArray = append(resultArray, temp)
 	}
-	r, _ := json.Marshal(resultArray)
-	return string(r)
+	indent, _ := json.MarshalIndent(resultArray, "", " ")
+	fmt.Println(string(indent))
+	return resultArray
 }
 
-func push(source *models.PushSource, data string) error {
+func push(source *models.PushSource, data []interface{}) error {
 	res, err := httpClient.R().
 		SetHeaders(map[string]string{
-			"Content-Type": "application/json",
-			"User-Agent":   "digger-push-client",
+			"User-Agent": "digger-push-client",
 		}).
+		SetHeader("Accept", "application/json").
+		SetHeader("Content-Type", "application/json").
 		SetBody(data).
 		Execute(source.Method, source.Url)
 	if err != nil {

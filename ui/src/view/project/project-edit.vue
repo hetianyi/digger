@@ -285,7 +285,7 @@
         proxyList: [],
         pushList: [],
         selectedProxyIdList: [],
-        selectedPushIdList: [],
+        selectedPushIdList: 0, // not list but id for now
 
         showConfigHelp: false,
 
@@ -349,7 +349,7 @@
             that.activePluginEditor(this.plugins[0].name)
           }
           this.selectedProxyIdList = data.data.project.proxies == null ? [] : data.data.project.proxies.map(res=>res.id)
-          this.selectedPushIdList = data.data.project.pushes == null ? [] : data.data.project.pushes.map(res=>res.id)
+          this.selectedPushIdList = data.data.project.pushes == null ? 0 : data.data.project.pushes[0].id
           this.crawlerFileEditor.setValue(data.data.yaml)
           this.crawlerFileEditor.refresh()
           this.crawlerFileEditor.focus()
@@ -443,11 +443,9 @@
           })
         })
         this.pushList.forEach(res=>{
-          that.selectedPushIdList.forEach(v=>{
-            if (res.id === v) {
-              pushes.push(res)
-            }
-          })
+          if (that.selectedPushIdList === res.id) {
+            pushes.push(res)
+          }
         })
         const {data: data} = await updateProjectBaseInfo({
           id: that.project.id,
