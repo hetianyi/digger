@@ -14,12 +14,11 @@ import (
 
 func TestStatisticServiceImp_Save(t *testing.T) {
 	service.StatisticService().Save(map[string]interface{}{
-		"request_count": 120,
+		"request_count":       120,
 		"error_request_count": 5,
-		"result_count": 206,
+		"result_count":        206,
 	})
 }
-
 
 func TestStatisticServiceImp_List(t *testing.T) {
 	start := "2020-09-01 20:00:46"
@@ -31,14 +30,14 @@ func TestStatisticServiceImp_List(t *testing.T) {
 }
 
 func TestStatisticServiceImp_Save1(t *testing.T) {
-	start := time.Now().Add(0-time.Hour*120)
+	start := time.Now().Add(0 - time.Hour*120)
 	now := time.Now()
-	for now.Unix() - start.Unix() > 0 {
+	for now.Unix()-start.Unix() > 0 {
 		service.StatisticService().Save(map[string]interface{}{
-			"request_count": 120,
+			"request_count":       120,
 			"error_request_count": 5,
-			"result_count": 206,
-			"time": start,
+			"result_count":        206,
+			"time":                start,
 		})
 		start = start.Add(time.Minute)
 	}

@@ -10,8 +10,7 @@ import (
 )
 
 // 使用css selector处理stage的字段
-func processCssField(cxt *models.Context, field *models.Field, s *goquery.Selection) string {
-	ret := ""
+func processCssField(cxt *models.Context, field *models.Field, s *goquery.Selection) interface{} {
 	if field.IsArray {
 		var arrayFieldValue []string
 		var sel = s
@@ -33,9 +32,11 @@ func processCssField(cxt *models.Context, field *models.Field, s *goquery.Select
 					v = strings.TrimSpace(val)
 				}
 			}
+			// slot s4
+			v = handleS4(cxt, field, field.Name, v)
 			arrayFieldValue = append(arrayFieldValue, v)
 		})
-		ret, _ = json.MarshalToString(arrayFieldValue)
+		return arrayFieldValue
 	} else {
 		var sel = s
 		if field.Css != "" {
@@ -53,16 +54,13 @@ func processCssField(cxt *models.Context, field *models.Field, s *goquery.Select
 				v = strings.TrimSpace(val)
 			}
 		}
-		ret = v
+		// slot s4
+		return handleS4(cxt, field, field.Name, v)
 	}
-	// slot s4
-	ret = handleS4(cxt, field, field.Name, ret)
-	return ret
 }
 
 // 使用css selector处理stage的字段
-func processXpathField(cxt *models.Context, field *models.Field, node *html.Node) string {
-	ret := ""
+func processXpathField(cxt *models.Context, field *models.Field, node *html.Node) interface{} {
 	if field.IsArray {
 		var arrayFieldValue []string
 		if field.Xpath != "" {
@@ -72,49 +70,49 @@ func processXpathField(cxt *models.Context, field *models.Field, node *html.Node
 				return ""
 			}
 			for _, item := range list {
-				itemVal := ""
+				v := ""
 				if field.IsHtml {
-					itemVal = htmlquery.OutputHTML(item, false)
+					v = htmlquery.OutputHTML(item, false)
 				} else {
-					itemVal = htmlquery.InnerText(item)
+					v = htmlquery.InnerText(item)
 				}
 				// slot s4
-				itemVal = handleS4(cxt, field, field.Name, itemVal)
-				arrayFieldValue = append(arrayFieldValue, itemVal)
+				v = handleS4(cxt, field, field.Name, v)
+				arrayFieldValue = append(arrayFieldValue, v)
 			}
-			ret, _ = json.MarshalToString(arrayFieldValue)
+			return arrayFieldValue
 		} else {
 			// TODO 提取公共代码
-			itemVal := ""
+			v := ""
 			if field.IsHtml {
-				itemVal = htmlquery.OutputHTML(node, false)
+				v = htmlquery.OutputHTML(node, false)
 			} else {
-				itemVal = strings.TrimSpace(htmlquery.InnerText(node))
+				v = strings.TrimSpace(htmlquery.InnerText(node))
 			}
 			// slot s4
-			itemVal = handleS4(cxt, field, field.Name, itemVal)
-			arrayFieldValue = append(arrayFieldValue, strings.TrimSpace(itemVal))
+			v = handleS4(cxt, field, field.Name, v)
+			arrayFieldValue = append(arrayFieldValue, strings.TrimSpace(v))
 		}
-		ret, _ = json.MarshalToString(arrayFieldValue)
+		return arrayFieldValue
 	} else {
+		v := ""
 		if field.Xpath != "" {
 			item := htmlquery.FindOne(node, field.Xpath)
 			if item != nil {
 				if field.IsHtml {
-					ret = htmlquery.OutputHTML(item, false)
+					v = htmlquery.OutputHTML(item, false)
 				} else {
-					ret = strings.TrimSpace(htmlquery.InnerText(item))
+					v = strings.TrimSpace(htmlquery.InnerText(item))
 				}
 			}
 		} else {
 			if field.IsHtml {
-				ret = htmlquery.OutputHTML(node, false)
+				v = htmlquery.OutputHTML(node, false)
 			} else {
-				ret = strings.TrimSpace(htmlquery.InnerText(node))
+				v = strings.TrimSpace(htmlquery.InnerText(node))
 			}
 		}
 		// slot s4
-		ret = handleS4(cxt, field, field.Name, ret)
+		return handleS4(cxt, field, field.Name, v)
 	}
-	return ret
 }

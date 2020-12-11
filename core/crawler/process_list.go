@@ -47,9 +47,9 @@ func processListByCssSelector(cxt *models.Context) error {
 			if f.NextStage != "" {
 				nextStageUrl := ""
 				if f.Plugin != nil {
-					nextStageUrl = ret
+					nextStageUrl = ret.(string)
 				} else {
-					nextStageUrl, _ = utils.AbsoluteURL(cxt.Queue.Url, ret)
+					nextStageUrl, _ = utils.AbsoluteURL(cxt.Queue.Url, ret.(string))
 				}
 				//cxt.Log.Write([]byte(fmt.Sprintf("Next stage: %s", nextStageUrl)))
 				itemMiddleData = append(itemMiddleData, &models.Queue{
@@ -101,9 +101,9 @@ func processListByXpathSelector(cxt *models.Context) error {
 			if f.NextStage != "" {
 				nextStageUrl := ""
 				if f.Plugin != nil {
-					nextStageUrl = ret
+					nextStageUrl = ret.(string)
 				} else {
-					nextStageUrl, _ = utils.AbsoluteURL(cxt.Queue.Url, ret)
+					nextStageUrl, _ = utils.AbsoluteURL(cxt.Queue.Url, ret.(string))
 				}
 				//cxt.Log.Write([]byte(fmt.Sprintf("Next stage: %s", nextStageUrl)))
 				itemMiddleData = append(itemMiddleData, &models.Queue{

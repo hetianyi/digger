@@ -46,7 +46,7 @@ func Process(
 			"taskId": convert.IntToStr(queue.TaskId),
 		},
 		NewQueues:  []*models.Queue{},
-		MiddleData: make(map[string]string),
+		MiddleData: make(map[string]interface{}),
 	}
 	plugins.InitVM(cxt)
 
@@ -89,7 +89,7 @@ func Play(
 			"taskId": convert.IntToStr(queue.TaskId),
 		},
 		NewQueues:  []*models.Queue{},
-		MiddleData: make(map[string]string),
+		MiddleData: make(map[string]interface{}),
 	}
 	plugins.InitVM(cxt)
 
@@ -224,10 +224,10 @@ func processDefaultStage(
 }
 
 func extendsData(cxt *models.Context) {
-	cxt.MiddleData = make(map[string]string)
+	cxt.MiddleData = make(map[string]interface{})
 	queue := cxt.Queue
 
-	oldDataMap := make(map[string]string)
+	oldDataMap := make(map[string]interface{})
 	if cxt.Queue.MiddleData != "" {
 		if err := json.UnmarshalFromString(queue.MiddleData, &oldDataMap); err != nil {
 			return

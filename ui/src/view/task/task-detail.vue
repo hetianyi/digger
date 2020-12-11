@@ -140,26 +140,44 @@
               title: fields[i],
               key: fields[i],
               ellipsis: true,
+              tooltip: true,
+              attrs: {
+                ellipsis: true,
+                tooltip: true,
+              },
               render: (h, params) => {
-                let m = params.row[fields[i]].startsWith('http://') || params.row[fields[i]].startsWith('https://') ?
-                  h('a',
-                    {
-                      attrs: {
-                        href: params.row[fields[i]],
-                        target: '_blank',
-                        title: params.row[fields[i]],
-                      },
-                    },
-                    params.row[fields[i]])
-                  :
-                  h('span', {
-                    attrs: {
-                      title: params.row[fields[i]],
-                    },
-                  }, params.row[fields[i]])
-                return h('div', [
-                  m
-                ]);
+                console.log(typeof params.row[fields[i]])
+                let fd = params.row[fields[i]]
+                if (fd) {
+                  if ((typeof fd) == 'object' && fd.length > 0) {
+                    let arr = new Array()
+                    for (let k = 0; k < fd.length; k++) {
+                      let m = h('Tag', fd[k])
+                      arr.push(m)
+                    }
+                    return arr
+                  } else {
+                    let m = params.row[fields[i]].startsWith('http://') || params.row[fields[i]].startsWith('https://') ?
+                      h('a',
+                        {
+                          attrs: {
+                            href: params.row[fields[i]],
+                            target: '_blank',
+                            title: params.row[fields[i]],
+                          },
+                        },
+                        params.row[fields[i]])
+                      :
+                      h('span', {
+                        attrs: {
+                          title: params.row[fields[i]],
+                        },
+                      }, params.row[fields[i]])
+                    return h('div', [
+                      m
+                    ]);
+                  }
+                }
               }
             })
           }

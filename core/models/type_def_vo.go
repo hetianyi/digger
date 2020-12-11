@@ -136,7 +136,7 @@ type Context struct {
 	//
 	ENV           map[string]string
 	NewQueues     []*Queue
-	MiddleData    map[string]string
+	MiddleData    map[string]interface{}
 	Results       []*Result
 	VM            *otto.Otto
 	CssQueryDoc   *goquery.Document

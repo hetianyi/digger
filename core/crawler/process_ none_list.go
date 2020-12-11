@@ -17,7 +17,7 @@ func processNoneList(cxt *models.Context) error {
 	var itemMiddleData []*models.Queue
 	for i := range stage.Fields {
 		f := stage.Fields[i]
-		ret := ""
+		var ret interface{}
 		if f.Css != "" {
 			doc, err := parseCssDocument(cxt)
 			if err != nil {
@@ -37,9 +37,9 @@ func processNoneList(cxt *models.Context) error {
 		if f.NextStage != "" {
 			nextStageUrl := ""
 			if f.Plugin != nil {
-				nextStageUrl = ret
+				nextStageUrl = ret.(string)
 			} else {
-				nextStageUrl, _ = utils.AbsoluteURL(cxt.Queue.Url, ret)
+				nextStageUrl, _ = utils.AbsoluteURL(cxt.Queue.Url, ret.(string))
 			}
 			cxt.Log.Write([]byte(fmt.Sprintf("Next stage: %s", nextStageUrl)))
 			itemMiddleData = append(itemMiddleData, &models.Queue{

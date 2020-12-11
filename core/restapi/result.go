@@ -17,7 +17,7 @@ import (
 	"github.com/hetianyi/gox/file"
 	"github.com/hetianyi/gox/httpx"
 	"github.com/hetianyi/gox/logger"
-	jsoniter "github.com/json-iterator/go"
+	json "github.com/json-iterator/go"
 	"github.com/mholt/archiver"
 	"net/http"
 	"os"
@@ -71,6 +71,18 @@ func QueryResult(c *gin.Context) {
 	}))
 }
 
+type exportContext struct {
+	project          *models.Project
+	result           *models.Result
+	csvWriter        *csv.Writer
+	fieldTypeMapping map[string]bool
+	format           string
+	writeColumn      bool
+	isFirstRecord    bool
+	isLastRecord     bool
+	buffer           *bytes.Buffer
+}
+
 func ExportResult(c *gin.Context) {
 
 	format := strings.ToLower(GetStrParameter(c, "format", "sql"))
@@ -86,7 +98,7 @@ func ExportResult(c *gin.Context) {
 		return
 	}
 
-	project, err := service.ProjectService().SelectProjectById(task.ProjectId)
+	project, err := service.CacheService().GetSnapshotConfig(task.Id)
 	if err != nil {
 		c.JSON(http.StatusOK, ErrorMsg(err.Error()))
 		return
@@ -101,9 +113,16 @@ func ExportResult(c *gin.Context) {
 		return
 	}
 
+	fieldTypeMapping := getFieldTypeMapping(project)
+
 	exportPageSize := project.GetIntSetting(common.SETTINGS_EXPORT_PAGE_SIZE, 1000)
 
-	tempFileName := fmt.Sprintf("%s%s-%d-%d.%s", gox.TValue(format == "sql", "t_", "").(string), strings.ToLower(project.Name), taskId, gox.GetTimestamp(time.Now()), format)
+	tempFileName := fmt.Sprintf("%s%s-%d-%d.%s",
+		gox.TValue(format == "sql", "t_", "").(string),
+		strings.ToLower(project.Name),
+		taskId,
+		gox.GetTimestamp(time.Now()),
+		format)
 
 	resultFile, err := file.CreateFile(os.TempDir() + "/" + tempFileName)
 	if err != nil {
@@ -125,6 +144,17 @@ func ExportResult(c *gin.Context) {
 		resultFile.WriteString("\xEF\xBB\xBF")
 	}
 
+	cxt := &exportContext{
+		project:          project,
+		csvWriter:        csvWriter,
+		fieldTypeMapping: fieldTypeMapping,
+		isFirstRecord:    true,
+		isLastRecord:     false,
+		writeColumn:      writeCol,
+		format:           format,
+		buffer:           &buf,
+	}
+
 	var lastResultId int64 = 0
 	for {
 		page++
@@ -142,12 +172,20 @@ func ExportResult(c *gin.Context) {
 			c.JSON(http.StatusOK, ErrorMsg(err.Error()))
 			return
 		}
+		if len(trs) < exportPageSize {
+			cxt.isLastRecord = true
+		}
 		for _, r := range trs {
-			if err = buildResult(format, &buf, csvWriter, writeCol, project, r); err != nil {
+			cxt.result = r
+			if err = buildResult(cxt); err != nil {
 				c.JSON(http.StatusOK, ErrorMsg(err.Error()))
 				return
 			}
 			writeCol = false
+		}
+		// 到达最后一页
+		if cxt.isLastRecord && format == "json" {
+			cxt.buffer.WriteString("\n]")
 		}
 		lastResultId = trs[len(trs)-1].Id
 		if _, err := resultFile.WriteString(buf.String()); err != nil {
@@ -187,32 +225,27 @@ func ExportResult(c *gin.Context) {
 	httpx.ServeContent(c.Writer, c.Request, "", time.Now(), compResultFile, info.Size())
 }
 
-func buildResult(format string,
-	buff *bytes.Buffer,
-	csvWriter *csv.Writer,
-	writeCol bool,
-	project *models.Project,
-	r *models.Result) error {
-	switch format {
+func buildResult(cxt *exportContext) error {
+	switch cxt.format {
 	case "sql":
-		return buildSQLItem(buff, project, r)
+		return buildSQLItem(cxt)
 	case "json":
-		return buildJSONItem(buff, project, r)
+		return buildJSONItem(cxt)
 	case "csv":
-		return buildCSVItem(csvWriter, writeCol, r)
+		return buildCSVItem(cxt)
 	default:
 		return nil
 	}
 }
 
-func buildSQLItem(buff *bytes.Buffer, project *models.Project, r *models.Result) error {
-	m := make(map[string]string)
-	err := jsoniter.UnmarshalFromString(r.Result, &m)
+func buildSQLItem(cxt *exportContext) error {
+	valueMap := make(map[string]interface{})
+	err := json.UnmarshalFromString(cxt.result.Result, &valueMap)
 	if err != nil {
 		return err
 	}
 	var fs []string
-	for k := range m {
+	for k := range cxt.fieldTypeMapping {
 		fs = append(fs, k)
 	}
 	sort.Strings(fs)
@@ -220,36 +253,57 @@ func buildSQLItem(buff *bytes.Buffer, project *models.Project, r *models.Result)
 	if fLen == 0 {
 		return nil
 	}
-	buff.WriteString("insert into t_")
-	buff.WriteString(strings.ToLower(project.Name))
-	buff.WriteString("(")
+	cxt.buffer.WriteString("insert into t_")
+	cxt.buffer.WriteString(strings.ToLower(cxt.project.Name))
+	cxt.buffer.WriteString("(")
 	for i, v := range fs {
-		buff.WriteString(v)
+		cxt.buffer.WriteString("`")
+		cxt.buffer.WriteString(v)
+		cxt.buffer.WriteString("`")
 		if i != fLen-1 {
-			buff.WriteString(",")
+			cxt.buffer.WriteString(",")
 		}
 	}
-	buff.WriteString(") values (")
+	cxt.buffer.WriteString(") values (")
 	for i, v := range fs {
-		buff.WriteString("'")
-		buff.WriteString(strings.ReplaceAll(strings.ReplaceAll(m[v], "'", "''"), "\\", "\\\\"))
-		buff.WriteString("'")
+		fv := ""
+		if cxt.fieldTypeMapping[v] {
+			fv, _ = json.MarshalToString(valueMap[v])
+		} else {
+			fv = valueMap[v].(string)
+		}
+		cxt.buffer.WriteString("'")
+		cxt.buffer.WriteString(strings.ReplaceAll(strings.ReplaceAll(fv, "'", "''"), "\\", "\\\\"))
+		cxt.buffer.WriteString("'")
 		if i != fLen-1 {
-			buff.WriteString(",")
+			cxt.buffer.WriteString(",")
 		}
 	}
-	buff.WriteString(");\n")
+	cxt.buffer.WriteString(");\n")
 	return nil
 }
 
-func buildCSVItem(csvWriter *csv.Writer, writeCol bool, r *models.Result) error {
-	m := make(map[string]string)
-	err := jsoniter.UnmarshalFromString(r.Result, &m)
-	if err != nil {
-		return err
+// 获取字段类型
+// isArray: true
+// other: false
+func getFieldTypeMapping(project *models.Project) map[string]bool {
+	mapping := make(map[string]bool)
+	for _, s := range project.Stages {
+		for _, f := range s.Fields {
+			if f.IsArray {
+				mapping[f.Name] = true
+			} else {
+				mapping[f.Name] = false
+			}
+		}
 	}
+	return mapping
+}
+
+func buildCSVItem(cxt *exportContext) error {
+
 	var fs []string
-	for k := range m {
+	for k := range cxt.fieldTypeMapping {
 		fs = append(fs, k)
 	}
 	sort.Strings(fs)
@@ -258,25 +312,42 @@ func buildCSVItem(csvWriter *csv.Writer, writeCol bool, r *models.Result) error 
 		return nil
 	}
 
-	if writeCol {
-		if err := csvWriter.Write(fs); err != nil {
+	if cxt.writeColumn {
+		cxt.writeColumn = false
+		if err := cxt.csvWriter.Write(fs); err != nil {
 			return err
 		}
 	}
 
+	valueMap := make(map[string]interface{})
+	err := json.UnmarshalFromString(cxt.result.Result, &valueMap)
+	if err != nil {
+		return err
+	}
+
 	var record = make([]string, fLen)
 	for i, v := range fs {
-		record[i] = m[v]
+		if !cxt.fieldTypeMapping[v] {
+			record[i] = valueMap[v].(string)
+		} else {
+			line, _ := json.MarshalToString(valueMap[v])
+			record[i] = line
+		}
 	}
-	if err := csvWriter.Write(record); err != nil {
+	if err := cxt.csvWriter.Write(record); err != nil {
 		return err
 	}
 	return nil
 }
 
-func buildJSONItem(buff *bytes.Buffer, project *models.Project, r *models.Result) error {
-	buff.WriteString(r.Result)
-	buff.WriteString("\n")
+func buildJSONItem(cxt *exportContext) error {
+	if cxt.isFirstRecord {
+		cxt.buffer.WriteString("[\n")
+		cxt.isFirstRecord = false
+	} else {
+		cxt.buffer.WriteString(",\n")
+	}
+	cxt.buffer.WriteString(cxt.result.Result)
 	return nil
 }
 

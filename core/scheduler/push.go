@@ -30,7 +30,7 @@ func scheduleScanPushTask() {
 	timer.Start(0, time.Second*5, 0, func(t *timer.Timer) {
 		tasks, err := service.PushService().SelectPushTasks()
 		if err != nil {
-			logger.Error("cannot get active tasks: ", err)
+			logger.Error("cannot get push tasks: ", err)
 		}
 		if len(tasks) == 0 {
 			return
@@ -46,7 +46,7 @@ func SchedulePush(task *models.PushTask) {
 	defer lock.Unlock()
 
 	if runningPushTask[task.TaskId] {
-		logger.Warn("push task is currently running, skip.")
+		logger.Warn("push is currently running, skip.")
 		return
 	}
 
@@ -55,7 +55,7 @@ func SchedulePush(task *models.PushTask) {
 	// 加载配置快照
 	config, err := service.CacheService().GetSnapshotConfig(task.TaskId)
 	if err != nil {
-		logger.Error("cannot start push task: ", err)
+		logger.Error("cannot start push: ", err)
 		return
 	}
 	if config == nil {
@@ -66,7 +66,7 @@ func SchedulePush(task *models.PushTask) {
 		return
 	}
 
-	logger.Info("run push task: ", task.TaskId)
+	logger.Info("run push for task %d", task.TaskId)
 
 	var lastResultId int64
 	enableRetry := config.PushSources[0].EnableRetry
@@ -83,17 +83,17 @@ func SchedulePush(task *models.PushTask) {
 			if data == nil {
 				results, err = service.PushService().SelectPushResults(task.TaskId, pushSize, lastResultId)
 				if err != nil {
-					logger.Error("cannot get push result: ", err)
+					logger.Error("cannot get push result of task %d", err)
 					break
 				}
 				data = buildResultArray(results)
 				if len(results) > 0 {
 					lastResultId = results[len(results)-1].Id
 				} else {
-					logger.Info("push task finish: ", task.TaskId)
+					logger.Info("push finish of task %d", task.TaskId)
 					t.Destroy()
 					if err = service.PushService().FinishPushTask(task.TaskId); err != nil {
-						logger.Error("cannot finish push task: ", err)
+						logger.Error("cannot finish push of task %d", err)
 					}
 					break
 				}
@@ -118,10 +118,10 @@ func SchedulePush(task *models.PushTask) {
 			}
 			logger.Info("push success: ", task.TaskId)
 			if len(results) < pushSize {
-				logger.Info("push task finish: ", task.TaskId)
+				logger.Info("push finish of task %d", task.TaskId)
 				t.Destroy()
 				if err = service.PushService().FinishPushTask(task.TaskId); err != nil {
-					logger.Error("cannot finish push task: ", err)
+					logger.Error("cannot finish push of task %d", err)
 				}
 				break
 			}
@@ -146,8 +146,8 @@ func buildResultArray(results []*models.Result) []interface{} {
 		json.Unmarshal([]byte(v.Result), &temp)
 		resultArray = append(resultArray, temp)
 	}
-	indent, _ := json.MarshalIndent(resultArray, "", " ")
-	fmt.Println(string(indent))
+	//indent, _ := json.MarshalIndent(resultArray, "", " ")
+	//fmt.Println(string(indent))
 	return resultArray
 }
 
