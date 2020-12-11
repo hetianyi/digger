@@ -12,7 +12,7 @@
  Target Server Version : 90618
  File Encoding         : 65001
 
- Date: 22/10/2020 16:18:19
+ Date: 11/12/2020 17:37:17
 */
 
 
@@ -65,6 +65,17 @@ CACHE 1;
 -- ----------------------------
 DROP SEQUENCE IF EXISTS "public"."seq_proxy";
 CREATE SEQUENCE "public"."seq_proxy" 
+INCREMENT 1
+MINVALUE  1
+MAXVALUE 9223372036854775807
+START 1
+CACHE 1;
+
+-- ----------------------------
+-- Sequence structure for seq_push
+-- ----------------------------
+DROP SEQUENCE IF EXISTS "public"."seq_push";
+CREATE SEQUENCE "public"."seq_push" 
 INCREMENT 1
 MINVALUE  1
 MAXVALUE 9223372036854775807
@@ -251,6 +262,17 @@ CREATE TABLE "public"."t_project_proxy" (
 COMMENT ON TABLE "public"."t_project_proxy" IS '项目-代理关联表';
 
 -- ----------------------------
+-- Table structure for t_project_push
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."t_project_push";
+CREATE TABLE "public"."t_project_push" (
+  "project_id" int4 NOT NULL,
+  "push_id" int4 NOT NULL
+)
+;
+COMMENT ON TABLE "public"."t_project_push" IS '项目-推送源关联表';
+
+-- ----------------------------
 -- Table structure for t_proxy
 -- ----------------------------
 DROP TABLE IF EXISTS "public"."t_proxy";
@@ -264,6 +286,40 @@ CREATE TABLE "public"."t_proxy" (
 )
 ;
 COMMENT ON TABLE "public"."t_proxy" IS '代理配置表';
+
+-- ----------------------------
+-- Table structure for t_push_source
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."t_push_source";
+CREATE TABLE "public"."t_push_source" (
+  "id" int4 NOT NULL DEFAULT nextval('seq_push'::regclass),
+  "url" varchar(255) COLLATE "pg_catalog"."default",
+  "method" varchar(10) COLLATE "pg_catalog"."default" NOT NULL DEFAULT 'POST'::character varying,
+  "push_size" int2 NOT NULL DEFAULT 50,
+  "enable_retry" bool NOT NULL DEFAULT true,
+  "push_interval" int2 NOT NULL DEFAULT 0
+)
+;
+COMMENT ON COLUMN "public"."t_push_source"."url" IS '推送地址';
+COMMENT ON COLUMN "public"."t_push_source"."method" IS '推送http方法，默认POST';
+COMMENT ON COLUMN "public"."t_push_source"."push_size" IS '批量推送记录大小，默认50';
+COMMENT ON COLUMN "public"."t_push_source"."enable_retry" IS '推送失败是否支持重试，默认开启，源服务器最好支持幂等操作，防止重复推送';
+COMMENT ON COLUMN "public"."t_push_source"."push_interval" IS '推送间隔，单位ms，默认为0';
+COMMENT ON TABLE "public"."t_push_source" IS '推送源';
+
+-- ----------------------------
+-- Table structure for t_push_task
+-- ----------------------------
+DROP TABLE IF EXISTS "public"."t_push_task";
+CREATE TABLE "public"."t_push_task" (
+  "task_id" int4 NOT NULL,
+  "result_id" int4 NOT NULL,
+  "finished" bool NOT NULL DEFAULT false
+)
+;
+COMMENT ON COLUMN "public"."t_push_task"."result_id" IS '上次推送成功的结果id';
+COMMENT ON COLUMN "public"."t_push_task"."finished" IS '是否已完成';
+COMMENT ON TABLE "public"."t_push_task" IS '推送任务表';
 
 -- ----------------------------
 -- Table structure for t_queue
@@ -403,11 +459,12 @@ SELECT setval('"public"."seq_field"', 1, true);
 SELECT setval('"public"."seq_plugin"', 1, true);
 SELECT setval('"public"."seq_project"', 1, true);
 SELECT setval('"public"."seq_proxy"', 1, true);
+SELECT setval('"public"."seq_push"', 1, true);
 SELECT setval('"public"."seq_result"', 1, true);
 SELECT setval('"public"."seq_schedule_queue"', 1, true);
 SELECT setval('"public"."seq_stage"', 1, true);
-SELECT setval('"public"."seq_task"', 1, true);
 SELECT setval('"public"."seq_statistic"', 1, true);
+SELECT setval('"public"."seq_task"', 1, true);
 
 -- ----------------------------
 -- Primary Key structure for table t_config
@@ -457,6 +514,16 @@ ALTER TABLE "public"."t_project" ADD CONSTRAINT "t_project_pkey" PRIMARY KEY ("i
 ALTER TABLE "public"."t_project_proxy" ADD CONSTRAINT "t_project_proxy_pkey" PRIMARY KEY ("project_id", "proxy_id");
 
 -- ----------------------------
+-- Primary Key structure for table t_project_push
+-- ----------------------------
+ALTER TABLE "public"."t_project_push" ADD CONSTRAINT "t_project_proxy_copy1_pkey" PRIMARY KEY ("project_id", "push_id");
+
+-- ----------------------------
+-- Primary Key structure for table t_push_task
+-- ----------------------------
+ALTER TABLE "public"."t_push_task" ADD CONSTRAINT "t_push_task_pkey" PRIMARY KEY ("task_id");
+
+-- ----------------------------
 -- Indexes structure for table t_queue
 -- ----------------------------
 CREATE INDEX "Index_taskid_status" ON "public"."t_queue" USING btree (
@@ -469,6 +536,13 @@ CREATE INDEX "Index_taskid_status" ON "public"."t_queue" USING btree (
 -- Primary Key structure for table t_queue
 -- ----------------------------
 ALTER TABLE "public"."t_queue" ADD CONSTRAINT "t_schedule_queue_pkey" PRIMARY KEY ("id");
+
+-- ----------------------------
+-- Indexes structure for table t_result
+-- ----------------------------
+CREATE INDEX "Index_ret" ON "public"."t_result" USING btree (
+  "task_id" "pg_catalog"."int4_ops" ASC NULLS LAST
+);
 
 -- ----------------------------
 -- Indexes structure for table t_stage
