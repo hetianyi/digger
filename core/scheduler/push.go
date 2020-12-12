@@ -70,8 +70,12 @@ func SchedulePush(task *models.PushTask) {
 	var lastResultId int64
 	enableRetry := config.PushSources[0].EnableRetry
 	pushSize := config.PushSources[0].PushSize
+	delay := config.PushSources[0].PushInterval
 	if pushSize <= 0 {
 		pushSize = 50
+	}
+	if delay < 0 {
+		delay = 0
 	}
 
 	timer.Start(0, time.Second*3, 0, func(t *timer.Timer) {
@@ -129,6 +133,11 @@ func SchedulePush(task *models.PushTask) {
 				retryTimes++
 				continue
 			}
+			// 睡眠
+			if delay > 0 {
+				time.Sleep(time.Millisecond * time.Duration(delay))
+			}
+
 			retryTimes = 0
 			data = nil
 		}

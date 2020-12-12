@@ -51,10 +51,10 @@
     </Row>
 
 
-    <!-- 代理编辑对话框 -->
+    <!-- 推送源编辑对话框 -->
     <Modal v-model="showPushEditModal"
            :mask-closable="false"
-           title="代理编辑服务器">
+           title="推送源编辑">
       <Form :model="tempInsertPushSource"
             label-position="right"
             :label-width="120">
@@ -62,7 +62,9 @@
           <Input v-model="tempInsertPushSource.url" placeholder="推送源接口地址"></Input>
         </FormItem>
         <FormItem label="推送方法">
-          <Input v-model="tempInsertPushSource.method" placeholder="POST, PUT"></Input>
+          <Select v-model="tempInsertPushSource.method" placeholder="POST, PUT">
+            <Option v-for="item in ['POST', 'PUT', 'PATCH']" :value="item" :key="item">{{ item }}</Option>
+          </Select>
         </FormItem>
         <FormItem label="批量推送大小">
           <Input v-model="tempInsertPushSource.push_size" placeholder="50"></Input>
@@ -86,10 +88,10 @@
       </div>
     </Modal>
 
-    <!-- 新增代理对话框 -->
+    <!-- 新增推送源 -->
     <Modal v-model="showPushInsertModal"
            :mask-closable="false"
-           title="新增代理服务器">
+           title="新增推送源">
       <Form :model="tempInsertPushSource"
             label-position="right"
             :label-width="120">
@@ -97,7 +99,11 @@
           <Input v-model="tempInsertPushSource.url" placeholder="推送源接口地址"></Input>
         </FormItem>
         <FormItem label="推送方法">
-          <Input v-model="tempInsertPushSource.method" placeholder="POST, PUT"></Input>
+          <!--<Input v-model="tempInsertPushSource.method" placeholder="POST, PUT"></Input>-->
+          <Select v-model="tempInsertPushSource.method" placeholder="POST, PUT">
+            <Option v-for="item in ['POST', 'PUT', 'PATCH']" :value="item" :key="item">{{ item }}</Option>
+          </Select>
+
         </FormItem>
         <FormItem label="批量推送大小">
           <Input v-model="tempInsertPushSource.push_size" placeholder="50"></Input>
