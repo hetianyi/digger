@@ -1,37 +1,43 @@
-# Digger
-
-![](ui/src/assets/images/logo.png)
 
 # 简介
+![logo.png](static/img/author/logo.png)
 
 [Digger](https://github/hetianyi/digger)是用纯[Golang](https://golang.org)开发的配置式分布式跨平台爬虫系统，支持使用Javascript编写插件来实现各种你想要达到的目标。Digger及相关组件能够以极低的资源开销运行在各种廉价服务器和开发板上，如树莓派。
-
 Digger没有复杂的依赖，部署十分简单，支持Linux和Windows平台，目前支持的CPU架构有：```amd64```, ```arm```, ```arm64```
+
+您可以在 [Demo演示环境](https://demo.diggerit.me/) 快速体验功能。
+> 由于资源有限，请合理使用演示环境，定时任务会在每天0点清理数据。（测试环境目前不可用）
+
 
 ## 功能简介
 
 - 支持使用Css选择器和Xpath选择器
 - 支持多种结果类型：plain text，html，array等
-- web端爬虫配置编辑器
-- 在线调试爬虫配置，精准定位问题
+- web在线调试爬虫配置，精准定位问题
 - 支持插件功能
 - 实时浏览爬虫日志
 - 结果在线浏览、导出，一键生成数据库schema（postgres和mysql）
 - 定时任务
 - 支持暂停任务
 - 分布式worker实例，有效避免爬虫被block
+- 支持http代理
+- 支持robots指令检测
 - 支持任务和worker标签匹配调度功能
 - 支持配置导入导出
+- 结果推送，http和mq
 - 邮件通知功能
 - 钉钉通知功能（TODO）
-- DiggerHub支持爬虫配置分享（TODO）
+- DiggerHub支持爬虫配置分享
 
 
->  更多功能敬请探索！
+
+
+> 更多功能敬请探索！
+
 
 # 安装
 ## 使用docker安装（推荐）
-使用docker部署digger是最简单的方式，你可以在[Docker Hub](https://hub.docker.com/repository/docker/hehety/tiller)下载digger的镜像。
+使用docker部署digger是最简单的方式，你可以在[Docker Hub](https://hub.docker.com/repository/docker/hehety/digger)下载digger的镜像。
 
 这里以单机作为演示部署完整的digger服务。
 
@@ -49,7 +55,9 @@ git clone https://github.com/hetianyi/digger
 使用docker swarm部署集群：
 ```shell
 cd digger
-docker stack deploy -c docker-compose.yml --prune digger
+# 如果没有初始化docker集群，请执行以下命令
+# docker swarm init
+docker stack deploy -c docker-compose.yml digger
 ```
 如果集群启动成功，就可以在9012端口使用浏览器访问digger控制台。
 
@@ -58,17 +66,16 @@ docker stack deploy -c docker-compose.yml --prune digger
 postgres和redis安装过程此处不再赘述，这里假设这两个服务已存在。
 首先，需要下载可执行程序```digger```和前端ui压缩包，下载地址在[此处](https://github.com/hetianyi/digger/releases)，
 选择版本下载完成后，你应该得到以下两个文件：
-
 ```shell
 │ ..
-├ digger_0.0.4_linux_amd64.tar.gz
-└ ui_0.0.4.tar.gz
+├ digger_0.0.3_linux_amd64.tar.gz
+└ ui_0.0.3.tar.gz
 ```
 将这两个文件解压，得到一个可执行程序<kbd>digger</kbd>和一个目录<kbd>ui</kbd>，将可执行文件复制到```/usr/local/bin```目录下，然后将ui.tar.gz解压，放到```/usr/share/digger```下：
 ```shell
-tar xzf digger_0.0.4_linux_amd64.tar.gz
+tar xzf digger_0.0.3_linux_amd64.tar.gz
 cp digger /usr/local/bin
-tar xzf ui_0.0.4.tar.gz
+tar xzf ui_0.0.3.tar.gz
 mkdir -p /usr/share/digger
 cp ui /usr/share/digger/
 ```
@@ -92,59 +99,32 @@ manager和worker都启动成功，那么就可以使用浏览器通过9012端口
 
 ### Helm安装
 
-## 从源代码编译安装
-
-编译环境要求：
-
-| 软件 | 版本 |
-| ---- | ---- |
-| Go | 1.11+ |
-| NodeJs | 14.2 |
-| OS | Windows/Linux |
-
-> 其他版本没有经过测试和实验
-
-### Windows下编译
-```shell
-build-win.cmd
-```
-Linux下编译
-```shell
-sh build-all.sh
-```
-
-输出
-```txt
-│ ..
-├ core/bin/digger.exe
-└ ui/dist
-```
-
 # 第一个爬虫项目
-> 该节介绍如何开始你的第一个爬虫项目，请确保有一个搭建完整的digger服务
+> 该节介绍如何开始你的第一个爬虫项目，请确保有一个搭建完整的digger集群，也可以试用我们提供的 [演示环境](https://demo.diggerit.me/)。
 
 浏览器访问web控制台，进入首页，点击新建项目
 
-![20200828111557.png](docs/screenshot/20200828111557.png)
+![20200828111557.png](/static/img/screenshot/20200828111557.png)
 
 在弹窗里填写项目基本信息
 
-![20200828111730.png](docs/screenshot/20200828111730.png)
+![20200828111730.png](/static/img/screenshot/20200828111730.png)
 
 填写完成，点击确认按钮提交，项目创建完成！接下来，我们需要编写项目的爬虫配置文件。点击按钮编辑配置
-![20200828113339.png](docs/screenshot/20200828113339.png)
+![20200828113339.png](/static/img/screenshot/20200828113339.png)
 
 在弹出页面中即可开始进行配置编辑，digger的爬虫配置使用```yaml```格式，如下图
-![20200828113511.png](docs/screenshot/20200828113511.png)
+![20200828113511.png](/static/img/screenshot/20200828113511.png)
 
-这里我们以爬取网易云音乐的[歌单](https://music.163.com/#/discover/playlist)为例，在编辑页面底部，点击导入按钮，导入我们的示例配置，可以在这里下载我们提供的[示例配置文件](docs/demo/hello_world.cfg.json)。
+这里我们以爬取网易云音乐的[歌单](https://music.163.com/#/discover/playlist)为例，在编辑页面底部，点击导入按钮，导入我们的示例配置，可以在这里下载我们提供的[css版本示例配置文件](/static/demo/hello_world.cfg.json)。
+
 
 自此，示例项目已配置完成，回到项目页面，点击“+”按钮开始一个新任务。
-![20200828130659.png](docs/screenshot/20200828130659.png)
+![20200828130659.png](/static/img/screenshot/20200828130659.png)
 任务创建成功之后页面自动跳转到任务详情页
-![20200828131350.png](docs/screenshot/20200828131350.png)
+![20200828131350.png](/static/img/screenshot/20200828131350.png)
 在任务页面点击"眼睛图标"的按钮，查看爬虫结果。
-![20200828131723.png](docs/screenshot/20200828131723.png)
+![20200828131723.png](/static/img/screenshot/20200828131723.png)
 > 恭喜，你的第一个爬虫项目已成功运行，此时，你可以在结果页面将结果导出为各种格式。更多功能敬请探索！
 
 
@@ -233,7 +213,9 @@ stages:
 - name: 
   is_list: 
   is_unique: 
+  list_xpath: 
   list_css: 
+  page_xpath: ""
   page_css: 
   page_attr: 
   plugin: 
@@ -245,6 +227,7 @@ fields:
 - name: cover
   is_array: false
   is_html: false
+  xpath:
   css: 
   attr: 
   plugin: ""
@@ -260,7 +243,12 @@ headers:
 - settings: 全局配置，用于控制爬虫行为
 ```yaml
 settings:
-  CONCURRENT_REQUESTS: "5"
+  CONCURRENT_REQUESTS: "5" # 全局并发请求数
+  FOLLOW_REDIRECT: "true" # 是否跟随重定向
+  REQUEST_TIMEOUT: "60" # 请求超时时间（单位s）
+  RETRY_COUNT: "0" # 重试次数（单节点，非全局）
+  RETRY_WAIT: "3" # 重试间隔时间（单位s）
+  QUEUE_EXPIRE_SECONDS: "20" # 单任务过期时间（单位s）
 ```
 - node_affinity: 节点调度亲和标签，只有和worker的的标签匹配才能将任务调度到该worker
 ```yaml
@@ -278,7 +266,9 @@ stages:
 - name: list # stage的name
   is_list: true # 是否是列表类型
   is_unique: false # 页面URL是否是唯一（暂时可以忽略）
-  list_css: ul#m-pl-container>li # css选择器表达式
+  list_xpath: # 列表的xpath选择器表达式
+  list_css: ul#m-pl-container>li # 列表的css选择器表达式
+  page_xpath: # 分页按钮的xpath选择器表达式（如果有分页）
   page_css: a.znxt # 分页按钮的css选择器表达式（如果有分页）
   page_attr: href # 分页按钮的url标签属性（通常是href）
   plugin: "" # 插件，请参考插件一节
@@ -286,6 +276,7 @@ stages:
   - name: cover # 字段name
     is_array: false # 指示该字段是否是一个数组，如标签，组图等一个字段需要匹配多个值的场景
     is_html: false # 指示该字段是否是匹配标签下的原始html内容，对于字段需要提取原始html内容的场景非常有用
+    xpath: "" # xpath选择器
     css: div.u-cover>a # 字段的css选择器表达式
     attr: href # 字段的标签属性
     plugin: "" # 插件，请参考插件一节
@@ -302,6 +293,7 @@ stages:
   - name: cover
     is_array: false
     is_html: false
+    xpath: ""
     css: div.cover>img
     attr: src
     plugin: ""
@@ -318,6 +310,7 @@ settings:
   RETRY_WAIT: "0" # 重试间隔时间(s)
   SKIP_TLS_VERIFY: "false" # 是否跳过tls验证，解决自谦证书问题
   EXPORT_PAGE_SIZE: "1000" # 导出时每次从数据库查询的分页大小，影响导出速度和内存占用
+  FOLLOW_ROBOTS_TXT: "false" # 是否遵循robots指令
 node_affinity: # 节点亲和标签列表，标签能够匹配相应的worker
 - "key=value"
 
@@ -326,12 +319,12 @@ node_affinity: # 节点亲和标签列表，标签能够匹配相应的worker
 爬虫调试是一个非常实用的功能，能够帮助你在编写爬虫配置文件的过程中快速判断某一个阶段的配置是否编写正确，而不必等到实际运行时才能判断是否有问题。
 如果没有调试功能，那么对于一些大型或长期任务可能是个灾难。以“第一个爬虫项目”里的示例配置为例，打开爬虫配置编辑页面，在右下角点击调试按钮
 
-![20200828203733.png](docs/screenshot/20200828203733.png)
+![20200828203733.png](/static/img/screenshot/20200828203733.png)
 
 在弹出的调试对话框里输入调试参数，通常是一个stage的页面URL，然后在下拉框中选择调试的stage，这里选择```list```。
 > 注意：输入的调试参数URL必须属于选择的stage，否则无法得到预期的调试结果。
 
-![20200828205258.png](docs/screenshot/20200828205258.png)
+![20200828205258.png](/static/img/screenshot/20200828205258.png)
 
 点击“调试按钮”，在文本框里会出现调试得到的结果，该结果是未经处理的json字符串，其中```next```表示得到的下一阶段或下一页的结果，```result```表示爬虫结果，
 通过调试结果中各个字段的对应结果就能判断css选择器表达式或其他配置是否正确。
@@ -363,22 +356,22 @@ TODO 处理中，处理使用的引擎，默认为goquery，否则为自定义�
 
 下面是插件作用示意图
 
-![digger插件.png](docs/screenshot/digger插件.png)
+![digger插件.png](/static/img/screenshot/digger插件.png)
 
 ## 编写自定义插件
 本节介绍如何编写自定义插件。
 
 以“第一个爬虫项目”里的示例配置为例，爬取的歌单信息结果里，字段```create_date```理想情况下为```2020-03-27```，尾部却多了“创建”，我们可以通过编写一个非常简单的插件来去除它。
 
-![20200828220056.png](docs/screenshot/20200828220056.png)
+![20200828220056.png](/static/img/screenshot/20200828220056.png)
 
 打开爬虫配置编辑页面，切换到插件页面，点击“+”按钮，在弹框中输入插件名称，在这里我们将插件命名为```remove_suffix```，然后点击“添加”按钮确认添加
 
-![20200828221148.png](docs/screenshot/20200828221148.png)
+![20200828221148.png](/static/img/screenshot/20200828221148.png)
 
 然后在插件编辑器里输入插件脚本，插件脚本使用javascript来实现，并且具有固定的初始化模板：
 
-![20200828221633.png](docs/screenshot/20200828221633.png)
+![20200828221633.png](/static/img/screenshot/20200828221633.png)
 
 接下来，我们只需要在```// Start here```后输入脚本即可，此处为了将后缀文字```"创建"```删除，我们可以使用以下脚本来实现：
 
@@ -401,45 +394,36 @@ ENV, REPLACE, TRIM为digger内置函数，可以直接在插件中调用，更�
 
 插件编写完成之后需要将其应用于field上，将create_date的field属性```plugin```设为```remove_suffix@s4```，表示插件将在s4插槽作用在该字段上。如下：
 
-![20200828223501.png](docs/screenshot/20200828223501.png)
+![20200828223501.png](/static/img/screenshot/20200828223501.png)
 
 保存配置，回到项目列表页面，点击“+”按钮再次一个开启新任务，这时可以看到结果里的日期已经正确处理。
 
-![20200828223407.png](docs/screenshot/20200828223407.png)
+![20200828223407.png](/static/img/screenshot/20200828223407.png)
 
 ## 内置函数
 digger的内置函数包含常见的字符处理和其他常用函数，如果需要新的函数，请提交PR
 
 内置函数列表：
 - ```LEN(str)```
-  返回字符串长度，返回值类型int
-
+返回字符串长度，返回值类型int
 - ```STARTS_WITH(source, target)```
-  判断字符串```source```是否有前缀```target```，返回值类型```boolean```
-
-- ```END_WITH(source, target)```
-  判断字符串```source```是否有后缀```target```，返回值类型```boolean```
-
+判断字符串```source```是否有前缀```target```，返回值类型```boolean```
+- ```ENDS_WITH(source, target)```
+判断字符串```source```是否有后缀```target```，返回值类型```boolean```
 - ```SUBSTR(source, start, end)```
-  获取字符串```source```的子串，位于```start```, ```end```之间，返回值类型```string```
-
+获取字符串```source```的子串，位于```start```, ```end```之间，返回值类型```string```
 - ```CONTAINS(source, target)```
-  判断字符串```source```是否包含字符串```target```，返回值类型```boolean```
-
+判断字符串```source```是否包含字符串```target```，返回值类型```boolean```
 - ```REPLACE(source, old, new)```
-  将字符串```source```中的字符串```old```替换为```new```并返回替换后的字符串
-
+将字符串```source```中的字符串```old```替换为```new```并返回替换后的字符串
 - ```REGEXP_GROUP_FIND(regexp, source, target)```
-  正则表达式匹配组替换，例如```REGEXP_GROUP_FIND(".\*([0-9]+).\*", "abc123mn", "$1")```将得到返回结果```123```
-
+正则表达式匹配组替换，例如```REGEXP_GROUP_FIND(".*([0-9]+).*", "abc123mn", "$1")```将得到返回结果```123```
 - ```MD5(source)```
-  计算字符串```source```的md5值
-
+计算字符串```source```的md5值
 - ```TRIM(source)```
-  去除字符串```source```首尾空格
-
+去除字符串```source```首尾空格
 - ```ENV(key)```
-  获取环境值，目前可用的key有：```currentFieldName```，```currentFieldValue```
+获取环境值，目前可用的key有：```currentFieldName```，```currentFieldValue```
 
 - ```MIDDLE_DATA()```
   获取中间值，可以获取父级stage里的field值和本级stage里其他field的值。例如：```MIDDLE_DATA().field_name1```
@@ -461,15 +445,12 @@ digger的内置函数包含常见的字符处理和其他常用函数，如果�
   ```txt
   {\"name\":\"张三 <h1> + </h1> xxx\"}
   ```
-
 - ```RESPONSE_DATA()```
-  获取http请求响应结果
-
+获取http请求响应结果
 - ```SET_RESPONSE_DATA(data)```
-  如果是自定义AJAX请求，可以通过该函数将响应结果设置到上下文中供go程序使用
-
+如果是自定义AJAX请求，可以通过该函数将响应结果设置到上下文中供go程序使用
 - ```QUEUE()```
-  获取当前任务实体类信息，Queue的 go struct 定义如下：
+获取当前任务实体类信息，Queue的 go struct 定义如下：
 ```golang
 type Queue struct {
 	Id         int64  `json:"id" gorm:"column:id;primary_key"`
@@ -483,8 +464,9 @@ type Queue struct {
 例如，可以通过```QUEUE().Url```获取当前任务的Url
 - ```ABS(url)```
 将相对URL转化为绝对URL
-- ```ADD_QUEUE({stage, url})```
-  添加任务，适用于需要从当前任务派生出子任务的场景，如根据尾页码计算所有分页的URL，并手动添加至队列。
+- ```ADD_QUEUE(obj)```
+添加任务，适用于需要从当前任务派生出子任务的场景，如根据尾页码计算所有分页的URL，并手动添加至队列。对象```obj```格式：```{stage: "", url: "", middle_data: {}}```
+
 - ```AJAX(method, url, headers, querys, body)```
 发送AJAX请求，例如：
 ```shell
@@ -502,17 +484,12 @@ AJAX("POST", "https://demo.com/some/page", {
 ```shell
 curl -X POST -H "X-TOKEN:xxx" -d "{\"field1\":\"value1\"}" "https://demo.com/some/page?page=1"
 ```
-
-
-
 # Digger Hub
 
 DiggerHub是一个爬虫配置仓库，您可以在这里找到别人分享的爬虫配置，或者分享自己的爬虫配置。
 
 仓库地址：<https://github.com/hetianyi/diggerhub-dataset>
-
 # 常见问题
-
 1. ```x509: certificate signed by unknown authority```
 可以尝试在爬虫配置的settings下添加配置项：
 ```yaml
@@ -520,15 +497,18 @@ settings:
 	SKIP_TLS_VERIFY: "true"
 ```
 
-
 # 加入讨论组
 如果您在使用过程中遇到任何问题，欢迎加作者微信，由作者邀请加入微信讨论群。
-> 加好友请备注“digger”
+> 加微信好友请备注“digger”
 
-![20200828131723.png](docs/author_qr.jpg)
+![author_qr.jpg](/static/img/author/author_qr.jpg)
+
+QQ交流群：```868371486```
+
+![qq_group.png](/static/img/author/qq_group.png)
 
 # 支持
 如果您觉得该软件解决了您的问题，请考虑打赏以支持作者
 
-![20200828131723.png](docs//tip.jpg)
+![tip.jpg](/static/img/author/tip.jpg)
 

@@ -1,0 +1,191 @@
+{
+  "id": 12,
+  "name": "hello_world",
+  "display_name": "第一个爬虫项目",
+  "remark": "",
+  "tags": "[\"测试\"]",
+  "start_urls": ["https://music.163.com/discover/playlist"],
+  "start_stage": "list",
+  "create_time": "2020-08-28T11:32:49.760002Z",
+  "update_time": "2020-08-28T12:43:41.602291Z",
+  "stages": [
+    {
+      "id": 172,
+      "project_id": 12,
+      "name": "list",
+      "is_list": true,
+      "is_unique": false,
+      "list_css": "ul#m-pl-container\u003eli",
+      "page_css": "a.znxt",
+      "page_attr": "href",
+      "plugins": "",
+      "plugin_array": null,
+      "fields": [
+        {
+          "id": 431,
+          "project_id": 12,
+          "stage_id": 172,
+          "name": "cover",
+          "is_array": false,
+          "is_html": false,
+          "css": "div.u-cover\u003ea",
+          "attr": "href",
+          "plugin": "",
+          "_plugin": null,
+          "remark": "歌单地址",
+          "next_stage": "detail"
+        }
+      ],
+      "has_next_stage": true
+    },
+    {
+      "id": 173,
+      "project_id": 12,
+      "name": "detail",
+      "is_list": false,
+      "is_unique": false,
+      "list_css": "",
+      "page_css": "",
+      "page_attr": "",
+      "plugins": "",
+      "plugin_array": null,
+      "fields": [
+        {
+          "id": 432,
+          "project_id": 12,
+          "stage_id": 173,
+          "name": "cover",
+          "is_array": false,
+          "is_html": false,
+          "css": "div.cover\u003eimg",
+          "attr": "src",
+          "plugin": "",
+          "_plugin": null,
+          "remark": "歌单封面",
+          "next_stage": ""
+        },
+        {
+          "id": 433,
+          "project_id": 12,
+          "stage_id": 173,
+          "name": "name",
+          "is_array": false,
+          "is_html": false,
+          "css": "div.cntc\u003ediv\u003ediv\u003eh2",
+          "attr": "",
+          "plugin": "",
+          "_plugin": null,
+          "remark": "歌单名称",
+          "next_stage": ""
+        },
+        {
+          "id": 434,
+          "project_id": 12,
+          "stage_id": 173,
+          "name": "author",
+          "is_array": false,
+          "is_html": false,
+          "css": "div.user\u003espan.name\u003ea",
+          "attr": "",
+          "plugin": "",
+          "_plugin": null,
+          "remark": "歌单作者",
+          "next_stage": ""
+        },
+        {
+          "id": 435,
+          "project_id": 12,
+          "stage_id": 173,
+          "name": "create_date",
+          "is_array": false,
+          "is_html": false,
+          "css": "div.user\u003espan:nth-last-child(1)",
+          "attr": "",
+          "plugin": "",
+          "_plugin": null,
+          "remark": "创建时间",
+          "next_stage": ""
+        },
+        {
+          "id": 436,
+          "project_id": 12,
+          "stage_id": 173,
+          "name": "comments",
+          "is_array": false,
+          "is_html": false,
+          "css": "span#cnt_comment_count",
+          "attr": "",
+          "plugin": "",
+          "_plugin": null,
+          "remark": "评论总数",
+          "next_stage": ""
+        },
+        {
+          "id": 437,
+          "project_id": 12,
+          "stage_id": 173,
+          "name": "tags",
+          "is_array": true,
+          "is_html": false,
+          "css": "div.tags\u003ea.u-tag\u003ei",
+          "attr": "",
+          "plugin": "",
+          "_plugin": null,
+          "remark": "标签",
+          "next_stage": ""
+        },
+        {
+          "id": 438,
+          "project_id": 12,
+          "stage_id": 173,
+          "name": "description",
+          "is_array": false,
+          "is_html": false,
+          "css": "p#album-desc-dot",
+          "attr": "",
+          "plugin": "",
+          "_plugin": null,
+          "remark": "歌单说明",
+          "next_stage": ""
+        },
+        {
+          "id": 439,
+          "project_id": 12,
+          "stage_id": 173,
+          "name": "songs",
+          "is_array": false,
+          "is_html": false,
+          "css": "span#playlist-track-count",
+          "attr": "",
+          "plugin": "",
+          "_plugin": null,
+          "remark": "歌曲数量",
+          "next_stage": ""
+        },
+        {
+          "id": 440,
+          "project_id": 12,
+          "stage_id": 173,
+          "name": "play_times",
+          "is_array": false,
+          "is_html": false,
+          "css": "strong#play-count",
+          "attr": "",
+          "plugin": "",
+          "_plugin": null,
+          "remark": "播放次数",
+          "next_stage": ""
+        }
+      ],
+      "has_next_stage": false
+    }
+  ],
+  "headers": {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML,like Gecko) Chrome/78.0.3904.108 Safari/537.36"
+  },
+  "settings": {
+    "CONCURRENT_REQUESTS": "5"
+  },
+  "node_affinity": [],
+  "extras": null
+}
