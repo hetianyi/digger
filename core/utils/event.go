@@ -20,7 +20,7 @@ func DecodeEvent(event string) *models.RedisEvent {
 	var ret models.RedisEvent
 	err := jsoniter.UnmarshalFromString(event, &ret)
 	if err != nil {
-		logger.Error("error parse event payload: ", err)
+		logger.Error("无法解析事件: ", err)
 		return nil
 	}
 	return &ret

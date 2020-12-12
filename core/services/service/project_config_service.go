@@ -177,7 +177,7 @@ func (projectConfigServiceImp) ImportProjectConfig(project *models.Project) erro
 		for _, s := range project.Stages {
 			s.Id = 0
 			s.ProjectId = project.Id
-			logger.Info("导入stage：" + s.Name)
+			logger.Info("导入stage: " + s.Name)
 			if err := tx.Save(&s).Error; err != nil {
 				return err
 			}
@@ -188,7 +188,7 @@ func (projectConfigServiceImp) ImportProjectConfig(project *models.Project) erro
 				}
 				p.Id = 0
 				p.ProjectId = project.Id
-				logger.Info("导入plugin：" + p.Name)
+				logger.Info("导入plugin: " + p.Name)
 				if err := tx.Save(&p).Error; err != nil {
 					return err
 				}
@@ -203,7 +203,7 @@ func (projectConfigServiceImp) ImportProjectConfig(project *models.Project) erro
 				f.Id = 0
 				f.ProjectId = project.Id
 				f.StageId = s.Id
-				logger.Info("导入field：" + f.Name)
+				logger.Info("导入field: " + f.Name)
 				if err := tx.Save(&f).Error; err != nil {
 					return err
 				}
@@ -213,7 +213,7 @@ func (projectConfigServiceImp) ImportProjectConfig(project *models.Project) erro
 					}
 					f.Plugin.Id = 0
 					f.Plugin.ProjectId = project.Id
-					logger.Info("导入plugin：" + f.Plugin.Name)
+					logger.Info("导入plugin: " + f.Plugin.Name)
 					if err := tx.Save(&f.Plugin).Error; err != nil {
 						return err
 					}

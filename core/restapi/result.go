@@ -159,7 +159,7 @@ func ExportResult(c *gin.Context) {
 	for {
 		page++
 		buf.Reset()
-		logger.Info(fmt.Sprintf("正在导出第%d页...", page))
+		logger.Info(fmt.Sprintf("正在导出第%d页", page))
 		trs, err := service.ResultService().ExportResults(models.ResultQueryVO{
 			PageQueryVO: models.PageQueryVO{
 				Page:     page,
@@ -206,7 +206,7 @@ func ExportResult(c *gin.Context) {
 	// 压缩文件
 	err = archiver.Archive([]string{resultFile.Name()}, compressFile)
 	if err != nil {
-		logger.Error("err compressing file:", err)
+		logger.Error("无法压缩导出文件: ", err)
 		c.JSON(http.StatusOK, ErrorMsg(err.Error()))
 		return
 	}

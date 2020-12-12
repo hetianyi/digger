@@ -57,7 +57,7 @@ func scheduleScanTask() {
 	timer.Start(0, time.Second*30, 0, func(t *timer.Timer) {
 		tasks, err := service.TaskService().SelectActiveTasks()
 		if err != nil {
-			logger.Error("cannot get active tasks: ", err)
+			logger.Error("无法获取激活的任务: ", err)
 		}
 		if len(tasks) == 0 {
 			return
@@ -190,7 +190,7 @@ func DispatchTask(task *models.Task) {
 
 	appendFile, err := file.AppendFile(logFile)
 	if err != nil {
-		logger.Error("error start task dispatcher: ", err)
+		logger.Error("无法启动任务分配器: ", err)
 		appendFile.Close()
 	}
 
@@ -248,7 +248,7 @@ func DispatchTask(task *models.Task) {
 			return false
 		}
 		if queue.Expire < gox.GetTimestamp(time.Now()) {
-			logger.Debug("拿到的任务已过期：", queue.Id)
+			logger.Debug("拿到的任务已过期, queueId: ", queue.Id)
 			releaseLock = true
 			return true
 		}
@@ -256,7 +256,7 @@ func DispatchTask(task *models.Task) {
 		// 检查是否是unique类型的stage
 		stage := project.GetStageByName(queue.StageName)
 		if stage == nil {
-			logger.Debug("stage不存在：", stage)
+			logger.Debug("stage不存在: ", stage)
 			releaseLock = true
 			return true
 		}
@@ -319,7 +319,7 @@ func notify(taskId int, doWork func() bool) {
 }
 
 func dispatchWork(requestId string, queue *models.Queue, client *WsClient) {
-	logger.Info("分配任务：", queue.Id, "，requestId=", requestId)
+	logger.Debug("分配请求：", queue.Id, "，requestId=", requestId)
 	updateLock.Lock()
 	assignRequests++
 	updateLock.Unlock()

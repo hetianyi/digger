@@ -208,7 +208,7 @@ Options:
 	utils.ExchangeEnvValue("DIGGER_PORT", func(envValue string) {
 		p, err := convert.StrToInt(envValue)
 		if err != nil {
-			logger.Fatal("invalid port number \"", envValue, "\": ", err)
+			logger.Fatal("非法端口号: \"", envValue, "\": ", err)
 		}
 		port = p
 	})
@@ -236,7 +236,7 @@ Options:
 	utils.ExchangeEnvValue("DIGGER_ID", func(envValue string) {
 		id, err := convert.StrToInt(envValue)
 		if err != nil {
-			logger.Fatal("invalid id \"", envValue, "\": ", err)
+			logger.Fatal("无效ID: \"", envValue, "\": ", err)
 		}
 		instanceId = id
 	})

@@ -60,7 +60,7 @@ listen:
 		var msg WsMessage
 		err := c.Connection.ReadJSON(&msg)
 		if err != nil {
-			logger.Error("读取ws错误: ", err)
+			logger.Error("ws读取错误: ", err)
 			break
 		}
 
@@ -75,7 +75,7 @@ listen:
 			break
 		}
 	}
-	logger.Info("中断监听")
+	logger.Info("ws中断监听")
 	wsManageLock.Lock()
 	defer wsManageLock.Unlock()
 	conn := clientMap[c.ClientId]
@@ -117,7 +117,7 @@ func handleQueueResult(msg *WsMessage) {
 	err := jsoniter.UnmarshalFromString(msg.Data, &ret)
 	if err != nil {
 		oldSta.Error = oldSta.Error + 1
-		logger.Error("无法处理queue结果：", err)
+		logger.Error("无法处理queue结果: ", err)
 		return
 	}
 	if ret.QueueId == 0 || ret.RequestId == "" && ret.Expire < gox.GetTimestamp(time.Now()) {
@@ -154,9 +154,9 @@ func handleQueueResult(msg *WsMessage) {
 			logger.Error("无法标记错误次数：", err)
 		}
 		if len(n) > 0 && n[0] > 3 {
-			logger.Warn("重试超过阈值，丢弃：", ret.QueueId)
+			logger.Warn("重试超过阈值，丢弃，queueId: ", ret.QueueId)
 			if err = service.ResultService().SaveProcessResultData(&ret, true); err != nil {
-				logger.Info("err")
+				logger.Info(err)
 			}
 		}
 		// 将并发移除
@@ -169,7 +169,7 @@ func handleQueueResult(msg *WsMessage) {
 	updateLock.Unlock()
 
 	if err = service.ResultService().SaveProcessResultData(&ret, false); err != nil {
-		logger.Info("err")
+		logger.Info(err)
 	}
 	service.CacheService().SaveSuccessQueueIds(&models.QueueCallbackRequestVO{
 		SuccessQueueIds:     []int64{ret.QueueId},
@@ -177,12 +177,12 @@ func handleQueueResult(msg *WsMessage) {
 	})
 	if ret.InitUrl != "" {
 		if err := service.CacheService().AddFinishUniqueRes(ret.TaskId, ret.InitUrl); err != nil {
-			logger.Info("err")
+			logger.Info(err)
 		}
 	}
 	// 将并发移除
 	service.CacheService().DecreConcurrentTaskCount(ret.RequestId, ret.TaskId)
-	logger.Info("queue处理成功：", ret.QueueId)
+	logger.Debug("请求处理成功：", ret.QueueId)
 	oldSta.Success = oldSta.Success + 1
 	scheduler.BackPushNotify(ret.TaskId)
 }
@@ -191,7 +191,7 @@ func shutdownClient(c *WsClient) error {
 	c.writeLock.Lock()
 	defer c.writeLock.Unlock()
 
-	logger.Info("通知worker下线：", c.ClientId)
+	logger.Info("通知worker下线: ", c.ClientId)
 
 	return c.Connection.WriteJSON(&WsMessage{
 		ClientId: c.ClientId,
@@ -211,11 +211,11 @@ func RegisterWsConnection(conn *websocket.Conn, remoteHost string) error {
 	}
 
 	if clientMap[req.ClientId] != nil {
-		logger.Info("实例id冲突:", req.ClientId)
+		logger.Info("实例ID冲突:", req.ClientId)
 		return errors.New("conflict instance id: " + convert.IntToStr(req.ClientId))
 	}
 
-	logger.Info("worker注册，Id: ", req.ClientId, "; 标签: ", req.Data)
+	logger.Info("worker注册，Id: ", req.ClientId, ", 标签: ", req.Data)
 
 	_labels := make(map[string]string)
 	err = jsoniter.UnmarshalFromString(req.Data, &_labels)

@@ -26,7 +26,7 @@ func init() {
 func Pause(taskId int) {
 	dispatchLock.Lock()
 	defer dispatchLock.Unlock()
-	logger.Info("暂停任务：", taskId)
+	logger.Info("暂停任务", taskId)
 
 	if taskScheduleTimer[taskId] == nil || taskSig[taskId] == common.PAUSE {
 		return
@@ -49,7 +49,7 @@ func (*stopFuncImp) Stop(taskId int) {
 	} else {
 		return
 	}
-	logger.Info("dispatcher:停止任务：", taskId)
+	logger.Info("停止任务：", taskId)
 
 	if taskScheduleTimer[taskId] != nil {
 		taskScheduleTimer[taskId].Destroy()
@@ -59,7 +59,7 @@ func (*stopFuncImp) Stop(taskId int) {
 	delete(notifiers, taskId)
 	file := logFileMap[taskId]
 	if file != nil {
-		logger.Debug("closing log file")
+		logger.Debug("关闭日志文件")
 		file.Close()
 	}
 	delete(logFileMap, taskId)
@@ -69,7 +69,7 @@ func (*stopFuncImp) Stop(taskId int) {
 func Continue(taskId int) {
 	dispatchLock.Lock()
 	defer dispatchLock.Unlock()
-	logger.Info("继续任务：", taskId)
+	logger.Info("继续任务", taskId)
 
 	if taskScheduleTimer[taskId] == nil || taskSig[taskId] == common.RUNNING {
 		return

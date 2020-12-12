@@ -58,7 +58,7 @@ func scheduleScanTask() {
 	timer.Start(0, time.Second*30, 0, func(t *timer.Timer) {
 		tasks, err := service.TaskService().SelectActiveTasks()
 		if err != nil {
-			logger.Error("cannot get active tasks: ", err)
+			logger.Error("无法获取激活的任务: ", err)
 		}
 		if len(tasks) == 0 {
 			return
@@ -74,7 +74,7 @@ func scheduleResetQueue() {
 	timer.Start(0, time.Second*10, 0, func(t *timer.Timer) {
 		err := service.QueueService().ResetQueuesStatus()
 		if err != nil {
-			logger.Error("cannot reset queues: ", err)
+			logger.Error("无法重置任务状态: ", err)
 		}
 	})
 }
@@ -174,7 +174,7 @@ func Schedule(task *models.Task) error {
 
 	go backPushListener(task.Id, conSize, queueExpireSeconds)
 
-	logger.Info("开始调度任务：", task.Id)
+	logger.Info("开始调度任务", task.Id)
 
 	timer.Start(time.Second*2, time.Second*10, 0, func(t *timer.Timer) {
 		for {
@@ -264,7 +264,7 @@ func fetchQueue(taskId int, fetchSize, queueExpireSeconds int) bool {
 		return false
 	}
 	if len(queues) > 0 {
-		logger.Info(fmt.Sprintf("加载了%d条queue", len(queues)))
+		logger.Debug(fmt.Sprintf("加载了%d个任务", len(queues)))
 	}
 	doQueue(queues...)
 	if len(queues) > 0 {

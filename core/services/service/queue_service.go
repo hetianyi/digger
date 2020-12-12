@@ -135,18 +135,18 @@ GROUP BY
 // 根据任务id删除queue
 func (queueServiceImpl) DeleteQueues(taskId int) error {
 	// delete queues
-	logger.Info("deleting queues of task ", taskId)
+	logger.Info("正在清理queue数据, taskId: ", taskId)
 	if err := dbConn.Delete(models.Queue{}, "task_id = ?", taskId).Error; err != nil {
 		return err
 	}
-	logger.Info("finish deleting queues of task ", taskId)
+	logger.Info("queue数据已清理, taskId: ", taskId)
 	return nil
 }
 
 // 结束时统计最终错误数
 func (queueServiceImpl) StatisticFinal(taskId int) error {
 	// delete queues
-	logger.Info("doing final statistic work for queue, this may take a while...", taskId)
+	logger.Info(fmt.Sprintf("执行任务%d最终统计，可能需要一会儿...", taskId))
 	// 查询数据
 	type CountResult struct {
 		Count int `gorm:"column:count"`

@@ -194,7 +194,7 @@ func (taskServiceImp) updateStatus(id, status int) error {
 				return err
 			}
 			if len(project.PushSources) > 0 {
-				logger.Info("增加推送任务:", id)
+				logger.Info("增加推送任务, taskId: ", id)
 				// 查询总数
 				var total int64
 				if err := tx.Table("t_push_task").Where("task_id = ?", id).Count(&total).Error; err != nil {
@@ -249,13 +249,14 @@ func (t taskServiceImp) FinishTask(id int) error {
 		return err
 	}
 
+	// 如果有配置邮件，则发送邮件通知
 	configs, _ := ConfigService().ListConfigs()
 	if configs[common.EMAIL_CONFIG] == "" {
-		logger.Info("no email configured, skip email notification")
+		logger.Info("邮件未配置，跳过邮件通知")
 	} else {
 		emailConfig := utils.ParseEmailNotifierStr(configs[common.EMAIL_CONFIG])
 		if emailConfig == nil {
-			logger.Info("no email configured, skip email notification")
+			logger.Info("邮件未配置，跳过邮件通知")
 		} else {
 			go func() {
 				if err := utils.EmailNotify(task, emailConfig); err != nil {
@@ -353,12 +354,12 @@ func (t taskServiceImp) DeleteTask(taskId int) error {
 		}
 
 		// 删除queue
-		logger.Info("删除queue...")
+		logger.Info("删除queue表...")
 		if err := tx.Delete(models.Queue{}, "task_id = ?", taskId).Error; err != nil {
 			return err
 		}
 		// 删除result
-		logger.Info("删除result...")
+		logger.Info("删除result表...")
 		if err := tx.Delete(models.Result{}, "task_id = ?", taskId).Error; err != nil {
 			return err
 		}

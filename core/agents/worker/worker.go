@@ -31,7 +31,7 @@ func StartAgentWorker(_config *models.BootstrapConfig) {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
-	logger.Info("worker is down!")
+	logger.Info("worker下线")
 }
 
 func startClient() {

@@ -45,14 +45,14 @@ func InitDb(connString string) {
 	}
 	//	db.LogMode(true)
 	dbConn = db
-	logger.Info("connect to database success!")
+	logger.Info("数据库连接成功")
 }
 
 func InitRedis(connString string) {
 
 	redisConfig := utils.ParseRedisConnStr(connString)
 	if redisConfig == nil {
-		logger.Fatal("invalid redis connection config: ", connString)
+		logger.Fatal("redis配置错误: ", connString)
 	}
 
 	RedisClient = redis.NewClient(&redis.Options{
@@ -65,7 +65,7 @@ func InitRedis(connString string) {
 	if err != nil {
 		logger.Fatal(err)
 	}
-	logger.Info("connect to redis success!")
+	logger.Info("Redis连接成功")
 }
 
 func DBService() services.DBService {

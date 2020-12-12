@@ -30,7 +30,7 @@ func scheduleScanPushTask() {
 	timer.Start(0, time.Second*5, 0, func(t *timer.Timer) {
 		tasks, err := service.PushService().SelectPushTasks()
 		if err != nil {
-			logger.Error("cannot get push tasks: ", err)
+			logger.Error("无法获取推送任务数据: ", err)
 		}
 		if len(tasks) == 0 {
 			return
@@ -46,7 +46,6 @@ func SchedulePush(task *models.PushTask) {
 	defer lock.Unlock()
 
 	if runningPushTask[task.TaskId] {
-		logger.Warn("push is currently running, skip.")
 		return
 	}
 
@@ -55,18 +54,18 @@ func SchedulePush(task *models.PushTask) {
 	// 加载配置快照
 	config, err := service.CacheService().GetSnapshotConfig(task.TaskId)
 	if err != nil {
-		logger.Error("cannot start push: ", err)
+		logger.Error(fmt.Sprintf("无法为任务%d启动结果推送: %s", task.TaskId, err))
 		return
 	}
 	if config == nil {
-		logger.Error("cannot start push task: snapshot config not found")
+		logger.Error(fmt.Sprintf("无法为任务%d启动结果推送: 配置快照不存在", task.TaskId))
 		if err := service.PushService().FinishPushTask(task.TaskId); err != nil {
 			logger.Error(err)
 		}
 		return
 	}
 
-	logger.Info("run push for task %d", task.TaskId)
+	logger.Info(fmt.Sprintf("为任务%d启动结果推送", task.TaskId))
 
 	var lastResultId int64
 	enableRetry := config.PushSources[0].EnableRetry
@@ -83,17 +82,17 @@ func SchedulePush(task *models.PushTask) {
 			if data == nil {
 				results, err = service.PushService().SelectPushResults(task.TaskId, pushSize, lastResultId)
 				if err != nil {
-					logger.Error("cannot get push result of task %d", err)
+					logger.Error(fmt.Sprintf("无法获取任务%d的结果: %s", task.TaskId, err))
 					break
 				}
 				data = buildResultArray(results)
 				if len(results) > 0 {
 					lastResultId = results[len(results)-1].Id
 				} else {
-					logger.Info("push finish of task %d", task.TaskId)
+					logger.Info(fmt.Sprintf("任务%d结果推送结束", task.TaskId))
 					t.Destroy()
 					if err = service.PushService().FinishPushTask(task.TaskId); err != nil {
-						logger.Error("cannot finish push of task %d", err)
+						logger.Error(fmt.Sprintf("无法完成任务%d的结果推送: %s", task.TaskId, err))
 					}
 					break
 				}
@@ -102,31 +101,31 @@ func SchedulePush(task *models.PushTask) {
 			if retryTimes > 5 { // TODO
 				retryTimes = 0
 				data = nil
-				logger.Info("cannot push: reach max retry times: ", task.TaskId)
+				logger.Info(fmt.Sprintf("任务%d该批结果数据推送失败: 达到最大重试次数", task.TaskId))
 				if err = service.PushService().UpdatePushTaskResultId(task.TaskId, lastResultId); err != nil {
-					logger.Error("[1]error update push state: ", err)
+					logger.Error(fmt.Sprintf("无法更新任务%d的更新推送进度: %s", task.TaskId, err))
 				}
 				continue
 			}
 			if err = push(config.PushSources[0], data); err != nil {
-				logger.Error("error push result: ", err)
+				logger.Error(fmt.Sprintf("任务%d的结果推送失败: %s", task.TaskId, err))
 				if enableRetry {
 					retryTimes++
 					time.Sleep(time.Second * 3)
 					continue
 				}
 			}
-			logger.Info("push success: ", task.TaskId)
+			// logger.Info("推送成功")
 			if len(results) < pushSize {
-				logger.Info("push finish of task %d", task.TaskId)
+				logger.Info(fmt.Sprintf("任务%d结果推送完成", task.TaskId))
 				t.Destroy()
 				if err = service.PushService().FinishPushTask(task.TaskId); err != nil {
-					logger.Error("cannot finish push of task %d", err)
+					logger.Error(fmt.Sprintf("无法完成任务%d的结果推送: %s", task.TaskId, err))
 				}
 				break
 			}
 			if err = service.PushService().UpdatePushTaskResultId(task.TaskId, lastResultId); err != nil {
-				logger.Error("[2]error update push state: ", err)
+				logger.Error(fmt.Sprintf("无法更新任务%d的更新推送进度: %s", task.TaskId, err))
 				retryTimes++
 				continue
 			}

@@ -42,7 +42,7 @@ func Publish(event *models.RedisEvent) error {
 
 func eventRoute(event *models.RedisEvent) {
 	if event == nil {
-		logger.Error("null event")
+		logger.Error("事件为空")
 		return
 	}
 	switch event.Event {
@@ -62,6 +62,6 @@ func eventRoute(event *models.RedisEvent) {
 		handleQueueFinishEvent(event)
 		break
 	default:
-		logger.Error("unrecognized event type: ", event.Event)
+		logger.Error("不支持的事件类型: ", event.Event)
 	}
 }

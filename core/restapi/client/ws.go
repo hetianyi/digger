@@ -103,11 +103,11 @@ func handleQueue(data string) {
 		return
 	}
 
-	logger.Info("处理queue：", work.RequestId)
+	logger.Info("处理任务: ", work.RequestId)
 
 	result, err := processQueue(queue)
 	if err != nil {
-		logger.Error("处理queue错误：", err)
+		logger.Error("任务处理失败: ", err)
 		result = &models.QueueProcessResult{
 			TaskId:    work.Queue.TaskId,
 			InitUrl:   work.Queue.Url,

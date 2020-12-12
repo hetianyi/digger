@@ -28,7 +28,7 @@ func Start(_config models.BootstrapConfig) {
 
 	bytes, _ := json.MarshalIndent(_config, "", "  ")
 
-	logger.Debug("\nbootstrap configuration:\n" + string(bytes))
+	logger.Debug("\n启动配置:\n" + string(bytes))
 
 	// 创建日志文件夹
 	if !file.Exists(_config.LogDir) {
