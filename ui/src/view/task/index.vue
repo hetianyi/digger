@@ -275,7 +275,7 @@
 
         const { data: data } = await listProjects(1, 2147483647, 1)
         if (data && data.code == 0) {
-          this.total = data.data.total
+          // this.total = data.data.total
           this.projectList = data.data.data == null ? [] : data.data.data
           if (this.projectList.length == 0) {
           }
