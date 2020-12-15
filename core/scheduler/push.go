@@ -49,12 +49,13 @@ func SchedulePush(task *models.PushTask) {
 		return
 	}
 
-	runningPushTask[task.TaskId] = true
-
 	// 加载配置快照
 	config, err := service.CacheService().GetSnapshotConfig(task.TaskId)
 	if err != nil {
 		logger.Error(fmt.Sprintf("无法为任务%d启动结果推送: %s", task.TaskId, err))
+		if err := service.PushService().FinishPushTask(task.TaskId); err != nil {
+			logger.Error(err)
+		}
 		return
 	}
 	if config == nil {
@@ -66,6 +67,16 @@ func SchedulePush(task *models.PushTask) {
 	}
 
 	logger.Info(fmt.Sprintf("为任务%d启动结果推送", task.TaskId))
+
+	if len(config.PushSources) == 0 {
+		logger.Error(fmt.Sprintf("无法为任务%d启动结果推送: 未配置推送服务器", task.TaskId))
+		if err := service.PushService().FinishPushTask(task.TaskId); err != nil {
+			logger.Error(err)
+		}
+		return
+	}
+
+	runningPushTask[task.TaskId] = true
 
 	var lastResultId int64
 	enableRetry := config.PushSources[0].EnableRetry
@@ -95,6 +106,7 @@ func SchedulePush(task *models.PushTask) {
 				} else {
 					logger.Info(fmt.Sprintf("任务%d结果推送结束", task.TaskId))
 					t.Destroy()
+					delete(runningPushTask, task.TaskId)
 					if err = service.PushService().FinishPushTask(task.TaskId); err != nil {
 						logger.Error(fmt.Sprintf("无法完成任务%d的结果推送: %s", task.TaskId, err))
 					}
@@ -111,7 +123,7 @@ func SchedulePush(task *models.PushTask) {
 				}
 				continue
 			}
-			if err = push(config.PushSources[0], data); err != nil {
+			if err = push(config, config.PushSources[0], data); err != nil {
 				logger.Error(fmt.Sprintf("任务%d的结果推送失败: %s", task.TaskId, err))
 				if enableRetry {
 					retryTimes++
@@ -123,6 +135,7 @@ func SchedulePush(task *models.PushTask) {
 			if len(results) < pushSize {
 				logger.Info(fmt.Sprintf("任务%d结果推送完成", task.TaskId))
 				t.Destroy()
+				delete(runningPushTask, task.TaskId)
 				if err = service.PushService().FinishPushTask(task.TaskId); err != nil {
 					logger.Error(fmt.Sprintf("无法完成任务%d的结果推送: %s", task.TaskId, err))
 				}
@@ -159,20 +172,21 @@ func buildResultArray(results []*models.Result) []interface{} {
 	return resultArray
 }
 
-func push(source *models.PushSource, data []interface{}) error {
+func push(config *models.Project, source *models.PushSource, data []interface{}) error {
 	res, err := httpClient.R().
 		SetHeaders(map[string]string{
 			"User-Agent": "digger-push-client",
 		}).
 		SetHeader("Accept", "application/json").
 		SetHeader("Content-Type", "application/json").
+		SetQueryParam("projectName", config.Name).
 		SetBody(data).
 		Execute(source.Method, source.Url)
 	if err != nil {
 		return err
 	}
 	if res.StatusCode() != http.StatusOK {
-		return errors.New(fmt.Sprintf("http status: %d", res.StatusCode()))
+		return errors.New(fmt.Sprintf("error http status %d from push server: %s", res.StatusCode(), string(res.Body())))
 	}
 	return nil
 }

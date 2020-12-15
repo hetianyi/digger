@@ -48,7 +48,7 @@
               </FormItem>
 
               <FormItem label="推送源">
-                <Select v-model="selectedPushIdList">
+                <Select v-model="selectedPushIdList" clearable>
                   <Option v-for="item in pushList" :value="item.id" :key="item.id">{{ item.url }}</Option>
                 </Select>
               </FormItem>

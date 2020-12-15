@@ -64,19 +64,19 @@ func removingNotLongerExistsProjects(projects []*models.Project) {
 		}
 	}
 	for _, v := range excludes {
-		logger.Info("no longer schedule task for project ", v)
+		//logger.Info("no longer schedule task for project ", v)
 		cronExecutor.Remove(*cronProjectMap[v])
 		delete(cronProjectMap, v)
 	}
 }
 
 func RemoveCron(projectId int) {
-	logger.Info("remove cron for project ", projectId)
+	logger.Info(fmt.Sprintf("项目%d定时任务移除", projectId))
 	cronLock.Lock()
 	defer cronLock.Unlock()
 
 	if cronProjectMap[projectId] != nil {
-		logger.Info("no longer schedule task for project ", projectId)
+		//logger.Info("no longer schedule task for project ", projectId)
 		cronExecutor.Remove(*cronProjectMap[projectId])
 		delete(cronProjectMap, projectId)
 	}
@@ -107,21 +107,21 @@ func cronTask(project *models.Project) {
 
 func scheduleStartTask(project *models.Project) {
 
-	logger.Info("starting new task for project ", project.Name)
+	logger.Info(fmt.Sprintf("项目%s启动新任务", project.Name))
 
 	project, err := service.ProjectService().SelectFullProjectInfo(project.Id)
 	if err != nil {
-		logger.Error("cannot schedule timer task for project ", project.Name, ": ", err.Error())
+		logger.Error(fmt.Sprintf("项目%s无法启动任务: 查询项目配置错误: %s", project.Name, err.Error()))
 		return
 	}
 	if project == nil {
-		logger.Error("cannot schedule timer task for project ", project.Name, ": project not found")
+		logger.Error(fmt.Sprintf("项目%s无法启动任务: 找不到项目配置", project.Name))
 		return
 	}
 
 	_, err = project.Validate()
 	if err != nil {
-		logger.Error("cannot schedule timer task for project ", project.Name, ": ", err.Error())
+		logger.Error(fmt.Sprintf("项目%s无法启动任务: 配置验证失败", project.Name))
 		return
 	}
 
@@ -132,14 +132,14 @@ func scheduleStartTask(project *models.Project) {
 	})
 
 	if err != nil {
-		logger.Error("cannot schedule timer task for project ", project.Name, ": ", err.Error())
+		logger.Error(fmt.Sprintf("项目%s任务启动错误: %s", project.Name, err.Error()))
 		return
 	}
 
 	err = scheduler.Schedule(task)
 	if err != nil {
-		logger.Error("cannot schedule timer task for project ", project.Name, ": ", err.Error())
+		logger.Error(fmt.Sprintf("项目%s任务启动错误: %s", project.Name, err.Error()))
 		return
 	}
-	logger.Info("successfully started timer task for project ", project.Name)
+	logger.Info(fmt.Sprintf("项目%s任务启动成功", project.Name))
 }
