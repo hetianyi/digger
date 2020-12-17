@@ -76,6 +76,8 @@ type TaskService interface {
 	CheckTaskFinish(taskId int) (bool, error)
 	// 删除task
 	DeleteTask(taskId int) error
+	// 清理task产生的redis缓存数据
+	CleanTaskCacheData(taskId int)
 }
 
 // 配置快照服务接口

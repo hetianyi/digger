@@ -12,7 +12,6 @@ import (
 	"digger/scheduler"
 	"digger/services/service"
 	"digger/utils"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/hetianyi/gox/convert"
@@ -172,7 +171,7 @@ func StopTasks(c *gin.Context) {
 	}
 
 	// 清理redis缓存
-	cleanCache(tid)
+	service.TaskService().CleanTaskCacheData(tid)
 
 	c.JSON(http.StatusOK, Success(nil))
 }
@@ -332,14 +331,7 @@ func DeleteTask(c *gin.Context) {
 	}
 
 	// 清理redis缓存
-	cleanCache(tid)
+	service.TaskService().CleanTaskCacheData(tid)
 
 	c.JSON(http.StatusOK, Success(nil))
-}
-
-func cleanCache(taskId int) {
-	logger.Info("清理redis缓存")
-	service.RedisClient.Del(fmt.Sprintf("DONE_QUEUE:%d", taskId))
-	service.RedisClient.Del(fmt.Sprintf("FINISH_RES:%d", taskId))
-	service.RedisClient.Del(fmt.Sprintf("ERR_QUEUE:%d", taskId))
 }
