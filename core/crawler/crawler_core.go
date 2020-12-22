@@ -66,6 +66,8 @@ func Process(
 		callback(queue, nil, nil, err)
 		return err
 	}
+	// handle encoding transform
+	handleEncoding(cxt)
 	// slot s2
 	handleS2(cxt)
 	handlerEngineRoute(cxt, callback)
@@ -104,6 +106,8 @@ func Play(
 		callback(queue, nil, nil, err)
 		return err
 	}
+	// handle encoding transform
+	handleEncoding(cxt)
 	// slot s2 请求之后结果预处理插槽
 	handleS2(cxt)
 	// 处理引擎结果路由
@@ -250,8 +254,9 @@ func parseCssDocument(cxt *models.Context) (*goquery.Document, error) {
 }
 
 // 用goquery解析html文档
-func parseXpathDocument(cxt *models.Context) (*html.Node, error) {
-	if cxt.XpathQueryDoc != nil {
+// reParse: 丢弃旧的重新使用cxt.ResponseData解析
+func parseXpathDocument(cxt *models.Context, reParse bool) (*html.Node, error) {
+	if cxt.XpathQueryDoc != nil && !reParse {
 		return cxt.XpathQueryDoc, nil
 	}
 	doc, err := htmlquery.Parse(bytes.NewBuffer([]byte(cxt.ResponseData)))

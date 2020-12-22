@@ -25,7 +25,7 @@ func processNoneList(cxt *models.Context) error {
 			}
 			ret = processCssField(cxt, &f, doc.Selection)
 		} else if f.Xpath != "" {
-			doc, err := parseXpathDocument(cxt)
+			doc, err := parseXpathDocument(cxt, false)
 			if err != nil {
 				return err
 			}

@@ -46,7 +46,7 @@ func processPageByCssSelector(cxt *models.Context) (string, error) {
 // xpath选择器
 func processPageByXpathSelector(cxt *models.Context) (string, error) {
 	stage := cxt.Stage
-	doc, err := parseXpathDocument(cxt)
+	doc, err := parseXpathDocument(cxt, false)
 	if err != nil {
 		return "", err
 	}

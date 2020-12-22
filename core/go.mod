@@ -5,7 +5,7 @@ go 1.12
 require (
 	github.com/PuerkitoBio/goquery v1.5.1
 	github.com/antchfx/htmlquery v1.2.3
-	github.com/antchfx/xpath v1.1.8
+	github.com/axgle/mahonia v0.0.0-20180208002826-3358181d7394
 	github.com/bsm/redislock v0.5.0
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible

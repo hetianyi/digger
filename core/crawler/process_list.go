@@ -82,7 +82,7 @@ func processListByXpathSelector(cxt *models.Context) error {
 
 	queue := cxt.Queue
 	stage := cxt.Stage
-	doc, err := parseXpathDocument(cxt)
+	doc, err := parseXpathDocument(cxt, false)
 	if err != nil {
 		return err
 	}
