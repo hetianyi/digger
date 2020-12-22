@@ -236,6 +236,9 @@ func (t taskServiceImp) beforeUpdate(id int) error {
 
 // 完成任务
 func (t taskServiceImp) FinishTask(id int) error {
+
+	t.CleanTaskCacheData(id)
+
 	if err := t.beforeUpdate(id); err != nil {
 		return err
 	}
@@ -379,4 +382,12 @@ func (t taskServiceImp) AllTaskCount() (int, error) {
 		return 0, err
 	}
 	return ret.Count, nil
+}
+
+// 清理task产生的redis缓存数据
+func (t taskServiceImp) CleanTaskCacheData(taskId int) {
+	logger.Info("清理redis缓存")
+	RedisClient.Del(fmt.Sprintf("DONE_QUEUE:%d", taskId))
+	RedisClient.Del(fmt.Sprintf("FINISH_RES:%d", taskId))
+	RedisClient.Del(fmt.Sprintf("ERR_QUEUE:%d", taskId))
 }
