@@ -405,25 +405,25 @@ digger的内置函数包含常见的字符处理和其他常用函数，如果�
 
 内置函数列表：
 - ```LEN(str)```
-返回字符串长度，返回值类型int
+  返回字符串长度，返回值类型int
 - ```STARTS_WITH(source, target)```
-判断字符串```source```是否有前缀```target```，返回值类型```boolean```
+  判断字符串```source```是否有前缀```target```，返回值类型```boolean```
 - ```ENDS_WITH(source, target)```
-判断字符串```source```是否有后缀```target```，返回值类型```boolean```
+  判断字符串```source```是否有后缀```target```，返回值类型```boolean```
 - ```SUBSTR(source, start, end)```
-获取字符串```source```的子串，位于```start```, ```end```之间，返回值类型```string```
+  获取字符串```source```的子串，位于```start```, ```end```之间，返回值类型```string```
 - ```CONTAINS(source, target)```
-判断字符串```source```是否包含字符串```target```，返回值类型```boolean```
+  判断字符串```source```是否包含字符串```target```，返回值类型```boolean```
 - ```REPLACE(source, old, new)```
-将字符串```source```中的字符串```old```替换为```new```并返回替换后的字符串
+  将字符串```source```中的字符串```old```替换为```new```并返回替换后的字符串
 - ```REGEXP_GROUP_FIND(regexp, source, target)```
-正则表达式匹配组替换，例如```REGEXP_GROUP_FIND(".*([0-9]+).*", "abc123mn", "$1")```将得到返回结果```123```
+  正则表达式匹配组替换，例如```REGEXP_GROUP_FIND(".*([0-9]+).*", "abc123mn", "$1")```将得到返回结果```123```
 - ```MD5(source)```
-计算字符串```source```的md5值
+  计算字符串```source```的md5值
 - ```TRIM(source)```
-去除字符串```source```首尾空格
+  去除字符串```source```首尾空格
 - ```ENV(key)```
-获取环境值，目前可用的key有：```currentFieldName```，```currentFieldValue```
+  获取环境值，目前可用的key有：```currentFieldName```，```currentFieldValue```
 
 - ```MIDDLE_DATA()```
   获取中间值，可以获取父级stage里的field值和本级stage里其他field的值。例如：```MIDDLE_DATA().field_name1```
@@ -446,11 +446,11 @@ digger的内置函数包含常见的字符处理和其他常用函数，如果�
   {\"name\":\"张三 <h1> + </h1> xxx\"}
   ```
 - ```RESPONSE_DATA()```
-获取http请求响应结果
+  获取http请求响应结果
 - ```SET_RESPONSE_DATA(data)```
-如果是自定义AJAX请求，可以通过该函数将响应结果设置到上下文中供go程序使用
+  如果是自定义AJAX请求，可以通过该函数将响应结果设置到上下文中供go程序使用
 - ```QUEUE()```
-获取当前任务实体类信息，Queue的 go struct 定义如下：
+  获取当前任务实体类信息，Queue的 go struct 定义如下：
 ```golang
 type Queue struct {
 	Id         int64  `json:"id" gorm:"column:id;primary_key"`
@@ -461,29 +461,61 @@ type Queue struct {
 	Expire     int64  `json:"expire" gorm:"column:expire"`
 }
 ```
-例如，可以通过```QUEUE().Url```获取当前任务的Url
+​	例如，可以通过```QUEUE().Url```获取当前任务的Url
 - ```ABS(url)```
-将相对URL转化为绝对URL
+  将相对URL转化为绝对URL
 - ```ADD_QUEUE(obj)```
-添加任务，适用于需要从当前任务派生出子任务的场景，如根据尾页码计算所有分页的URL，并手动添加至队列。对象```obj```格式：```{stage: "", url: "", middle_data: {}}```
+  添加任务，适用于需要从当前任务派生出子任务的场景，如根据尾页码计算所有分页的URL，并手动添加至队列。对象```obj```格式：```{stage: "", url: "", middle_data: {}}```
 
 - ```AJAX(method, url, headers, querys, body)```
-发送AJAX请求，例如：
+  发送AJAX请求，例如：
 ```shell
-AJAX("POST", "https://demo.com/some/page", {
-	"X-TOKEN": "xxx"
-}, {
-	"page": "1",
-}, {
-	"field1": "value1"
-})
+var result = AJAX("POST",
+             "https://demo.com/some/page",
+             {
+               "X-TOKEN": "xxx"
+             },
+             {
+               "page": "1",
+             },
+             "name=zhangsan&sex=1")
 
 ```
 
-相当于
+​	相当于
 ```shell
-curl -X POST -H "X-TOKEN:xxx" -d "{\"field1\":\"value1\"}" "https://demo.com/some/page?page=1"
+curl -X POST -H 'X-TOKEN:xxx' \
+     -d '{"field1":"value1"}' \
+     'https://demo.com/some/page?page=1'
 ```
+​	返回值result：
+
+```json
+{
+ status: 200, # 请求http响应码
+  data: "", # 请求响应
+}
+```
+
+- ```LOG("text1", "text2", ...)```
+
+  打印日志，能够在调试阶段展示在界面上，帮助排错
+  例如：
+  `LOG("ABC", "123");`
+  输出：ABC123
+
+- ```LOGF("%s:%s", "text1", "text2", ...)```
+  格式化打印日志，能够在调试阶段展示在界面上，帮助排错
+  例如：
+  `LOGF("%s:%s", "localhost", "8080");`
+  输出：localhost:8080
+
+
+
+
+
+
+
 # Digger Hub
 
 DiggerHub是一个爬虫配置仓库，您可以在这里找到别人分享的爬虫配置，或者分享自己的爬虫配置。
@@ -494,7 +526,7 @@ DiggerHub是一个爬虫配置仓库，您可以在这里找到别人分享的�
 可以尝试在爬虫配置的settings下添加配置项：
 ```yaml
 settings:
-	SKIP_TLS_VERIFY: "true"
+  SKIP_TLS_VERIFY: "true"
 ```
 
 # 加入讨论组

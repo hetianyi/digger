@@ -32,7 +32,7 @@ func Process(
 	queue *models.Queue,
 	project *models.Project,
 	log io.Writer,
-	callback func(oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error)) error {
+	callback func(cxt *models.Context, oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error)) error {
 
 	stage := project.GetStageByName(queue.StageName)
 
@@ -63,7 +63,7 @@ func Process(
 	err = handleSR(cxt)
 	if err != nil {
 		log.Write([]byte(fmt.Sprintf("<span style=\"color:#F38F8F\">Err: process url: %s: %s</span>", queue.Url, err.Error())))
-		callback(queue, nil, nil, err)
+		callback(cxt, queue, nil, nil, err)
 		return err
 	}
 	// handle encoding transform
@@ -77,8 +77,11 @@ func Process(
 func Play(
 	queue *models.Queue,
 	project *models.Project,
-	log io.Writer,
-	callback func(oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error)) error {
+	callback func(cxt *models.Context, oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error)) error {
+
+	var log = &models.InMemLogWriter{
+		Data: new(bytes.Buffer),
+	}
 
 	stage := project.GetStageByName(queue.StageName)
 	cxt := &models.Context{
@@ -90,6 +93,7 @@ func Play(
 			"stage":  queue.StageName,
 			"taskId": convert.IntToStr(queue.TaskId),
 		},
+		PlayResult: &models.PlatResult{},
 		NewQueues:  []*models.Queue{},
 		MiddleData: make(map[string]interface{}),
 	}
@@ -103,7 +107,7 @@ func Play(
 	// slot sr: http请求插槽
 	err = handleSR(cxt)
 	if err != nil {
-		callback(queue, nil, nil, err)
+		callback(cxt, queue, nil, nil, err)
 		return err
 	}
 	// handle encoding transform
@@ -126,6 +130,10 @@ func request(queue *models.Queue, cxt *models.Context) (*resty.Response, error) 
 	response, err := client.R().
 		SetHeaders(cxt.Project.Headers).
 		Get(queue.Url)
+	if response != nil && cxt.PlayResult != nil {
+		cxt.PlayResult.HttpStatus = response.StatusCode()
+		cxt.PlayResult.HttpResult = string(response.Body())
+	}
 	// feedback
 	if feedback != nil {
 		if err != nil || response.StatusCode() != http.StatusOK {
@@ -139,7 +147,7 @@ func request(queue *models.Queue, cxt *models.Context) (*resty.Response, error) 
 
 func handlerEngineRoute(
 	cxt *models.Context,
-	callback func(oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error)) {
+	callback func(cxt *models.Context, oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error)) {
 
 	if hasS3(cxt) {
 		extendsData(cxt)
@@ -153,16 +161,16 @@ func handlerEngineRoute(
 func processAfterS3(
 	err error,
 	cxt *models.Context,
-	callback func(oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error)) {
+	callback func(cxt *models.Context, oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error)) {
 
 	oldQueue := cxt.Queue
 
 	if err != nil {
-		callback(oldQueue, nil, nil, err)
+		callback(cxt, oldQueue, nil, nil, err)
 		return
 	}
 	if err != nil {
-		callback(oldQueue, nil, nil, err)
+		callback(cxt, oldQueue, nil, nil, err)
 		return
 	}
 
@@ -172,13 +180,13 @@ func processAfterS3(
 		q.TaskId = oldQueue.TaskId
 		newQueue = append(newQueue, q)
 	}
-	callback(oldQueue, newQueue, cxt.Results, nil)
+	callback(cxt, oldQueue, newQueue, cxt.Results, nil)
 }
 
 // 处理stage入口
 func processDefaultStage(
 	cxt *models.Context,
-	callback func(oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error)) {
+	callback func(cxt *models.Context, oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error)) {
 
 	extendsData(cxt)
 	queue := cxt.Queue
@@ -192,7 +200,7 @@ func processDefaultStage(
 
 	nextPage, err := processPage(cxt)
 	if err != nil {
-		callback(queue, nil, nil, err)
+		callback(cxt, queue, nil, nil, err)
 		return
 	}
 
@@ -211,11 +219,11 @@ func processDefaultStage(
 	// 如果stage是list类型，则循环list
 	if stage.IsList {
 		if err := processList(cxt); err != nil {
-			callback(queue, nil, nil, err)
+			callback(cxt, queue, nil, nil, err)
 		}
 	} else {
 		if err := processNoneList(cxt); err != nil {
-			callback(queue, nil, nil, err)
+			callback(cxt, queue, nil, nil, err)
 		}
 	}
 	cxt.Log.Write([]byte(fmt.Sprintf("\n==================\n")))
@@ -224,7 +232,7 @@ func processDefaultStage(
 	for _, v := range cxt.NewQueues {
 		newQueues = append(newQueues, v)
 	}
-	callback(queue, newQueues, cxt.Results, nil)
+	callback(cxt, queue, newQueues, cxt.Results, nil)
 }
 
 func extendsData(cxt *models.Context) {

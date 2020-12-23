@@ -162,7 +162,7 @@
     <Modal
       title="调试选项"
       v-model="showDebugModal"
-      :mask-closable="false"
+      :mask-closable="true"
       :loading="debugLoading"
       width="650px">
 
@@ -179,9 +179,50 @@
         </Form-item>
       </Form>
 
-      <Divider dashed>输出结果</Divider>
+      <Divider dashed style="margin: 5px 0">输出结果</Divider>
 
-      <Input v-model="debugOutput" type="textarea" :autosize="{ minRows: 8, maxRows: 8 }" :readonly="true"
+      <span>
+        HttpStatus: <Tag :color="debugOutput.httpStatus == null || debugOutput.httpStatus == 0 || debugOutput.httpStatus == 200 ? 'success' : 'error'">{{ debugOutput.httpStatus }}</Tag>
+      </span>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <span>HTML响应： <a @click="htmlViewer = true">查看</a></span>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <span>日志： <a @click="htmlLog = true">查看</a></span>
+
+      <p>
+        错误信息: {{ debugOutput.error }}
+      </p>
+
+      <p>
+        结果：
+      </p>
+
+      <Drawer title="HTML响应"
+              placement="right"
+              :closable="true"
+              :transfer="false"
+              :mask="true"
+              width="800"
+              v-model="htmlViewer">
+          {{ debugOutput.httpResult }}
+      </Drawer>
+
+      <Drawer title="日志"
+              placement="right"
+              :closable="true"
+              :transfer="false"
+              :mask="true"
+              width="500"
+              v-model="htmlLog">
+          <div style="line-height: 32px;">
+            <pre v-html="debugOutput.logs">
+
+            </pre>
+          </div>
+      </Drawer>
+
+
+      <Input :value="debugOutput.result" type="textarea" :autosize="{ minRows: 8, maxRows: 8 }" :readonly="true"
              placeholder="输出结果"/>
 
       <div slot="footer">
@@ -220,7 +261,6 @@
             v-model="showConfigHelp">
       <ConfigHelp/>
     </Drawer>
-
 
   </div>
 </template>
@@ -310,6 +350,8 @@
           stageName: '',
           input: '',
         },
+        htmlViewer: false,
+        htmlLog: false,
         plugins: [],
         debugOutput: '',
         yamlValue: '',
@@ -413,7 +455,8 @@
         }).then(data => {
           data = data.data
           if (data && data.code == 0) {
-            that.debugOutput = JSON.stringify(data.data, null, "\t")
+            that.debugOutput = data.data
+            that.debugOutput.result = JSON.stringify(that.debugOutput.result, null, "\t")
           } else {
             that.debugOutput = '调试错误：' + data.msg
           }

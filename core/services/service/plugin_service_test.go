@@ -11,7 +11,6 @@ import (
 	"digger/services/service"
 	"fmt"
 	"github.com/hetianyi/gox/logger"
-	"os"
 	"testing"
 )
 
@@ -51,7 +50,7 @@ func TestPlugin1(t *testing.T) {
 		StageName:  "page_list",
 		Url:        "https://www.taptap.com/ajax/top/download?page=2&total=30",
 		MiddleData: "",
-	}, project, os.Stdout, func(oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error) {
+	}, project, func(cxt *models.Context, oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error) {
 		fmt.Println()
 	})
 }
@@ -69,7 +68,7 @@ func TestPlugin2(t *testing.T) {
 		StageName:  "detail",
 		Url:        "https://www.taptap.com/app/130651",
 		MiddleData: "{\"detail_link\":\"https://www.taptap.com/app/130651\"}",
-	}, project, os.Stdout, func(oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error) {
+	}, project, func(cxt *models.Context, oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error) {
 		fmt.Println()
 	})
 }

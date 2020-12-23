@@ -164,20 +164,45 @@ type Queue struct {
 - \`\`\`AJAX(method, url, headers, querys, body)\`\`\`
 发送AJAX请求，例如：
 \`\`\`shell
-AJAX("POST", "https://demo.com/some/page", {
-	"X-TOKEN": "xxx"
-}, {
-	"page": "1",
-}, {
-	"field1": "value1"
-})
-
+var result = AJAX("POST",
+             "https://demo.com/some/page",
+             {
+               "X-TOKEN": "xxx"
+             },
+             {
+               "page": "1",
+             },
+             "name=zhangsan&sex=1")
 \`\`\`
-
 相当于
 \`\`\`shell
-curl -X POST -H "X-TOKEN:xxx" -d "{\"field1\":\"value1\"}" "https://demo.com/some/page?page=1"
+curl -X POST -H 'X-TOKEN:xxx' \\
+     -d '{\"field1\":\"value1\"}' \\
+     'https://demo.com/some/page?page=1'
 \`\`\`
+
+返回值result：
+\`\`\`json
+{
+ status: 200, # 请求http响应码
+  data: "", # 请求响应
+}
+\`\`\`
+
+
+- \`\`\`LOG("text1", "text2", ...)\`\`\`
+打印日志，能够在调试阶段展示在界面上，帮助排错
+例如：
+\`\`\`LOG("ABC", "123");\`\`\`
+输出：ABC123
+
+
+- \`\`\`LOGF("%s:%s", "text1", "text2", ...)\`\`\`
+格式化打印日志，能够在调试阶段展示在界面上，帮助排错
+例如：
+\`\`\`LOGF("%s:%s", "localhost", "8080");\`\`\`
+输出：localhost:8080
+
 
 
 

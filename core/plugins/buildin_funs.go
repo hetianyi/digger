@@ -6,9 +6,11 @@
 package plugins
 
 import (
+	"bytes"
 	"digger/httpclient"
 	"digger/models"
 	"digger/utils"
+	"fmt"
 	"github.com/go-resty/resty/v2"
 	"github.com/hetianyi/gox"
 	"github.com/hetianyi/gox/convert"
@@ -326,6 +328,10 @@ func initBuildInFunctions(cxt *models.Context) {
 		default:
 			resp, err = req.Get(url)
 		}
+		if resp != nil && cxt.PlayResult != nil {
+			cxt.PlayResult.HttpStatus = resp.StatusCode()
+			cxt.PlayResult.HttpResult = string(resp.Body())
+		}
 
 		// feedback
 		if feedback != nil {
@@ -383,5 +389,29 @@ func initBuildInFunctions(cxt *models.Context) {
 		}
 		result, _ := cxt.VM.ToValue(str)
 		return result
+	})
+
+	cxt.VM.Set("LOG", func(call otto.FunctionCall) otto.Value {
+		var buff bytes.Buffer
+		for _, v := range call.ArgumentList {
+			buff.WriteString(v.String())
+		}
+		cxt.Log.Write(buff.Bytes())
+		return otto.Value{}
+	})
+
+	cxt.VM.Set("LOGF", func(call otto.FunctionCall) otto.Value {
+		var format string
+		var args []interface{}
+		for i, v := range call.ArgumentList {
+			if i == 0 {
+				format = v.String()
+			} else {
+				args = append(args, v.String())
+			}
+		}
+		log := fmt.Sprintf(format, args...)
+		cxt.Log.Write([]byte(log))
+		return otto.Value{}
 	})
 }

@@ -8,18 +8,23 @@
           <Radio v-for="item in exportFormats" :label="item"></Radio>
         </RadioGroup>
 
-        <Button icon="ios-download-outline" type="primary" @click="exportData">导出</Button>
-        <Button icon="ios-download-outline" type="primary" @click="exportDML(1)" style="margin-left: 10px">导出DDL(Postgres)</Button>
-        <Button icon="ios-download-outline" type="primary" @click="exportDML(2)" style="margin-left: 10px">导出DDL(MySQL)</Button>
+        <Button icon="ios-download-outline" type="primary" shape="circle" @click="exportData">导出数据</Button>
+        <Button icon="ios-download-outline" type="primary" shape="circle" @click="exportDML(1)" style="margin-left: 10px">导出DDL(Postgres)</Button>
+        <Button icon="ios-download-outline" type="primary" shape="circle" @click="exportDML(2)" style="margin-left: 10px">导出DDL(MySQL)</Button>
 
 
-        <Button type="success" style="float: right" icon="md-sync" @click="listResult">刷新</Button>
+        <Button type="success" style="float: right" icon="md-sync" shape="circle" @click="listResult">刷新</Button>
       </Col>
 
     </Row>
 
     <Row>
-      <Table border :columns="columns" :data="resultList" :stripe="true" :loading="loading" :no-data-text="noDataText">
+      <Table border
+             :columns="columns"
+             :data="resultList"
+             :stripe="true"
+             :loading="loading"
+             :no-data-text="noDataText">
         <template slot-scope="{ row }" slot="name">
           <strong>{{ row.name }}</strong>
         </template>

@@ -51,4 +51,7 @@ func handleEncoding(cxt *models.Context) {
 func reParseXpathDocWithCharset(cxt *models.Context, charset string) {
 	cxt.ResponseData = utils.Trans2UTF8(charset, cxt.ResponseData)
 	parseXpathDocument(cxt, true)
+	if cxt.PlayResult != nil {
+		cxt.PlayResult.HttpResult = cxt.ResponseData
+	}
 }

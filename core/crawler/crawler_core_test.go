@@ -17,7 +17,7 @@ import (
 )
 
 func TestProcess(t *testing.T) {
-	crawler.Process(&models.Queue{}, nil, os.Stdout, func(oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error) {
+	crawler.Process(&models.Queue{}, nil, os.Stdout, func(cxt *models.Context, oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error) {
 
 	})
 }

@@ -12,7 +12,6 @@ import (
 	"digger/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"os"
 )
 
 // 为项目开始一个新任务
@@ -44,19 +43,24 @@ func PlayExistStage(c *gin.Context) {
 		StageName:  reqBody.StageName,
 		Url:        reqBody.Url,
 		MiddleData: "",
-	}, project, os.Stdout, func(oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error) {
+	}, project, func(cxt *models.Context, oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error) {
 		if err != nil {
-			c.JSON(http.StatusOK, ErrorMsg(err.Error()))
+			cxt.PlayResult.Error = err.Error()
+			c.JSON(http.StatusOK, Success(cxt.PlayResult))
 			return
 		}
 		ret := &models.PlayOutputVO{
-			ProjectId: reqBody.ProjectId,
+			ProjectId: 0,
 			Url:       reqBody.Url,
 			StageName: reqBody.StageName,
 			Next:      newQueue,
 			Result:    results,
 		}
-		c.JSON(http.StatusOK, Success(ret))
+		if cxt.Log != nil {
+			cxt.PlayResult.Logs = cxt.Log.(*models.InMemLogWriter).Get()
+		}
+		cxt.PlayResult.Result = ret
+		c.JSON(http.StatusOK, Success(cxt.PlayResult))
 		return
 	})
 	if err != nil {
@@ -118,10 +122,12 @@ func PlayFromTempStage(c *gin.Context) {
 		StageName:  reqBody.StageName,
 		Url:        reqBody.Url,
 		MiddleData: "",
-	}, &project, os.Stdout, func(oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error) {
+	}, &project, func(cxt *models.Context, oldQueue *models.Queue, newQueue []*models.Queue, results []*models.Result, err error) {
+
 		if err != nil {
+			cxt.PlayResult.Error = err.Error()
 			write = true
-			c.JSON(http.StatusOK, ErrorMsg(err.Error()))
+			c.JSON(http.StatusOK, Success(cxt.PlayResult))
 			return
 		}
 		ret := &models.PlayOutputVO{
@@ -131,7 +137,11 @@ func PlayFromTempStage(c *gin.Context) {
 			Next:      newQueue,
 			Result:    results,
 		}
-		c.JSON(http.StatusOK, Success(ret))
+		if cxt.Log != nil {
+			cxt.PlayResult.Logs = cxt.Log.(*models.InMemLogWriter).Get()
+		}
+		cxt.PlayResult.Result = ret
+		c.JSON(http.StatusOK, Success(cxt.PlayResult))
 		write = true
 		return
 	})

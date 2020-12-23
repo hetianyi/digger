@@ -6,6 +6,7 @@
 package models
 
 import (
+	"bytes"
 	"digger/common"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/dgrijalva/jwt-go"
@@ -141,6 +142,7 @@ type Context struct {
 	VM            *otto.Otto
 	CssQueryDoc   *goquery.Document
 	XpathQueryDoc *html.Node
+	PlayResult    *PlatResult
 }
 
 func (c *Context) Exec(script string) (string, error) {
@@ -260,4 +262,28 @@ type ProxyQueryVO struct {
 type PushQueryVO struct {
 	PageQueryVO
 	Key string `json:"key"`
+}
+
+// Play 结果
+type PlatResult struct {
+	HttpStatus int           `json:"httpStatus"`
+	HttpResult string        `json:"httpResult"`
+	Logs       string        `json:"logs"`
+	Error      string        `json:"error"`
+	Result     *PlayOutputVO `json:"result"`
+}
+
+type InMemLogWriter struct {
+	Data *bytes.Buffer
+}
+
+func (w *InMemLogWriter) Write(p []byte) (n int, err error) {
+	w.Data.Write(p)
+	w.Data.WriteString("\n")
+	// fmt.Println(string(p))
+	return len(p), nil
+}
+
+func (w *InMemLogWriter) Get() string {
+	return w.Data.String()
 }
