@@ -78,6 +78,8 @@ type TaskService interface {
 	DeleteTask(taskId int) error
 	// 清理task产生的redis缓存数据
 	CleanTaskCacheData(taskId int)
+	// 手动创建推送任务
+	CreatePushTask(taskId int) error
 }
 
 // 配置快照服务接口

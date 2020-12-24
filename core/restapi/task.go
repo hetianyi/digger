@@ -335,3 +335,33 @@ func DeleteTask(c *gin.Context) {
 
 	c.JSON(http.StatusOK, Success(nil))
 }
+
+// 为项目开始一个新任务
+func PushTaskResult(c *gin.Context) {
+	logger.Info("手动创建推送任务")
+	id := c.Param("id")
+	taskId, err := convert.StrToInt(id)
+	if err != nil {
+		c.JSON(http.StatusOK, ErrorMsg(err.Error()))
+		return
+	}
+
+	task, err := service.TaskService().SelectTask(taskId)
+	if err != nil {
+		c.JSON(http.StatusOK, ErrorMsg(err.Error()))
+		return
+	}
+
+	if task == nil {
+		c.JSON(http.StatusOK, ErrorMsg("task not exists"))
+		return
+	}
+
+	err = service.TaskService().CreatePushTask(taskId)
+	if err != nil {
+		c.JSON(http.StatusOK, ErrorMsg(err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, Success(nil))
+}

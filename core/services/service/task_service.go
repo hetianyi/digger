@@ -391,3 +391,27 @@ func (t taskServiceImp) CleanTaskCacheData(taskId int) {
 	RedisClient.Del(fmt.Sprintf("FINISH_RES:%d", taskId))
 	RedisClient.Del(fmt.Sprintf("ERR_QUEUE:%d", taskId))
 }
+
+// 手动创建推送任务
+func (taskServiceImp) CreatePushTask(taskId int) error {
+	return DoTransaction(func(tx *gorm.DB) error {
+		logger.Info("增加推送任务, taskId: ", taskId)
+		// 查询总数
+		var total int64
+		if err := tx.Table("t_push_task").Where("task_id = ?", taskId).Count(&total).Error; err != nil {
+			return err
+		}
+		if total == 0 {
+			if err := tx.Save(&models.PushTask{
+				TaskId:   taskId,
+				ResultId: 0,
+				Finished: false,
+			}).Error; err != nil {
+				return err
+			}
+			return nil
+		} else {
+			return errors.New("push task exists")
+		}
+	})
+}

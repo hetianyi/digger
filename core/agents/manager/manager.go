@@ -96,6 +96,7 @@ func StartAgentManager(_config *models.BootstrapConfig) {
 		authGroup.PUT("/v1/tasks/:id/pause", restapi.PauseTasks)
 		authGroup.PUT("/v1/tasks/:id/continue", restapi.ContinueTasks)
 		authGroup.DELETE("/v1/tasks/:id", restapi.DeleteTask)
+		authGroup.DELETE("/v1/tasks/:id/push", restapi.PushTaskResult)
 
 		authGroup.GET("/v1/results", restapi.QueryResult)
 		authGroup.GET("/v1/results/export", restapi.ExportResult)
