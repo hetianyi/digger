@@ -7,16 +7,19 @@ package plugins
 
 import (
 	"bytes"
+	"crypto/tls"
 	"digger/httpclient"
 	"digger/models"
 	"digger/utils"
 	"fmt"
+	"github.com/antchfx/htmlquery"
 	"github.com/go-resty/resty/v2"
 	"github.com/hetianyi/gox"
 	"github.com/hetianyi/gox/convert"
 	"github.com/hetianyi/gox/logger"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/robertkrimen/otto"
+	"golang.org/x/net/html"
 	"net/http"
 	"regexp"
 	"strings"
@@ -26,7 +29,15 @@ var (
 	cachedRegexp = make(map[string]*regexp.Regexp)
 	httpClient   = resty.New()
 	json         = jsoniter.ConfigFastest
+	uploadClient *resty.Client
 )
+
+func init() {
+	uploadClient = resty.New().
+		SetTLSClientConfig(&tls.Config{
+			InsecureSkipVerify: true,
+		})
+}
 
 func InitVM(cxt *models.Context) {
 	cxt.VM = otto.New()
@@ -414,4 +425,152 @@ func initBuildInFunctions(cxt *models.Context) {
 		cxt.Log.Write([]byte(log))
 		return otto.Value{}
 	})
+
+	cxt.VM.Set("XPATH_FIND", func(call otto.FunctionCall) otto.Value {
+		if len(call.ArgumentList) != 2 {
+			logger.Error("script Err: invalid arg number, expect 2, got " + convert.IntToStr(len(call.ArgumentList)))
+			result, _ := cxt.VM.ToValue(nil)
+			return result
+		}
+
+		content := fmt.Sprintf("<html><body><div>%s</div></body></html>", call.ArgumentList[0].String())
+		xpath := call.ArgumentList[1].String()
+
+		doc, err := parseXpathDocument(content)
+		if err != nil {
+			return otto.Value{}
+		}
+
+		list, err := htmlquery.QueryAll(doc, xpath)
+		if err != nil {
+			logger.Error(err)
+			return otto.Value{}
+		}
+		var ret []string
+		for _, item := range list {
+			ret = append(ret, htmlquery.InnerText(item))
+		}
+
+		result, _ := cxt.VM.ToValue(ret)
+		return result
+	})
+
+	// POST https://xxx.com headers params fileUrl
+	cxt.VM.Set("UPLOAD", func(call otto.FunctionCall) otto.Value {
+		if len(call.ArgumentList) != 5 {
+			logger.Error("script Err: invalid arg number, expect 5, got " + convert.IntToStr(len(call.ArgumentList)))
+			return otto.Value{}
+		}
+
+		method := strings.ToLower(call.ArgumentList[0].String())
+		if method == "" {
+			method = "post"
+		}
+		uploadUrl := call.ArgumentList[1].String()
+		headerValue := call.ArgumentList[2].Object()
+		paramValue := call.ArgumentList[3].Object()
+		fileUrl := call.ArgumentList[4].String()
+		headers := make(map[string]string)
+		if headerValue != nil {
+			for _, k := range headerValue.Keys() {
+				value, _ := headerValue.Get(k)
+				if value.String() != "" {
+					headers[k] = value.String()
+				}
+			}
+		}
+		params := make(map[string]string)
+		if paramValue != nil {
+			for _, k := range paramValue.Keys() {
+				value, _ := paramValue.Get(k)
+				if value.String() != "" {
+					params[k] = value.String()
+				}
+			}
+		}
+
+		// 下载文件
+		parsedUrl, err := utils.Parse(fileUrl)
+		if err != nil {
+			ret, _ := cxt.VM.ToValue(nil)
+			return ret
+		}
+		/*upUrl, err := utils.Parse(uploadUrl)
+		if err != nil {
+			ret, _ := cxt.VM.ToValue(nil)
+			return ret
+		}*/
+		//pageUrl, _ := utils.Parse(cxt.Queue.Url)
+		downHost := parsedUrl.Host
+		/*if pageUrl != nil {
+			downHost = pageUrl.Host
+		} else {
+			downHost = parsedUrl.Host
+		}*/
+		client := httpclient.GetClient(0, cxt.Project)
+		feedback := utils.TryProxy(parsedUrl.Scheme, client, cxt.Queue.TaskId, cxt)
+		req := httpclient.GetClient(0, cxt.Project).
+			R().
+			SetHeaders(map[string]string{
+				"Host":       downHost,
+				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36",
+				"Refer":      cxt.Queue.Url,
+			})
+
+		resp, err := req.Get(fileUrl)
+		if err != nil {
+			return otto.Value{}
+		}
+
+		// feedback
+		if feedback != nil {
+			if err != nil || resp.StatusCode() != http.StatusOK {
+				feedback.Fail()
+			} else {
+				feedback.Success()
+			}
+		}
+		if resp.StatusCode() != http.StatusOK {
+			logger.Error("error download resource: server response http status " + convert.IntToStr(resp.StatusCode()))
+			return otto.Value{}
+		}
+		resBytes := resp.Body()
+		upReq := uploadClient.
+			R().
+			SetHeaders(map[string]string{
+				"Host":       downHost,
+				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36",
+				"Refer":      cxt.Queue.Url,
+			}).
+			SetQueryParams(params).
+			SetBody(resBytes)
+
+		var upResp *resty.Response
+		switch method {
+		case "get":
+			upResp, err = upReq.Get(uploadUrl)
+		case "post":
+			upResp, err = upReq.Post(uploadUrl)
+		case "put":
+			upResp, err = upReq.Put(uploadUrl)
+		case "delete":
+			upResp, err = upReq.Delete(uploadUrl)
+		case "options":
+			upResp, err = upReq.Options(uploadUrl)
+		case "patch":
+			upResp, err = upReq.Patch(uploadUrl)
+		case "head":
+			upResp, err = upReq.Head(uploadUrl)
+		default:
+			upResp, err = upReq.Get(uploadUrl)
+		}
+		result, _ := cxt.VM.ToValue(string(upResp.Body()))
+		return result
+	})
+}
+
+// 用goquery解析html文档
+// reParse: 丢弃旧的重新使用cxt.ResponseData解析
+func parseXpathDocument(content string) (*html.Node, error) {
+	return htmlquery.Parse(bytes.NewBuffer([]byte(content)))
 }

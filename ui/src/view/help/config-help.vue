@@ -204,6 +204,13 @@ curl -X POST -H 'X-TOKEN:xxx' \\
 输出：localhost:8080
 
 
+- \`\`\`XPATH_FIND(htmlContent, xpath)\`\`\`
+在htmlContent中用xpath寻找资源对象，返回字符串列表
+
+
+- \`\`\`UPLOAD(method, uploadUrl, headers, queryParams, resourceUrl)\`\`\`
+将指定的资源地址下载并上传到地址uploadUrl
+
 
 
 `
