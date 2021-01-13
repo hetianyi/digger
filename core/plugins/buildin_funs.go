@@ -16,11 +16,15 @@ import (
 	"github.com/go-resty/resty/v2"
 	"github.com/hetianyi/gox"
 	"github.com/hetianyi/gox/convert"
+	"github.com/hetianyi/gox/file"
 	"github.com/hetianyi/gox/logger"
+	uuid "github.com/hetianyi/gox/uuid"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/robertkrimen/otto"
 	"golang.org/x/net/html"
+	"io"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 )
@@ -488,8 +492,8 @@ func initBuildInFunctions(cxt *models.Context) {
 				}
 			}
 		}
+		params["projectName"] = cxt.Project.Name
 
-		// 下载文件
 		parsedUrl, err := utils.Parse(fileUrl)
 		if err != nil {
 			ret, _ := cxt.VM.ToValue(nil)
@@ -507,15 +511,19 @@ func initBuildInFunctions(cxt *models.Context) {
 		} else {
 			downHost = parsedUrl.Host
 		}*/
+		if len(headers) == 0 {
+			headers = map[string]string{
+				"Host":       downHost,
+				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36",
+				"Refer":      cxt.Queue.Url,
+			}
+		}
 		client := httpclient.GetClient(0, cxt.Project)
 		feedback := utils.TryProxy(parsedUrl.Scheme, client, cxt.Queue.TaskId, cxt)
 		req := httpclient.GetClient(0, cxt.Project).
 			R().
-			SetHeaders(map[string]string{
-				"Host":       downHost,
-				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36",
-				"Refer":      cxt.Queue.Url,
-			})
+			SetDoNotParseResponse(true).
+			SetHeaders(headers)
 
 		resp, err := req.Get(fileUrl)
 		if err != nil {
@@ -534,7 +542,41 @@ func initBuildInFunctions(cxt *models.Context) {
 			logger.Error("error download resource: server response http status " + convert.IntToStr(resp.StatusCode()))
 			return otto.Value{}
 		}
-		resBytes := resp.Body()
+		// 下载文件
+		tempFile, err := file.CreateFile(os.TempDir() + "/" + uuid.UUID())
+		if err != nil {
+			cxt.Log.Write([]byte(fmt.Sprintf("临时文件创建失败: %s", err.Error())))
+			return otto.Value{}
+		}
+		defer func() {
+			tempFile.Close()
+			if err = os.Remove(tempFile.Name()); err != nil {
+				cxt.Log.Write([]byte(fmt.Sprintf("临时文件删除失败: %s", err.Error())))
+			}
+		}()
+		downloadSize, err := io.Copy(tempFile, resp.RawBody())
+		if err != nil {
+			cxt.Log.Write([]byte(fmt.Sprintf("资源下载失败: %s", err.Error())))
+			return otto.Value{}
+		}
+		tempFile.Seek(0, 0)
+		md5, err := file.GetFileMd5(tempFile.Name())
+		if err != nil {
+			cxt.Log.Write([]byte(fmt.Sprintf("计算md5失败: %s", err.Error())))
+		}
+		if md5 != "" {
+			params["md5"] = md5
+		}
+
+		tempFile.Seek(0, 0)
+		cxt.Log.Write([]byte(fmt.Sprintf("资源下载成功，大小: %dkb", downloadSize/1024)))
+
+		/*tempReadFile, err := file.GetFile(tempFile.Name())
+		if err != nil {
+			cxt.Log.Write([]byte(fmt.Sprintf("临时文件打开失败: %s", err.Error())))
+			return otto.Value{}
+		}*/
+
 		upReq := uploadClient.
 			R().
 			SetHeaders(map[string]string{
@@ -542,8 +584,9 @@ func initBuildInFunctions(cxt *models.Context) {
 				"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36",
 				"Refer":      cxt.Queue.Url,
 			}).
+			SetContentLength(true).
 			SetQueryParams(params).
-			SetBody(resBytes)
+			SetBody(tempFile)
 
 		var upResp *resty.Response
 		switch method {
