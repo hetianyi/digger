@@ -51,10 +51,11 @@ func InitVM(cxt *models.Context) {
 func initBuildInFunctions(cxt *models.Context) {
 
 	cxt.VM.Set("LEN", func(call otto.FunctionCall) otto.Value {
-		boo := false
 		if len(call.ArgumentList) != 1 {
-			logger.Error("script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList)))
-			result, _ := cxt.VM.ToValue(boo)
+			errMsg := "script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result, _ := cxt.VM.ToValue(0)
 			return result
 		}
 		result, _ := cxt.VM.ToValue(len([]rune(call.ArgumentList[0].String())))
@@ -64,7 +65,9 @@ func initBuildInFunctions(cxt *models.Context) {
 	cxt.VM.Set("STARTS_WITH", func(call otto.FunctionCall) otto.Value {
 		boo := false
 		if len(call.ArgumentList) != 2 {
-			logger.Error("script Err: invalid arg number, expect 2, got " + convert.IntToStr(len(call.ArgumentList)))
+			errMsg := "script Err: invalid arg number, expect 2, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
 			result, _ := cxt.VM.ToValue(boo)
 			return result
 		}
@@ -75,7 +78,9 @@ func initBuildInFunctions(cxt *models.Context) {
 	cxt.VM.Set("ENDS_WITH", func(call otto.FunctionCall) otto.Value {
 		boo := false
 		if len(call.ArgumentList) != 2 {
-			logger.Error("script Err: invalid arg number, expect 2, got " + convert.IntToStr(len(call.ArgumentList)))
+			errMsg := "script Err: invalid arg number, expect 2, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
 			result, _ := cxt.VM.ToValue(boo)
 			return result
 		}
@@ -86,7 +91,9 @@ func initBuildInFunctions(cxt *models.Context) {
 	cxt.VM.Set("SUBSTR", func(call otto.FunctionCall) otto.Value {
 		boo := false
 		if len(call.ArgumentList) != 3 {
-			logger.Error("script Err: invalid arg number, expect 3, got " + convert.IntToStr(len(call.ArgumentList)))
+			errMsg := "script Err: invalid arg number, expect 3, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
 			result, _ := cxt.VM.ToValue(boo)
 			return result
 		}
@@ -108,7 +115,9 @@ func initBuildInFunctions(cxt *models.Context) {
 	cxt.VM.Set("CONTAINS", func(call otto.FunctionCall) otto.Value {
 		boo := false
 		if len(call.ArgumentList) != 2 {
-			logger.Error("script Err: invalid arg number, expect 2, got " + convert.IntToStr(len(call.ArgumentList)))
+			errMsg := "script Err: invalid arg number, expect 2, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
 			result, _ := cxt.VM.ToValue(boo)
 			return result
 		}
@@ -118,8 +127,11 @@ func initBuildInFunctions(cxt *models.Context) {
 
 	cxt.VM.Set("REPLACE", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 3 {
-			logger.Error("script Err: invalid arg number, expect 3, got " + convert.IntToStr(len(call.ArgumentList)))
-			return otto.Value{}
+			errMsg := "script Err: invalid arg number, expect 3, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result, _ := cxt.VM.ToValue("")
+			return result
 		}
 		result, _ := cxt.VM.ToValue(strings.Replace(call.ArgumentList[0].String(), call.ArgumentList[1].String(), call.ArgumentList[2].String(), -1))
 		return result
@@ -127,22 +139,34 @@ func initBuildInFunctions(cxt *models.Context) {
 
 	cxt.VM.Set("REGEXP_GROUP_FIND", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 3 {
-			logger.Error("script Err: invalid arg number, expect 3, got " + convert.IntToStr(len(call.ArgumentList)))
-			return otto.Value{}
+			errMsg := "script Err: invalid arg number, expect 3, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result, _ := cxt.VM.ToValue("")
+			return result
 		}
 		reg := cachedRegexp[call.ArgumentList[0].String()]
 		if reg == nil {
 			cachedRegexp[call.ArgumentList[0].String()] = regexp.MustCompile(call.ArgumentList[0].String())
 			reg = cachedRegexp[call.ArgumentList[0].String()]
 		}
-		result, _ := cxt.VM.ToValue(reg.ReplaceAllString(reg.FindAllString(call.ArgumentList[1].String(), 1)[0], call.ArgumentList[2].String()))
+
+		result, _ := cxt.VM.ToValue("")
+		gox.Try(func() {
+			result, _ = cxt.VM.ToValue(reg.ReplaceAllString(reg.FindAllString(call.ArgumentList[1].String(), 1)[0], call.ArgumentList[2].String()))
+		}, func(err interface{}) {
+			cxt.Log.Write([]byte(err.(error).Error()))
+		})
 		return result
 	})
 
 	cxt.VM.Set("MD5", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 1 {
-			logger.Error("script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList)))
-			return otto.Value{}
+			errMsg := "script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result, _ := cxt.VM.ToValue("")
+			return result
 		}
 		result, _ := cxt.VM.ToValue(gox.Md5Sum(call.ArgumentList[0].String()))
 		return result
@@ -150,8 +174,11 @@ func initBuildInFunctions(cxt *models.Context) {
 
 	cxt.VM.Set("TRIM", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 1 {
-			logger.Error("script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList)))
-			return otto.Value{}
+			errMsg := "script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result, _ := cxt.VM.ToValue("")
+			return result
 		}
 		result, _ := cxt.VM.ToValue(strings.TrimSpace(call.ArgumentList[0].String()))
 		return result
@@ -159,8 +186,11 @@ func initBuildInFunctions(cxt *models.Context) {
 
 	cxt.VM.Set("ENV", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 1 {
-			logger.Error("script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList)))
-			return otto.Value{}
+			errMsg := "script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result, _ := cxt.VM.ToValue("")
+			return result
 		}
 		result, _ := cxt.VM.ToValue(cxt.ENV[call.ArgumentList[0].String()])
 		return result
@@ -173,7 +203,9 @@ func initBuildInFunctions(cxt *models.Context) {
 
 	cxt.VM.Set("SET_RESPONSE_DATA", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 1 {
-			logger.Error("script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList)))
+			errMsg := "script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
 			return otto.Value{}
 		}
 		cxt.ResponseData = call.ArgumentList[0].String()
@@ -192,8 +224,11 @@ func initBuildInFunctions(cxt *models.Context) {
 
 	cxt.VM.Set("ABS", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 1 {
-			logger.Error("script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList)))
-			return otto.Value{}
+			errMsg := "script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result, _ := cxt.VM.ToValue("")
+			return result
 		}
 		relativeUrl := call.ArgumentList[0].String()
 		ret, err := utils.AbsoluteURL(cxt.Queue.Url, relativeUrl)
@@ -207,7 +242,9 @@ func initBuildInFunctions(cxt *models.Context) {
 
 	cxt.VM.Set("ADD_RESULT", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 1 {
-			logger.Error("script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList)))
+			errMsg := "script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
 			return otto.Value{}
 		}
 		k := call.ArgumentList[0].String()
@@ -220,7 +257,9 @@ func initBuildInFunctions(cxt *models.Context) {
 
 	cxt.VM.Set("ADD_QUEUE", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 1 {
-			logger.Error("script Err: invalid arg number, expect 2, got " + convert.IntToStr(len(call.ArgumentList)))
+			errMsg := "script Err: invalid arg number, expect 2, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
 			return otto.Value{}
 		}
 		k := call.ArgumentList[0].Object()
@@ -274,9 +313,15 @@ func initBuildInFunctions(cxt *models.Context) {
 
 	// AJAX(method, "http://url", headers, params, body)
 	cxt.VM.Set("AJAX", func(call otto.FunctionCall) otto.Value {
+		result := make(map[string]interface{})
 		if len(call.ArgumentList) != 5 {
-			logger.Error("script Err: invalid arg number, expect 5, got " + convert.IntToStr(len(call.ArgumentList)))
-			return otto.Value{}
+			errMsg := "script Err: invalid arg number, expect 5, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result["status"] = 0
+			result["error"] = errMsg
+			ret, _ := cxt.VM.ToValue(result)
+			return ret
 		}
 
 		method := strings.ToLower(call.ArgumentList[0].String())
@@ -309,11 +354,11 @@ func initBuildInFunctions(cxt *models.Context) {
 
 		var resp *resty.Response
 		var err error
-		result := make(map[string]interface{})
 
 		parsedUrl, err := utils.Parse(url)
 		if err != nil {
 			result["error"] = err.Error()
+			result["status"] = 0
 			ret, _ := cxt.VM.ToValue(result)
 			return ret
 		}
@@ -369,14 +414,18 @@ func initBuildInFunctions(cxt *models.Context) {
 
 	cxt.VM.Set("FROM_JSON", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 1 {
-			logger.Error("script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList)))
+			errMsg := "script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
 			result, _ := cxt.VM.ToValue(nil)
 			return result
 		}
 		var r interface{}
 		err := json.UnmarshalFromString(call.ArgumentList[0].String(), &r)
 		if err != nil {
-			logger.Error("cannot parse json: ", err)
+			errMsg := "cannot parse json: " + err.Error()
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
 			result, _ := cxt.VM.ToValue(nil)
 			return result
 		}
@@ -386,20 +435,26 @@ func initBuildInFunctions(cxt *models.Context) {
 
 	cxt.VM.Set("TO_JSON", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 1 {
-			logger.Error("script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList)))
-			result, _ := cxt.VM.ToValue("")
+			errMsg := "script Err: invalid arg number, expect 1, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result, _ := cxt.VM.ToValue(nil)
 			return result
 		}
 		obj, err := call.ArgumentList[0].Export()
 		if err != nil {
-			logger.Error("cannot format json: ", err)
-			result, _ := cxt.VM.ToValue("")
+			errMsg := "cannot format json: " + err.Error()
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result, _ := cxt.VM.ToValue(nil)
 			return result
 		}
 		str, err := json.MarshalToString(obj)
 		if err != nil {
-			logger.Error("cannot format json: ", err)
-			result, _ := cxt.VM.ToValue("")
+			errMsg := "cannot format json: " + err.Error()
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result, _ := cxt.VM.ToValue(nil)
 			return result
 		}
 		result, _ := cxt.VM.ToValue(str)
@@ -432,7 +487,9 @@ func initBuildInFunctions(cxt *models.Context) {
 
 	cxt.VM.Set("XPATH_FIND", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 2 {
-			logger.Error("script Err: invalid arg number, expect 2, got " + convert.IntToStr(len(call.ArgumentList)))
+			errMsg := "script Err: invalid arg number, expect 2, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
 			result, _ := cxt.VM.ToValue(nil)
 			return result
 		}
@@ -442,13 +499,20 @@ func initBuildInFunctions(cxt *models.Context) {
 
 		doc, err := parseXpathDocument(content)
 		if err != nil {
-			return otto.Value{}
+			errMsg := "cannot parse xpath document: " + err.Error()
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result, _ := cxt.VM.ToValue(nil)
+			return result
 		}
 
 		list, err := htmlquery.QueryAll(doc, xpath)
 		if err != nil {
-			logger.Error(err)
-			return otto.Value{}
+			errMsg := "cannot query xpath document: " + err.Error()
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result, _ := cxt.VM.ToValue(nil)
+			return result
 		}
 		var ret []string
 		for _, item := range list {
@@ -462,8 +526,11 @@ func initBuildInFunctions(cxt *models.Context) {
 	// POST https://xxx.com headers params fileUrl
 	cxt.VM.Set("UPLOAD", func(call otto.FunctionCall) otto.Value {
 		if len(call.ArgumentList) != 5 {
-			logger.Error("script Err: invalid arg number, expect 5, got " + convert.IntToStr(len(call.ArgumentList)))
-			return otto.Value{}
+			errMsg := "script Err: invalid arg number, expect 5, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result, _ := cxt.VM.ToValue("")
+			return result
 		}
 
 		method := strings.ToLower(call.ArgumentList[0].String())
@@ -496,8 +563,11 @@ func initBuildInFunctions(cxt *models.Context) {
 
 		parsedUrl, err := utils.Parse(fileUrl)
 		if err != nil {
-			ret, _ := cxt.VM.ToValue(nil)
-			return ret
+			errMsg := "cannot parse fileUrl: " + err.Error()
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result, _ := cxt.VM.ToValue("")
+			return result
 		}
 		/*upUrl, err := utils.Parse(uploadUrl)
 		if err != nil {
@@ -527,7 +597,11 @@ func initBuildInFunctions(cxt *models.Context) {
 
 		resp, err := req.Get(fileUrl)
 		if err != nil {
-			return otto.Value{}
+			errMsg := "request error for url: " + err.Error()
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result, _ := cxt.VM.ToValue("")
+			return result
 		}
 
 		// feedback
@@ -539,14 +613,20 @@ func initBuildInFunctions(cxt *models.Context) {
 			}
 		}
 		if resp.StatusCode() != http.StatusOK {
-			logger.Error("error download resource: server response http status " + convert.IntToStr(resp.StatusCode()))
-			return otto.Value{}
+			errMsg := "error download resource: server response http status " + convert.IntToStr(resp.StatusCode())
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result, _ := cxt.VM.ToValue("")
+			return result
 		}
 		// 下载文件
 		tempFile, err := file.CreateFile(os.TempDir() + "/" + uuid.UUID())
 		if err != nil {
-			cxt.Log.Write([]byte(fmt.Sprintf("临时文件创建失败: %s", err.Error())))
-			return otto.Value{}
+			errMsg := fmt.Sprintf("临时文件创建失败: %s", err.Error())
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result, _ := cxt.VM.ToValue("")
+			return result
 		}
 		defer func() {
 			tempFile.Close()
@@ -556,8 +636,11 @@ func initBuildInFunctions(cxt *models.Context) {
 		}()
 		downloadSize, err := io.Copy(tempFile, resp.RawBody())
 		if err != nil {
-			cxt.Log.Write([]byte(fmt.Sprintf("资源下载失败: %s", err.Error())))
-			return otto.Value{}
+			errMsg := fmt.Sprintf("资源下载失败: %s", err.Error())
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result, _ := cxt.VM.ToValue("")
+			return result
 		}
 		tempFile.Seek(0, 0)
 		md5, err := file.GetFileMd5(tempFile.Name())
