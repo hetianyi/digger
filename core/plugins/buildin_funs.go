@@ -693,6 +693,38 @@ func initBuildInFunctions(cxt *models.Context) {
 		result, _ := cxt.VM.ToValue(string(upResp.Body()))
 		return result
 	})
+
+	cxt.VM.Set("FORMAT", func(call otto.FunctionCall) otto.Value {
+		if len(call.ArgumentList) != 2 {
+			errMsg := "script Err: invalid arg number, expect 2, got " + convert.IntToStr(len(call.ArgumentList))
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+			result, _ := cxt.VM.ToValue(nil)
+			return result
+		}
+		formatString := call.ArgumentList[0].String()
+		var argsString []interface{}
+		if len(call.ArgumentList) > 1 {
+			for i, s := range call.ArgumentList {
+				if i == 0 {
+					continue
+				}
+				argsString = append(argsString, s.String())
+			}
+		}
+
+		var ret = ""
+		gox.Try(func() {
+			ret = fmt.Sprintf(formatString, argsString...)
+		}, func(e interface{}) {
+			errMsg := e.(error).Error()
+			logger.Error(errMsg)
+			cxt.Log.Write([]byte(errMsg))
+		})
+
+		result, _ := cxt.VM.ToValue(ret)
+		return result
+	})
 }
 
 // 用goquery解析html文档
