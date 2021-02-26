@@ -7,7 +7,9 @@ package models
 
 import (
 	"digger/common"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/hetianyi/gox/convert"
 	"regexp"
 	"time"
@@ -200,6 +202,24 @@ type Task struct {
 
 func (Task) TableName() string {
 	return "t_task"
+}
+
+type DateTime time.Time
+
+func (t DateTime) MarshalJSON() ([]byte, error) {
+	var stamp = fmt.Sprintf("\"%s\"", time.Time(t).Format("2006-01-02 15:04:05"))
+	return []byte(stamp), nil
+}
+
+func (t Task) MarshalJSON() ([]byte, error) {
+	type TmpJSON Task
+	return json.Marshal(&struct {
+		TmpJSON
+		CreateTime DateTime `json:"create_time"`
+	}{
+		TmpJSON:    (TmpJSON)(t),
+		CreateTime: DateTime(t.CreateTime),
+	})
 }
 
 type ConfigSnapshot struct {

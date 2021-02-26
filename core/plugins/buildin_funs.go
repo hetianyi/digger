@@ -423,7 +423,7 @@ func initBuildInFunctions(cxt *models.Context) {
 		var r interface{}
 		err := json.UnmarshalFromString(call.ArgumentList[0].String(), &r)
 		if err != nil {
-			errMsg := "cannot parse json: " + err.Error()
+			errMsg := fmt.Sprintf("[%d:%d]", cxt.Queue.TaskId, cxt.Queue.Id) + "cannot parse json: " + err.Error()
 			logger.Error(errMsg)
 			cxt.Log.Write([]byte(errMsg))
 			result, _ := cxt.VM.ToValue(nil)

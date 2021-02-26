@@ -30,6 +30,9 @@
         <template slot-scope="{ row }" slot="name">
           <strong>{{ row.name }}</strong>
         </template>
+        <template slot-scope="{ row }" slot="startTime">
+          <p>{{row.create_time}}</p>
+        </template>
         <template slot-scope="{ row, index }" slot="action">
           <Button type="info"
                   shape="circle"
@@ -233,9 +236,7 @@
             title: '启动时间',
             align: 'center',
             width: 150,
-            render: (h, params) => {
-              return h('div', dateFormat(params.row.create_time, 'yyyy-MM-dd hh:mm:ss'));
-            }
+            slot: 'startTime',
           },
           {
             title: '操作',

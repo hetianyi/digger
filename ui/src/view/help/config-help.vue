@@ -212,6 +212,10 @@ curl -X POST -H 'X-TOKEN:xxx' \\
 将指定的资源地址下载并上传到地址uploadUrl
 
 
+- \`\`\`FORMAT(format, src)\`\`\`
+调用golang的fmt.Sprintf函数，返回格式化后的字符串
+
+
 
 `
       }
