@@ -16,6 +16,7 @@ import (
 	"github.com/robertkrimen/otto"
 	"golang.org/x/net/html"
 	"io"
+	"net/http"
 	"time"
 )
 
@@ -126,12 +127,13 @@ type PlayOutputVO struct {
 
 // TODO
 type Context struct {
-	Project        *Project
-	Stage          *Stage
-	Queue          *Queue
-	HttpStatusCode int
-	ResponseData   string
-	Log            io.Writer
+	Project             *Project
+	Stage               *Stage
+	Queue               *Queue
+	HttpStatusCode      int
+	HttpResponseHeaders http.Header
+	ResponseData        string
+	Log                 io.Writer
 	// stage
 	// taskId
 	//

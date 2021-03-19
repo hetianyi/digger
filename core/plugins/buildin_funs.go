@@ -391,6 +391,7 @@ func initBuildInFunctions(cxt *models.Context) {
 		if resp != nil && cxt.PlayResult != nil {
 			cxt.PlayResult.HttpStatus = resp.StatusCode()
 			cxt.PlayResult.HttpResult = string(resp.Body())
+			cxt.HttpResponseHeaders = resp.Header()
 		}
 
 		// feedback

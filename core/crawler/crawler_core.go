@@ -133,6 +133,7 @@ func request(queue *models.Queue, cxt *models.Context) (*resty.Response, error) 
 	if response != nil && cxt.PlayResult != nil {
 		cxt.PlayResult.HttpStatus = response.StatusCode()
 		cxt.PlayResult.HttpResult = string(response.Body())
+		cxt.HttpResponseHeaders = response.Header()
 	}
 	// feedback
 	if feedback != nil {

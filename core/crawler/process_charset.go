@@ -20,6 +20,18 @@ func handleEncoding(cxt *models.Context) {
 		logger.Debug("handleEncoding Error: cannot parse xpath document")
 		return
 	}
+
+	// Content-Type: text/html; charset=...
+	contentType := strings.ToLower(cxt.HttpResponseHeaders.Get("Content-Type"))
+	if strings.Contains(contentType, "charset") {
+		charset := charsetRegex.ReplaceAllString(contentType, "$1")
+		if charset != "" {
+			reParseXpathDocWithCharset(cxt, charset)
+			return
+		}
+	}
+
+	// <meta charset="..."
 	list, _ := htmlquery.QueryAll(doc, "//meta[@charset]")
 
 	if len(list) > 0 {
@@ -27,10 +39,11 @@ func handleEncoding(cxt *models.Context) {
 		charset := strings.TrimSpace(htmlquery.InnerText(node))
 		if charset != "" {
 			reParseXpathDocWithCharset(cxt, charset)
+			return
 		}
-		return
 	}
 
+	// <meta content="...; charset=..."
 	list, _ = htmlquery.QueryAll(doc, "//meta[contains(@content, \"charset=\")]")
 	if len(list) > 0 {
 		node := list[0]
@@ -44,7 +57,6 @@ func handleEncoding(cxt *models.Context) {
 		if charset != "" {
 			reParseXpathDocWithCharset(cxt, charset)
 		}
-		return
 	}
 }
 

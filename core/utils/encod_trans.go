@@ -14,13 +14,14 @@ import (
 var (
 	targetEncoding      = mahonia.NewDecoder("UTF-8")
 	srcEncodingAliasMap = map[string]string{
-		"gb2312": "gbk",
+		"GB2312": "GBK",
+		"GBK":    "GBK",
 	}
 	srcEncodingMap = make(map[string]mahonia.Decoder)
 )
 
 func getSourceEncoding(charset string) mahonia.Decoder {
-	charset = strings.ToLower(charset)
+	charset = strings.ToUpper(charset)
 	srcEncoding := srcEncodingMap[charset]
 	if srcEncoding == nil {
 		srcEncoding = srcEncodingMap[srcEncodingAliasMap[charset]]
