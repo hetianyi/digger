@@ -696,8 +696,8 @@ func initBuildInFunctions(cxt *models.Context) {
 	})
 
 	cxt.VM.Set("FORMAT", func(call otto.FunctionCall) otto.Value {
-		if len(call.ArgumentList) != 2 {
-			errMsg := "script Err: invalid arg number, expect 2, got " + convert.IntToStr(len(call.ArgumentList))
+		if len(call.ArgumentList) < 2 {
+			errMsg := "script Err: invalid arg number, expect 2+, got " + convert.IntToStr(len(call.ArgumentList))
 			logger.Error(errMsg)
 			cxt.Log.Write([]byte(errMsg))
 			result, _ := cxt.VM.ToValue(nil)
