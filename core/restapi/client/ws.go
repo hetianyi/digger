@@ -165,10 +165,9 @@ func writeResult(conn *websocket.Conn, result string) {
 }
 
 func handleCheckHealth() *timer.Timer {
-	return timer.Start(0, time.Second*10, 0, func(t *timer.Timer) {
+	return timer.Start(0, time.Second*5, 0, func(t *timer.Timer) {
 		if conn != nil {
 			//logger.Info("执行ws健康检查")
-
 			writeLock.Lock()
 			defer writeLock.Unlock()
 

@@ -14,10 +14,15 @@ import (
 	"github.com/hetianyi/gox"
 	"github.com/hetianyi/gox/convert"
 	"github.com/hetianyi/gox/logger"
+	"github.com/hetianyi/gox/timer"
 	jsoniter "github.com/json-iterator/go"
 	"math/rand"
 	"sync"
 	"time"
+)
+
+const (
+	HeartBeatTimeout = time.Second * 18
 )
 
 var (
@@ -33,11 +38,18 @@ type WsMessage struct {
 }
 
 type WsClient struct {
-	ClientId   int
-	Connection *websocket.Conn
-	writeLock  *sync.Mutex
-	Closed     bool
-	Labels     map[string]string
+	ClientId      int
+	Connection    *websocket.Conn
+	writeLock     *sync.Mutex
+	Closed        bool
+	HeartBeatLast time.Time
+	Labels        map[string]string
+}
+
+func init() {
+	timer.Start(0, time.Second*5, 0, func(t *timer.Timer) {
+		checkHeartbeat()
+	})
 }
 
 func (c *WsClient) WriteString(cmd int, msg string) error {
@@ -105,6 +117,8 @@ func handleHeartBeat(msg *WsMessage, c *WsClient) error {
 	// logger.Info("心跳，Id: ", msg.ClientId, "; data: ", msg.Data)
 	c.writeLock.Lock()
 	defer c.writeLock.Unlock()
+
+	c.HeartBeatLast = time.Now()
 	return c.Connection.WriteJSON(msg)
 }
 
@@ -222,12 +236,14 @@ func RegisterWsConnection(conn *websocket.Conn, remoteHost string) error {
 	if err != nil {
 		return err
 	}
+
 	client := &WsClient{
-		ClientId:   req.ClientId,
-		Labels:     _labels,
-		Connection: conn,
-		writeLock:  new(sync.Mutex),
-		Closed:     false,
+		ClientId:      req.ClientId,
+		Labels:        _labels,
+		Connection:    conn,
+		writeLock:     new(sync.Mutex),
+		Closed:        false,
+		HeartBeatLast: time.Now(),
 	}
 
 	if err = client.WriteString(CMD_NONE, "ok"); err != nil {
@@ -303,6 +319,22 @@ func selectClientById(id int) *WsClient {
 	return nil
 }
 
-func handleRecvMsg() {
+// 检查心跳过期的连接并主动释放
+func checkHeartbeat() {
+	logger.Debug("checking unstable ws connections")
+	wsManageLock.Lock()
+	defer wsManageLock.Unlock()
 
+	var del []int
+
+	for k, v := range clientMap {
+		if v.HeartBeatLast.Add(HeartBeatTimeout).Before(time.Now()) {
+			del = append(del, k)
+		}
+	}
+	for _, v := range del {
+		logger.Warn("踢出ws连接: ", v)
+		clientMap[v].Close()
+		delete(clientMap, v)
+	}
 }
