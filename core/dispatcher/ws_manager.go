@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	HeartBeatTimeout = time.Second * 18
+	HeartBeatTimeout = time.Second * 30
 )
 
 var (

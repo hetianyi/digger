@@ -3,7 +3,6 @@ package crawler
 import (
 	"digger/models"
 	"digger/utils"
-	"fmt"
 	"github.com/antchfx/htmlquery"
 	"strings"
 )
@@ -68,7 +67,7 @@ func handleNextPage(cxt *models.Context, nextPage string) string {
 		} else {
 			nextPage, _ = utils.AbsoluteURL(cxt.Queue.Url, nextPage)
 		}
-		fmt.Println(fmt.Sprintf("下一页: %s", nextPage))
+		// fmt.Println(fmt.Sprintf("下一页: %s", nextPage))
 	}
 	return nextPage
 }
