@@ -7,7 +7,6 @@ package manager
 
 import (
 	"context"
-	"digger/common"
 	"digger/crontask"
 	"digger/dispatcher"
 	"digger/middlewares"
@@ -18,7 +17,6 @@ import (
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/hetianyi/gox/convert"
-	"github.com/hetianyi/gox/file"
 	"github.com/hetianyi/gox/logger"
 	"net/http"
 	"os"
@@ -36,11 +34,11 @@ func StartAgentManager(_config *models.BootstrapConfig) {
 
 	config = _config
 
-	if !file.Exists(common.REPO_DIR) {
+	/*if !file.Exists(common.REPO_DIR) {
 		if err := file.CreateDirs(common.REPO_DIR); err != nil {
 			logger.Fatal(err)
 		}
-	}
+	}*/
 
 	// 初始化数据库
 	service.InitDb(config.DBString)

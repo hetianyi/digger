@@ -212,6 +212,7 @@ Options:
 		}
 		port = p
 	})
+
 	utils.ExchangeEnvValue("DIGGER_LOG_LEVEL", func(envValue string) {
 		logLevel = envValue
 	})

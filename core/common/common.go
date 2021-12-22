@@ -53,7 +53,7 @@ const (
 	SETTINGS_FOLLOW_ROBOTS_TXT = "FOLLOW_ROBOTS_TXT"
 
 	NAME_REGEXP = "^[a-zA-Z0-9_]+$"
-	REPO_DIR    = "/var/digger/repo"
+	//REPO_DIR    = "/var/digger/repo"
 
 	//
 	EMAIL_CONFIG = "email_config"
