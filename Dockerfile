@@ -1,5 +1,4 @@
 FROM golang:1.12-alpine
-ADD . /digger
 RUN apk add git && \
     git clone https://github.com/hetianyi/digger.git && \
     cd /digger && \
