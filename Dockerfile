@@ -1,5 +1,6 @@
 FROM golang:1.12-alpine
 RUN apk add git && \
+    cd / && \
     git clone https://github.com/hetianyi/digger.git && \
     cd digger && \
     git checkout buildx && \
