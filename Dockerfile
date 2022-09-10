@@ -1,7 +1,7 @@
 FROM golang:1.12-alpine
 RUN apk add git && \
     git clone https://github.com/hetianyi/digger.git && \
-    cd /digger && \
+    cd digger && \
     git checkout buildx && \
     sh build-core.sh
 
