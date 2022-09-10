@@ -1,6 +1,6 @@
 FROM golang:1.12-alpine
 ADD . /digger
-RUN cd digger && \
+RUN cd /digger && \
     sh build-core.sh
 
 FROM alpine:3.12
