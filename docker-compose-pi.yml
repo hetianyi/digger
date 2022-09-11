@@ -1,7 +1,7 @@
 version: '3.5'
 services:
   digger-postgres:
-    image: arm32v7/postgres:9.6
+    image: postgres:9.6
     hostname: digger-postgres
     command: --timezone=PRC
     networks:
@@ -24,7 +24,7 @@ services:
       - PGDATA=/var/lib/postgresql/data
 
   digger-redis:
-    image: arm32v7/redis:5.0.9
+    image: redis:5.0.9
     hostname: digger-redis
     command: redis-server --bind 0.0.0.0 --protected-mode no --appendonly yes --requirepass 123456
     networks:
@@ -42,7 +42,7 @@ services:
       - TZ=Asia/Shanghai
 
   digger-manager:
-    image: hehety/digger:arm32v7-latest
+    image: hehety/digger:latest
     hostname: digger-manager
     command: digger manager
     networks:
@@ -62,7 +62,7 @@ services:
       - DIGGER_LOG_LEVEL=info
 
   digger-worker1:
-    image: hehety/digger:arm32v7-latest
+    image: hehety/digger:latest
     hostname: digger-worker1
     command: digger worker
     networks:
