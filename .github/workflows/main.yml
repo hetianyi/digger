@@ -4,7 +4,9 @@ on:
   push:
     branches: 
       - main
-
+    paths:
+      - 'core'
+      - 'ui'
 jobs:
   build-core-and-ui:
     # The type of runner that the job will run on
