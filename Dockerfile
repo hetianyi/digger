@@ -9,6 +9,7 @@ RUN sed -i "s@http://dl-cdn.alpinelinux.org/@https://repo.huaweicloud.com/@g" /e
 
 FROM alpine:3.12
 COPY --from=0 /digger/core/bin/digger /usr/bin/
-RUN apk add tzdata libc6-compat
+RUN sed -i "s@http://dl-cdn.alpinelinux.org/@https://repo.huaweicloud.com/@g" /etc/apk/repositories && \
+    apk add tzdata libc6-compat
 ADD ui/dist /var/www/html
 WORKDIR /var/www/html
