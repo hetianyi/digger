@@ -1,10 +1,8 @@
 FROM golang:1.12-alpine
+ADD . /digger
 RUN sed -i "s@http://dl-cdn.alpinelinux.org/@https://repo.huaweicloud.com/@g" /etc/apk/repositories && \
     apk add git gcc musl-dev pkgconfig tzdata libc6-compat && \
-    cd / && \
-    git clone https://github.com/hetianyi/digger.git && \
-    cd digger && \
-    git checkout buildx && \
+    cd /digger && \
     sh build-core.sh
 
 FROM alpine:3.12
