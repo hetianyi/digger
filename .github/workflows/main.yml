@@ -15,10 +15,6 @@ jobs:
     # 检出代码
     - uses: actions/checkout@v2
 
-    # 构建core
-    - name: Build Core
-      run: sh build-core.sh
-      
     # 构建ui
     - name: Build UI
       run:  |
