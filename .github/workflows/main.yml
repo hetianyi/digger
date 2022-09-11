@@ -36,24 +36,6 @@ jobs:
         tag=$(cat docker.tag)
         echo "tag is $tag"
         docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
-        sudo docker build -t hehety/digger:${tag} .
-        docker tag hehety/digger:${tag} hehety/digger:latest
-        sudo docker push hehety/digger:${tag}
-        sudo docker push hehety/digger:latest
-
-    # 构建demo镜像
-    - name: Build Demo
-      env:
-        DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-        DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
-      run: |
-        tag=$(cat docker.tag)
-        echo "tag is $tag"
-        sed "s@Digger Version v0.0.1@Digger Demo Version $tag@g" -i ui/src/components/main/main.vue
-        sed "s@let isDemo = false@let isDemo = true@g" -i ui/src/view/settings/index.vue
-        sh build-ui.sh
-        docker login -u $DOCKER_HUB_USERNAME -p $DOCKER_HUB_PASSWORD
-        sudo docker build -t hehety/digger-demo:${tag} .
-        docker tag hehety/digger:${tag} hehety/digger-demo:latest
-        sudo docker push hehety/digger-demo:${tag}
-        sudo docker push hehety/digger-demo:latest
+        sudo docker buildx create --use --name builder
+        sudo docker buildx inspect builder --bootstrap
+        sudo docker buildx build -t hehety/digger:${tag} -t hehety/digger:latest --platform=linux/arm,linux/arm64,linux/amd64 . --push --no-cache
